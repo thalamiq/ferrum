@@ -1,0 +1,3 @@
+packages:
+  - apps/ui
+  - libs/fhir-client-ts

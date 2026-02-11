@@ -1,0 +1,2 @@
+# SQLx migrations will go here
+# Run: sqlx migrate add <migration_name>

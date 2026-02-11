@@ -1,0 +1,26 @@
+# Clippy configuration for zunder workspace
+# See https://rust-lang.github.io/rust-clippy/master/index.html for all available lints
+
+# Allow some lints that might be too strict for this project
+# Uncomment and modify as needed:
+
+# [msrv]
+# msrv = "1.70"  # Minimum Supported Rust Version
+
+# Allow specific lints (uncomment to enable)
+# [allow]
+# too_many_arguments = true
+# type_complexity = true
+
+# Deny specific lints (uncomment to enable)
+# [deny]
+# missing_docs = "warn"
+# unwrap_used = "warn"
+# expect_used = "warn"
+
+# Configure specific lints
+# [clippy::cognitive_complexity]
+# threshold = 30
+
+# [clippy::too_many_arguments]
+# max_args = 7

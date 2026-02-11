@@ -1,0 +1,61 @@
+# fly.toml app configuration file generated for zunder
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'zunder'
+primary_region = 'fra'
+org = 'thalamiq'
+
+[build]
+dockerfile = 'Dockerfile'
+
+# Non-sensitive environment variables
+# For sensitive values (DATABASE_URL, passwords), use: fly secrets set KEY=value
+[env]
+RUST_LOG = "info"
+
+# Database connection pool configuration
+# Conservative settings to avoid exhausting database connection limit
+# Fly.io Postgres typically allows 50-100 connections depending on plan
+# Total: API (15 max) + Worker (5 max) = 20 connections
+
+# API Server Pool (main fhir-server process)
+FHIR__DATABASE__POOL_MIN_SIZE = "2"
+FHIR__DATABASE__POOL_MAX_SIZE = "15"
+FHIR__DATABASE__POOL_TIMEOUT_SECONDS = "60"
+
+# Worker Pool (fhir-worker process)
+FHIR__DATABASE__WORKER_POOL_MIN_SIZE = "1"
+FHIR__DATABASE__WORKER_POOL_MAX_SIZE = "5"
+FHIR__DATABASE__WORKER_POOL_TIMEOUT_SECONDS = "60"
+
+# Override config.yaml settings using FHIR__ prefix:
+# FHIR__SERVER__PORT = "8080"
+# FHIR__LOGGING__LEVEL = "info"
+# Worker robustness:
+# FHIR__WORKERS__RECONNECT_INITIAL_SECONDS = "1"
+# FHIR__WORKERS__RECONNECT_MAX_SECONDS = "30"
+# FHIR__WORKERS__RECONNECT_JITTER_RATIO = "0.2"
+# See config.yaml for all available settings
+
+# HTTP service
+[http_service]
+internal_port = 8080
+force_https = true
+auto_stop_machines = 'off'
+auto_start_machines = true
+min_machines_running = 1
+processes = ['app']
+
+# Process group - combined server + worker on single machine
+[processes]
+app = "start-all"
+
+# VM configuration - single machine running both server and worker
+# Packages must be pre-loaded via local DB connection before first deploy
+[[vm]]
+memory = '2gb'
+cpus = 1
+memory_mb = 2048
+processes = ['app']

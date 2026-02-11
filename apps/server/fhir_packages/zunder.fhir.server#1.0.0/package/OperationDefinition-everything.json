@@ -1,0 +1,50 @@
+{
+  "resourceType": "OperationDefinition",
+  "id": "everything",
+  "url": "http://hl7.org/fhir/OperationDefinition/Patient-everything",
+  "version": "4.0.1",
+  "name": "Everything",
+  "title": "Fetch Patient Record",
+  "status": "active",
+  "kind": "operation",
+  "code": "everything",
+  "resource": ["Patient"],
+  "system": false,
+  "type": false,
+  "instance": true,
+  "affectsState": false,
+  "parameter": [
+    {
+      "name": "_since",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "instant",
+      "documentation": "Only include resources changed after this instant."
+    },
+    {
+      "name": "_type",
+      "use": "in",
+      "min": 0,
+      "max": "*",
+      "type": "code",
+      "documentation": "Limit the types of resources returned (comma-separated list)."
+    },
+    {
+      "name": "_count",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "integer",
+      "documentation": "Maximum number of resources to return."
+    },
+    {
+      "name": "return",
+      "use": "out",
+      "min": 1,
+      "max": "1",
+      "type": "Bundle",
+      "documentation": "A Bundle (searchset) containing the patient record."
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'fhir-server'
+    environment: 'development'
+
+# Alertmanager configuration (optional - uncomment to enable alerts)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+# rule_files:
+#   - "alerts/*.yml"
+
+scrape_configs:
+  # PostgreSQL metrics via postgres_exporter
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels:
+          instance: 'fhir-postgres'
+          database: 'fhir'
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # FHIR server application metrics
+  # Configure target via FHIR_SERVER_TARGET environment variable in docker-compose
+  # Default: fhir-server:8080 (when server runs in Docker)
+  # For host-based server: Set FHIR_SERVER_TARGET=host.docker.internal:8080
+  - job_name: 'fhir-server'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['${FHIR_SERVER_TARGET:-fhir-server:8080}']
+        labels:
+          service: 'fhir-server'
+          instance: 'fhir-server-1'

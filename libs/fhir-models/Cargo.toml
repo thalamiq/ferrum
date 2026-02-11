@@ -1,0 +1,24 @@
+[package]
+name = "zunder-models"
+version = { workspace = true }
+edition = { workspace = true }
+description = "FHIR data models."
+license = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+homepage = { workspace = true }
+documentation = { workspace = true }
+keywords = { workspace = true }
+categories = { workspace = true }
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true, features = ["preserve_order"] }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true, features = ["preserve_order"] }
+
+[features]
+default = []
+# Future: r4, r5, etc. for version-specific models

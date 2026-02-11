@@ -1,0 +1,5 @@
+[env]
+# Cap test parallelism for the workspace so integration tests that spin up per-test
+# DB schemas/pools don't exhaust PostgreSQL `max_connections`.
+RUST_TEST_THREADS = "8"
+

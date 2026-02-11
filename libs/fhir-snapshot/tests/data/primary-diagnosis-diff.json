@@ -1,0 +1,144 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "onconnect-pr-tb-primary-diagnosis",
+  "extension": [
+    {
+      "url": "https://www.medizininformatik-initiative.de/fhir/modul-meta/StructureDefinition/mii-ex-meta-license-codeable",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/spdx-license",
+            "code": "CC-BY-4.0",
+            "display": "Creative Commons Attribution 4.0 International"
+          }
+        ]
+      }
+    }
+  ],
+  "url": "https://fhir.ccc-onconnect.de/StructureDefinition/onconnect-pr-tb-primary-diagnosis",
+  "name": "ONCOnnect_PR_TB_PrimaryDiagnosis",
+  "title": "Primary Diagnosis (Profile)",
+  "status": "draft",
+  "description": "Captures the primary diagnosis of a patient, including clinical status, verification status, associated codes and staging.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Condition",
+  "baseDefinition": "https://www.medizininformatik-initiative.de/fhir/ext/modul-onko/StructureDefinition/mii-pr-onko-diagnose-primaertumor",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Condition.clinicalStatus",
+        "path": "Condition.clinicalStatus",
+        "min": 1
+      },
+      {
+        "id": "Condition.verificationStatus",
+        "path": "Condition.verificationStatus",
+        "min": 1
+      },
+      {
+        "id": "Condition.code.coding:icd10-gm",
+        "path": "Condition.code.coding",
+        "sliceName": "icd10-gm",
+        "min": 1
+      },
+      {
+        "id": "Condition.code.coding:oncotree",
+        "path": "Condition.code.coding",
+        "sliceName": "oncotree",
+        "min": 0,
+        "max": "1",
+        "binding": {
+          "strength": "required",
+          "valueSet": "http://oncotree.mskcc.org"
+        }
+      },
+      {
+        "id": "Condition.stage",
+        "path": "Condition.stage",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "value",
+              "path": "type"
+            }
+          ],
+          "rules": "open"
+        },
+        "min": 1
+      },
+      {
+        "id": "Condition.stage.type",
+        "path": "Condition.stage.type",
+        "short": "Mirrors the Observation.code. This makes it easier to distinguish between different stages without having to look them up.",
+        "min": 1
+      },
+      {
+        "id": "Condition.stage:tnmStaging",
+        "path": "Condition.stage",
+        "sliceName": "tnmStaging",
+        "min": 0,
+        "max": "1"
+      },
+      {
+        "id": "Condition.stage:tnmStaging.assessment",
+        "path": "Condition.stage.assessment",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://fhir.ccc-onconnect.de/StructureDefinition/onconnect-pr-tb-tnm-staging"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Condition.stage:tnmStaging.type",
+        "path": "Condition.stage.type",
+        "patternCodeableConcept": {
+          "coding": [
+            {
+              "code": "399588009",
+              "system": "http://snomed.info/sct",
+              "display": "Pathologic TNM stage grouping"
+            }
+          ]
+        }
+      },
+      {
+        "id": "Condition.stage:therapyConcept",
+        "path": "Condition.stage",
+        "sliceName": "therapyConcept",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "Condition.stage:therapyConcept.assessment",
+        "path": "Condition.stage.assessment",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://fhir.ccc-onconnect.de/StructureDefinition/onconnect-pr-tb-therapy-concept"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Condition.stage:therapyConcept.type",
+        "path": "Condition.stage.type",
+        "patternCodeableConcept": {
+          "coding": [
+            {
+              "code": "104803-2",
+              "system": "http://loinc.org",
+              "display": "Therapeutic intent [Interpretation] Narrative"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

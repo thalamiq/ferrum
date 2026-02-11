@@ -1,0 +1,28 @@
+[package]
+name = "zunder-codegen"
+version = { workspace = true }
+edition = { workspace = true }
+description = "FHIR code generation tools."
+license = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+homepage = { workspace = true }
+documentation = { workspace = true }
+keywords = { workspace = true }
+categories = { workspace = true }
+publish = false
+
+[dependencies]
+zunder-package.workspace = true
+zunder-models.workspace = true
+zunder-context.workspace = true
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+clap = { workspace = true }
+heck = { workspace = true }
+
+[lib]
+name = "zunder_codegen"
+path = "src/lib.rs"

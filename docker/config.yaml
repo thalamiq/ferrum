@@ -1,0 +1,4 @@
+server:
+  cors_origins:
+    - "https://ui.thalamiq.io"
+    - "http://localhost:3000"

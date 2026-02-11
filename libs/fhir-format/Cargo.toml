@@ -1,0 +1,18 @@
+[package]
+name = "zunder-format"
+version = { workspace = true }
+edition = { workspace = true }
+description = "FHIR format parsing and serialization (JSON, XML)"
+license = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+homepage = { workspace = true }
+documentation = { workspace = true }
+keywords = { workspace = true }
+categories = { workspace = true }
+
+[dependencies]
+quick-xml = "0.36"
+roxmltree = "0.20"
+serde_json = { workspace = true }
+thiserror = { workspace = true }

@@ -1,0 +1,40 @@
+<Patient xmlns='http://hl7.org/fhir'>
+    <id value='examle'/>
+    <active value='true'/>
+    <name>
+        <use value='official'/>
+        <family value='Chalmers'/>
+        <given value='Peter'/>
+        <given value='James'/>
+    </name>
+    <name>
+        <use value='usual'/>
+        <given value='Jim'/>
+    </name>
+    <telecom>
+        <system value='phone'/>
+        <value value='(03) 3410 5613'/>
+        <use value='mobile'/>
+        <rank value='2'/>
+    </telecom>
+    <gender value='male'/>
+    <birthDate value='1974-12-25'>
+        <extension url='http://hl7.org/fhir/StructureDefinition/patient-birthTime'>
+            <valueDateTime value='1974-12-25T14:35:45-05:00'/>
+        </extension>
+    </birthDate>
+    <deceasedBoolean value='false'/>
+    <address>
+        <use value='home'/>
+        <type value='both'/>
+        <text value='534 Erewhon St PeasantVille, Rainbow, Vic  3999'/>
+        <line value='534 Erewhon St'/>
+        <city value='PleasantVille'/>
+        <district value='Rainbow'/>
+        <state value='Vic'/>
+        <postalCode value='3999'/>
+        <period>
+            <start value='1974-12-25'/>
+        </period>
+    </address>
+</Patient>

@@ -1,0 +1,23 @@
+# Minimal validation for fast ingestion
+preset: Ingestion
+fhir:
+  version: R5
+  allow_version_mismatch: false
+exec:
+  fail_fast: true
+  max_issues: 100
+schema:
+  mode: On
+  allow_unknown_elements: false
+  allow_modifier_extensions: false
+constraints:
+  mode: Off
+  best_practice: Ignore
+profiles:
+  mode: Off
+terminology:
+  mode: Off
+references:
+  mode: Off
+bundles:
+  mode: Off

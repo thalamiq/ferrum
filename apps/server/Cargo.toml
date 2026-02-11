@@ -1,0 +1,121 @@
+[package]
+name = "zunder"
+version = "0.1.0"
+edition = "2021"
+description = "A production-ready FHIR server implementation in Rust"
+license = "Apache-2.0"
+authors = ["Till Rostalski <till.rostalski@thalamiq.io>"]
+repository = "https://github.com/thalamiq/zunder"
+homepage = "https://thalamiq.io"
+documentation = "https://docs.thalamiq.io"
+readme = "README.md"
+keywords = ["fhir", "healthcare", "api", "interoperability", "server"]
+categories = ["web-programming", "api-bindings"]
+
+[[bin]]
+name = "fhir-server"
+path = "src/main.rs"
+
+[[bin]]
+name = "fhir-worker"
+path = "src/worker.rs"
+
+[[bin]]
+name = "bench-indexing"
+path = "src/bin/bench_indexing.rs"
+
+[dependencies]
+# Web framework
+axum = { version = "0.7", features = ["macros"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = [
+    "fs",
+    "trace",
+    "cors",
+    "compression-full",
+] }
+hyper = { version = "1.5", features = ["full"] }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+futures = "0.3"
+async-trait = "0.1"
+async-stream = "0.3"
+
+# Database
+sqlx = { version = "0.8", features = [
+    "runtime-tokio",
+    "postgres",
+    "json",
+    "uuid",
+    "chrono",
+    "migrate",
+] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+json-patch = "4.1.0"
+base64 = "0.22"
+urlencoding = "2.1"
+url = "2.5"
+unicode-normalization = "0.1"
+jsonwebtoken = "9"
+
+# FHIR core libraries (workspace path dependencies)
+zunder-models.workspace = true
+zunder-snapshot.workspace = true
+zunder-fhirpath.workspace = true
+zunder-format.workspace = true
+zunder-registry-client.workspace = true
+zunder-context.workspace = true
+zunder-package.workspace = true
+
+# Error handling
+anyhow = "1"
+thiserror = "1"
+
+# Validation
+validator = { version = "0.18", features = ["derive"] }
+
+# Utilities
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+tracing = "0.1"
+sha2 = "0.10"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-appender = "0.2"
+
+# OpenTelemetry - Distributed Tracing & Logging
+opentelemetry = "0.25"
+opentelemetry_sdk = { version = "0.25", features = ["rt-tokio"] }
+opentelemetry-otlp = { version = "0.25", features = [
+    "trace",
+    "logs",
+    "grpc-tonic",
+] }
+opentelemetry-semantic-conventions = "0.25"
+tracing-opentelemetry = "0.26"
+tonic = "0.12"
+
+lru = "0.12"
+
+# Configuration
+config = "0.14"
+dotenvy = "0.15"
+clap = { version = "3.2", features = ["derive"] }
+
+# HTTP client (for package registry, etc.)
+reqwest = { version = "0.12", features = ["json", "rustls-tls", "gzip", "brotli", "deflate"] }
+rust_decimal = "1.39.0"
+
+# Metrics
+prometheus = { version = "0.13", features = ["process"] }
+lazy_static = "1.4"
+
+[dev-dependencies]
+tokio-test = "0.4"
+
+# Pin crates to avoid edition2024 requirement
+home = "=0.5.11"
+base64ct = "=1.6.0"

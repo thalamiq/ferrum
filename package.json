@@ -1,0 +1,12 @@
+{
+  "name": "zunder",
+  "private": true,
+  "scripts": {
+    "dev:ui": "pnpm --filter ui dev",
+    "build:ui": "pnpm --filter ui build",
+    "build:client": "pnpm --filter @zunder/fhir-client build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "packageManager": "pnpm@9.15.3"
+}

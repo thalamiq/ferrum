@@ -1,0 +1,72 @@
+# OpenTelemetry Collector Configuration
+# Receives telemetry from FHIR server and exports to Tempo/Loki
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  # Batch processor - improves performance by batching exports
+  batch:
+    timeout: 10s
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+
+  # Memory limiter - prevents OOM by dropping data under pressure
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+    spike_limit_mib: 128
+
+  # Resource processor - adds additional resource attributes
+  resource:
+    attributes:
+      - key: service.namespace
+        value: fhir
+        action: upsert
+      - key: deployment.environment
+        from_attribute: deployment.environment
+        action: upsert
+
+  # Attributes processor - adds trace metadata
+  attributes:
+    actions:
+      - key: environment
+        from_attribute: deployment.environment
+        action: insert
+
+exporters:
+  # Tempo exporter for traces
+  otlp/tempo:
+    endpoint: tempo:4319
+    tls:
+      insecure: true
+
+  # Logging exporter for debugging (optional - disable in production)
+  logging:
+    loglevel: info
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+  # Prometheus exporter for collector metrics
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: otel_collector
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource, attributes]
+      exporters: [otlp/tempo, logging]
+
+  # Collector self-telemetry
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      address: 0.0.0.0:8888

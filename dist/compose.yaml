@@ -1,0 +1,105 @@
+# Zunder FHIR Server - Docker Compose Configuration
+#
+# Start with: docker compose up -d
+#
+# Configuration:
+#   - Edit config.yaml for FHIR server settings
+#   - Put secrets and overrides in `.env` (loaded into server containers via `env_file`)
+#   - Database credentials can be customized via environment variables
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: zunder-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-fhir}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fhir}
+      POSTGRES_DB: ${POSTGRES_DB:-fhir}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fhir}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fhir-network
+
+  fhir-server:
+    image: ${FHIR_SERVER_IMAGE:-ghcr.io/thalamiq/zunder:latest}
+    container_name: zunder-server
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-fhir}:${POSTGRES_PASSWORD:-fhir}@db:5432/${POSTGRES_DB:-fhir}
+      RUST_LOG: ${RUST_LOG:-info}
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - fhir-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Note: no container_name to allow scaling with `--scale fhir-worker=N`
+  fhir-worker:
+    image: ${FHIR_SERVER_IMAGE:-ghcr.io/thalamiq/zunder:latest}
+    container_name: zunder-worker
+    restart: unless-stopped
+    command: ["fhir-worker"]
+    env_file:
+      - ./.env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-fhir}:${POSTGRES_PASSWORD:-fhir}@db:5432/${POSTGRES_DB:-fhir}
+      RUST_LOG: ${RUST_LOG:-info}
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      fhir-server:
+        condition: service_started
+    networks:
+      - fhir-network
+
+  ui:
+    image: ${FHIR_UI_IMAGE:-ghcr.io/thalamiq/zunder-ui:latest}
+    container_name: zunder-ui
+    restart: unless-stopped
+    environment:
+      FHIR_SERVER_URL: http://fhir-server:8080
+      NODE_ENV: production
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:3000:3000"
+    depends_on:
+      fhir-server:
+        condition: service_started
+    networks:
+      - fhir-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000 >/dev/null 2>&1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  fhir-network:
+    driver: bridge

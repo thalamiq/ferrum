@@ -1,0 +1,57 @@
+{
+  "_birthDate": {
+    "extension": [
+      {
+        "valueDateTime": "1974-12-25T14:35:45-05:00",
+        "url": "http://hl7.org/fhir/StructureDefinition/patient-birthTime"
+      }
+    ]
+  },
+  "address": [
+    {
+      "text": "534 Erewhon St PeasantVille, Rainbow, Vic  3999",
+      "postalCode": "3999",
+      "district": "Rainbow",
+      "use": "home",
+      "period": {
+        "start": "1974-12-25"
+      },
+      "state": "Vic",
+      "city": "PleasantVille",
+      "line": ["534 Erewhon St"],
+      "type": "both"
+    }
+  ],
+  "active": true,
+  "resourceType": "Patient",
+  "telecom": [
+    {
+      "system": "phone",
+      "use": "mobile",
+      "rank": 2,
+      "value": "(03) 3410 5613"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Chalmers",
+      "given": ["Peter", "James"]
+    },
+    {
+      "use": "usual",
+      "given": ["Jim"]
+    }
+  ],
+  "deceasedBoolean": false,
+  "birthDate": "1974-12-25",
+  "gender": "male",
+  "meta": {
+    "lastUpdated": "2025-12-29T10:00:00Z",
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/Patient"
+    ],
+    "versionId": "1"
+  },
+  "id": "example"
+}

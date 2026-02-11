@@ -1,0 +1,65 @@
+[workspace]
+members = [
+    # Apps
+    "apps/server",
+    "apps/cli",
+
+    # Libraries
+    "libs/fhir-codegen",
+    "libs/fhir-context",
+    "libs/fhir-format",
+    "libs/fhir-models",
+    "libs/fhir-package",
+    "libs/fhir-snapshot",
+    "libs/fhirpath",
+    "libs/fhir-validator",
+    "libs/fhir-registry-client",
+    "libs/ucum",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.10"
+edition = "2021"
+license = "MIT"
+authors = ["Till Rostalski <till.rostalski@thalamiq.io>"]
+repository = "https://github.com/thalamiq/zunder"
+homepage = "https://thalamiq.io"
+documentation = "https://docs.thalamiq.io"
+keywords = ["fhir", "healthcare", "api", "interoperability"]
+categories = ["development-tools", "api-bindings"]
+
+[workspace.dependencies]
+anyhow = "1"
+async-trait = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4.5", features = ["derive"] }
+dirs = "5.0"
+heck = "0.5"
+html-escape = "0.2"
+hex = "0.4"
+lru = "0.12"
+phf = { version = "0.11", features = ["macros"] }
+regex = "1.10"
+rust_decimal = { version = "1.37", features = ["serde"] }
+semver = "1.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+smallvec = "1.13"
+thiserror = "1"
+tokio = "1"
+tracing = "0.1"
+urlencoding = "2"
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# Internal crates (for use in workspace members)
+zunder-models = { path = "libs/fhir-models" }
+zunder-context = { path = "libs/fhir-context" }
+zunder-format = { path = "libs/fhir-format" }
+zunder-snapshot = { path = "libs/fhir-snapshot" }
+zunder-package = { path = "libs/fhir-package" }
+zunder-registry-client = { path = "libs/fhir-registry-client" }
+zunder-codegen = { path = "libs/fhir-codegen" }
+zunder-validator = { path = "libs/fhir-validator" }
+zunder-fhirpath = { path = "libs/fhirpath" }
+zunder-ucum = { path = "libs/ucum" }

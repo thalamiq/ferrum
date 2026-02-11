@@ -1,0 +1,57 @@
+{
+  "resourceType": "OperationDefinition",
+  "id": "reindex",
+  "url": "http://zunder.fhir.server/OperationDefinition/reindex",
+  "version": "1.0.0",
+  "name": "Reindex",
+  "title": "Reindex Search Indices",
+  "status": "active",
+  "kind": "operation",
+  "code": "reindex",
+  "system": true,
+  "type": false,
+  "instance": false,
+  "affectsState": true,
+  "parameter": [
+    {
+      "name": "async",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "boolean",
+      "documentation": "When true, queues reindexing for background processing."
+    },
+    {
+      "name": "outcome",
+      "use": "out",
+      "min": 1,
+      "max": "1",
+      "type": "OperationOutcome",
+      "documentation": "OperationOutcome describing the result of the reindex operation."
+    },
+    {
+      "name": "jobId",
+      "use": "out",
+      "min": 0,
+      "max": "1",
+      "type": "integer",
+      "documentation": "If async, the background job identifier."
+    },
+    {
+      "name": "resourcesReindexed",
+      "use": "out",
+      "min": 0,
+      "max": "1",
+      "type": "integer",
+      "documentation": "If synchronous, number of resources reindexed successfully."
+    },
+    {
+      "name": "resourcesFailed",
+      "use": "out",
+      "min": 0,
+      "max": "1",
+      "type": "integer",
+      "documentation": "If synchronous, number of resources that failed reindexing."
+    }
+  ]
+}

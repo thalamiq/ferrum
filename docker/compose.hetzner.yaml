@@ -1,0 +1,99 @@
+# Zunder FHIR Server - Hetzner Deployment
+#
+# Start with: docker compose -f compose.hetzner.yaml up -d
+#
+# Configuration:
+#   - Edit config.yaml for FHIR server settings
+#   - Put secrets and overrides in `.env`
+#   - Database uses mounted volume at /mnt/db/postgres
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: zunder-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-fhir}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fhir}
+      POSTGRES_DB: ${POSTGRES_DB:-fhir}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - /mnt/db/postgres:/var/lib/postgresql/data
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fhir}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fhir-network
+
+  fhir-server:
+    image: ${FHIR_SERVER_IMAGE:-ghcr.io/thalamiq/zunder:latest}
+    container_name: zunder-server
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-fhir}:${POSTGRES_PASSWORD:-fhir}@db:5432/${POSTGRES_DB:-fhir}
+      RUST_LOG: ${RUST_LOG:-info}
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - /mnt/fhir-packages:/home/fhir/.fhir/packages
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - fhir-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  fhir-worker:
+    image: ${FHIR_SERVER_IMAGE:-ghcr.io/thalamiq/zunder:latest}
+    container_name: zunder-worker
+    restart: unless-stopped
+    command: ["fhir-worker"]
+    env_file:
+      - ./.env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-fhir}:${POSTGRES_PASSWORD:-fhir}@db:5432/${POSTGRES_DB:-fhir}
+      RUST_LOG: ${RUST_LOG:-info}
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - /mnt/fhir-packages:/home/fhir/.fhir/packages
+    depends_on:
+      db:
+        condition: service_healthy
+      fhir-server:
+        condition: service_started
+    networks:
+      - fhir-network
+
+  caddy:
+    image: caddy:2
+    container_name: zunder-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /opt/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - fhir-server
+    networks:
+      - fhir-network
+
+networks:
+  fhir-network:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:

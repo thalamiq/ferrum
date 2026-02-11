@@ -1,0 +1,19 @@
+[package]
+name = "zunder-package"
+version = { workspace = true }
+edition = { workspace = true }
+description = "FHIR package handling."
+license = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+homepage = { workspace = true }
+documentation = { workspace = true }
+keywords = { workspace = true }
+categories = { workspace = true }
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+flate2 = "1"
+tar = "0.4"
+thiserror = { workspace = true }

@@ -1,0 +1,59 @@
+[package]
+name = "zunder-fhirpath"
+version = { workspace = true }
+edition = { workspace = true }
+description = "FHIRPath engine."
+license = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+homepage = { workspace = true }
+documentation = { workspace = true }
+keywords = { workspace = true }
+categories = { workspace = true }
+
+[dependencies]
+# Core dependencies
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+# Value representation
+smallvec = { workspace = true }
+rust_decimal = { workspace = true }
+chrono = { workspace = true }
+
+# Type system
+phf = { workspace = true }
+
+# Performance
+lru = { workspace = true }
+
+# Regex support (optional)
+regex = { workspace = true, optional = true }
+
+# Base64 encoding support (optional)
+base64 = { version = "0.22", optional = true }
+hex = { workspace = true, optional = true }
+html-escape = { workspace = true, optional = true }
+urlencoding = { workspace = true }
+
+# FHIR context for runtime type resolution
+zunder-context.workspace = true
+zunder-ucum.workspace = true
+
+# XML support (optional)
+zunder-format = { workspace = true, optional = true }
+
+[features]
+default = ["regex", "base64", "hex", "html-escape"]
+xml-support = ["zunder-format"]
+
+[dev-dependencies]
+criterion = "0.5"
+quickcheck = "1.0"
+quick-xml = { version = "0.31", features = ["serialize"] }
+tokio = { workspace = true, features = ["rt-multi-thread"] }
+
+[[bench]]
+name = "benchmark"
+harness = false

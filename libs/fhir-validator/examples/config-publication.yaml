@@ -1,0 +1,36 @@
+# Strict validation for publication
+preset: Publication
+fhir:
+  version: R5
+  allow_version_mismatch: false
+report:
+  include_warnings: true
+  include_information: true
+exec:
+  fail_fast: false
+  max_issues: 10000
+schema:
+  mode: On
+  allow_unknown_elements: false
+  allow_modifier_extensions: false
+constraints:
+  mode: Full
+  best_practice: Warn
+  suppress:
+    - "dom-6"
+  level_overrides:
+    - id: "ext-1"
+      level: Warning
+profiles:
+  mode: On
+terminology:
+  mode: Remote
+  extensible_handling: Error
+  timeout: 5000
+  on_timeout: Error
+  cache: Memory
+references:
+  mode: Full
+  allow_external: false
+bundles:
+  mode: On

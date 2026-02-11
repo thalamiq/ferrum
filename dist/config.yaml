@@ -1,0 +1,186 @@
+# Zunder FHIR Server Configuration
+#
+# Copy this file to `config.yaml` and adjust as needed.
+#
+# Secrets: prefer environment variables (Docker Compose `.env`, Kubernetes secrets, etc.)
+# Overrides: `FHIR__...` maps to nested keys using `__` (e.g. `FHIR__DATABASE__URL`).
+# Fallback: `DATABASE_URL` sets `database.url` when `FHIR__DATABASE__URL` is not set.
+
+server:
+  host: "0.0.0.0"
+  port: 8080
+  # Empty disables CORS headers. For browser clients, list allowed origins.
+  cors_origins:
+    - "http://localhost:3000"
+  max_request_body_size: 10485760
+  max_response_body_size: 52428800
+
+database:
+  # For Docker Compose: use service name `db`. For local dev: use `localhost`.
+  url: "postgresql://fhir:fhir@db:5432/fhir"
+  test_database_url: null
+  pool_min_size: 2
+  pool_max_size: 20
+  pool_timeout_seconds: 60
+  worker_pool_min_size: 1
+  worker_pool_max_size: 5
+  worker_pool_timeout_seconds: 60
+  indexing_batch_size: 50
+  indexing_bulk_threshold: 200
+  statement_timeout_seconds: 300
+  lock_timeout_seconds: 30
+
+fhir:
+  version: "R4" # R4, R4B, R5
+  default_format: "json" # json, xml
+  default_prefer_return: "representation" # minimal, representation, operationoutcome
+  allow_update_create: true
+  hard_delete: false
+
+  interactions:
+    system:
+      capabilities: true
+      search: true
+      history: true
+      delete: true
+      batch: true
+      transaction: true
+      history_bundle: true
+
+    type_level:
+      create: true
+      conditional_create: true
+      search: true
+      history: true
+      conditional_update: true
+      conditional_patch: true
+      conditional_delete: true
+
+    instance:
+      read: true
+      vread: true
+      update: true
+      patch: true
+      delete: true
+      history: true
+      delete_history: true
+      delete_history_version: true
+
+    compartment:
+      search: true
+
+    operations:
+      system: true
+      type_level: true
+      instance: true
+
+  install_internal_packages: true
+  internal_packages_dir: null
+  registry_url: null
+
+  search:
+    enable_text: true
+    enable_content: true
+    default_count: 20
+    max_count: 1000
+    max_total_results: 10000
+    max_include_depth: 3
+    max_includes: 10
+    search_parameter_active_statuses: ["draft", "active"]
+
+  fhirpath:
+    enable_resolve: true
+    # Security warning: when true, FHIRPath expressions can fetch arbitrary URLs.
+    enable_external_http: false
+    resolve_cache_size: 100
+    http_timeout_seconds: 5
+
+  # Public packages (downloaded from the registry). Set `install: true` to enable.
+  default_packages:
+    core:
+      install: false
+      install_examples: false
+      include_resource_types:
+        - "StructureDefinition"
+        - "CodeSystem"
+        - "ValueSet"
+        - "SearchParameter"
+        - "CompartmentDefinition"
+    extensions:
+      install: false
+      install_examples: false
+      include_resource_types: ["StructureDefinition"]
+    terminology:
+      install: false
+      install_examples: false
+      include_resource_types: ["ValueSet", "CodeSystem", "ConceptMap"]
+
+  # Additional public packages to install (downloaded from the registry).
+  packages: []
+  # packages:
+  #   - name: "hl7.fhir.us.core"
+  #     version: "5.0.1"
+  #     install_examples: false
+  #     include_resource_types: ["Patient", "Observation"]
+
+  capability_statement:
+    id: "zunder-capability-statement"
+    name: "zunder-capability-statement"
+    title: "Zunder FHIR Server"
+    publisher: "ThalamiQ"
+    description: "Capability Statement for the Zunder FHIR Server"
+    software_name: "zunder"
+    software_version: "0.1.0"
+    contact_email: null
+    supported_resources: []
+
+workers:
+  enabled: true
+  poll_interval_seconds: 5
+  max_concurrent_jobs: 1
+  reconnect_initial_seconds: 1
+  reconnect_max_seconds: 30
+  reconnect_jitter_ratio: 0.2
+
+ui:
+  enabled: true
+  title: "FHIR Admin"
+  password: null
+  # Recommended in production: set to a long random value so sessions survive restarts.
+  session_secret: null
+  session_ttl_seconds: 43200
+
+auth:
+  enabled: false
+  required: true
+  # When `enabled: true`, `oidc.issuer_url` and `oidc.audience` are required.
+  public_paths:
+    - "/health"
+    - "/"
+    - "/favicon.ico"
+    - "/fhir/metadata"
+    - "/fhir/metadata/"
+    - "/fhir/.well-known/smart-configuration"
+  oidc:
+    issuer_url: null
+    audience: null
+    jwks_url: null
+    jwks_cache_ttl_seconds: 300
+    http_timeout_seconds: 5
+
+logging:
+  level: "info"
+  json: false
+  file_enabled: false
+  file_directory: "./logs"
+  file_prefix: "fhir-server"
+  file_rotation: "daily" # daily, hourly, minutely, never
+  audit_enabled: true
+  audit_directory: "./logs/audit"
+  opentelemetry_enabled: false
+  otlp_endpoint: "http://localhost:4317"
+  trace_sample_ratio: 1.0
+  service_name: "fhir-server"
+  deployment_environment: "development" # dev, staging, prod
+  service_version: null
+  otlp_timeout_seconds: 10

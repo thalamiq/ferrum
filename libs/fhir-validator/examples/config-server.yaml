@@ -1,0 +1,33 @@
+# Server preset with custom overrides
+preset: Server
+fhir:
+  version: R5
+  allow_version_mismatch: false
+report:
+  include_warnings: true
+  include_information: false
+exec:
+  fail_fast: false
+  max_issues: 1000
+schema:
+  mode: On
+  allow_unknown_elements: false
+  allow_modifier_extensions: false
+constraints:
+  mode: Full
+  best_practice: Ignore
+  suppress: []
+  level_overrides: []
+profiles:
+  mode: On
+terminology:
+  mode: Hybrid
+  extensible_handling: Warn
+  timeout: 2000
+  on_timeout: Warn
+  cache: Memory
+references:
+  mode: Existence
+  allow_external: true
+bundles:
+  mode: Off

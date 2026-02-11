@@ -1,0 +1,25 @@
+[package]
+name = "zunder-registry-client"
+version = { workspace = true }
+edition = { workspace = true }
+description = "FHIR package registry client for loading and caching FHIR packages"
+license = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+homepage = { workspace = true }
+documentation = { workspace = true }
+keywords = { workspace = true }
+categories = { workspace = true }
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+dirs = { workspace = true }
+semver = { workspace = true }
+zunder-package.workspace = true
+reqwest = { version = "0.12", features = ["json", "rustls-tls", "gzip", "brotli", "deflate", "charset", "http2"], default-features = false }
+urlencoding = "2.1"
+tokio = { workspace = true, features = ["rt"] }
+tracing = { workspace = true }

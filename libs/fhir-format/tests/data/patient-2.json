@@ -1,0 +1,151 @@
+{
+  "text": {
+    "div": "<div xmlns='http://www.w3.org/1999/xhtml'>\n  <table>\n    <tbody>\n      <tr>\n        <td>Name</td>\n        <td>Peter James<b>Chalmers</b>(\"Jim\")</td>\n      </tr>\n      <tr>\n        <td>Address</td>\n        <td>534 Erewhon, Pleasantville, Vic, 3999</td>\n      </tr>\n      <tr>\n        <td>Contacts</td>\n        <td>Home: unknown. Work: (03) 5555 6473</td>\n      </tr>\n      <tr>\n        <td>Id</td>\n        <td>MRN: 12345 (Acme Healthcare)</td>\n      </tr>\n    </tbody>\n  </table>\n</div>",
+    "status": "generated"
+  },
+  "_birthDate": {
+    "extension": [
+      {
+        "valueDateTime": "1974-12-25T14:35:45-05:00",
+        "url": "http://hl7.org/fhir/StructureDefinition/patient-birthTime"
+      }
+    ]
+  },
+  "address": [
+    {
+      "text": "534 Erewhon St PeasantVille, Rainbow, Vic  3999",
+      "postalCode": "3999",
+      "district": "Rainbow",
+      "use": "home",
+      "period": {
+        "start": "1974-12-25"
+      },
+      "state": "Vic",
+      "city": "PleasantVille",
+      "line": ["534 Erewhon St"],
+      "type": "both"
+    }
+  ],
+  "active": true,
+  "resourceType": "Patient",
+  "identifier": [
+    {
+      "use": "usual",
+      "period": {
+        "start": "2001-05-06"
+      },
+      "system": "urn:oid:1.2.36.146.595.217.0.1",
+      "assigner": {
+        "display": "Acme Healthcare"
+      },
+      "value": "12345",
+      "type": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/v2/0203",
+            "code": "MR"
+          }
+        ]
+      }
+    }
+  ],
+  "deceasedBoolean": false,
+  "contact": [
+    {
+      "relationship": [
+        {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/v2/0131",
+              "code": "N"
+            }
+          ]
+        }
+      ],
+      "period": {
+        "start": "2012"
+      },
+      "name": {
+        "family": "du Marché",
+        "given": ["Bénédicte"],
+        "_family": {
+          "extension": [
+            {
+              "valueString": "VV",
+              "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"
+            }
+          ]
+        }
+      },
+      "address": {
+        "city": "PleasantVille",
+        "period": {
+          "start": "1974-12-25"
+        },
+        "postalCode": "3999",
+        "state": "Vic",
+        "district": "Rainbow",
+        "use": "home",
+        "line": ["534 Erewhon St"],
+        "type": "both"
+      },
+      "gender": "female",
+      "telecom": [
+        {
+          "system": "phone",
+          "value": "+33 (237) 998327"
+        }
+      ]
+    }
+  ],
+  "managingOrganization": {
+    "reference": "Organization/1"
+  },
+  "name": [
+    {
+      "use": "official",
+      "family": "Chalmers",
+      "given": ["Peter", "James"]
+    },
+    {
+      "use": "usual",
+      "given": ["Jim"]
+    },
+    {
+      "use": "maiden",
+      "family": "Windsor",
+      "period": {
+        "end": "2002"
+      },
+      "given": ["Peter", "James"]
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1974-12-25",
+  "telecom": [
+    {
+      "use": "home"
+    },
+    {
+      "system": "phone",
+      "use": "work",
+      "rank": 1,
+      "value": "(03) 5555 6473"
+    },
+    {
+      "system": "phone",
+      "use": "mobile",
+      "rank": 2,
+      "value": "(03) 3410 5613"
+    },
+    {
+      "system": "phone",
+      "use": "old",
+      "period": {
+        "end": "2014"
+      },
+      "value": "(03) 5555 8834"
+    }
+  ],
+  "id": "example"
+}

@@ -1,0 +1,98 @@
+{
+  "resourceType": "OperationDefinition",
+  "id": "install-package",
+  "url": "http://zunder.fhir.server/OperationDefinition/install-package",
+  "version": "1.0.0",
+  "name": "InstallPackage",
+  "title": "Install FHIR Package",
+  "status": "active",
+  "kind": "operation",
+  "code": "install-package",
+  "system": true,
+  "type": false,
+  "instance": false,
+  "affectsState": true,
+  "description": "Installs a FHIR NPM package from the registry. The operation queues a background job to download and install the package along with its dependencies (if requested). Returns immediately with a job ID that can be used to track installation progress.",
+  "parameter": [
+    {
+      "name": "name",
+      "use": "in",
+      "min": 1,
+      "max": "1",
+      "type": "string",
+      "documentation": "FHIR NPM package name (e.g. hl7.fhir.r4.core)."
+    },
+    {
+      "name": "version",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "string",
+      "documentation": "Package version (e.g. 4.0.1). If not specified, installs the latest version."
+    },
+    {
+      "name": "includeDependencies",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "boolean",
+      "documentation": "When true (default), also installs package dependencies. When false, only installs the specified package."
+    },
+    {
+      "name": "includeExamples",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "boolean",
+      "documentation": "When true, also installs example resources from the package. Default is false."
+    },
+    {
+      "name": "outcome",
+      "use": "out",
+      "min": 1,
+      "max": "1",
+      "type": "OperationOutcome",
+      "documentation": "OperationOutcome indicating that the installation job was queued successfully."
+    },
+    {
+      "name": "jobId",
+      "use": "out",
+      "min": 1,
+      "max": "1",
+      "type": "string",
+      "documentation": "The UUID of the background job processing the package installation."
+    },
+    {
+      "name": "name",
+      "use": "out",
+      "min": 1,
+      "max": "1",
+      "type": "string",
+      "documentation": "Echo of the requested package name."
+    },
+    {
+      "name": "version",
+      "use": "out",
+      "min": 0,
+      "max": "1",
+      "type": "string",
+      "documentation": "Echo of the requested package version."
+    },
+    {
+      "name": "includeDependencies",
+      "use": "out",
+      "min": 1,
+      "max": "1",
+      "type": "boolean",
+      "documentation": "Echo of the includeDependencies flag."
+    },
+    {
+      "name": "includeExamples",
+      "use": "out",
+      "min": 1,
+      "max": "1",
+      "type": "boolean",
+      "documentation": "Echo of the includeExamples flag."
+    }
+  ]
+}

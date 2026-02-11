@@ -1,0 +1,49 @@
+# Grafana Tempo Configuration
+# Distributed tracing backend
+
+server:
+  http_listen_port: 3200
+  log_level: info
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4319
+
+ingester:
+  max_block_duration: 5m
+
+compactor:
+  compaction:
+    block_retention: 168h  # 7 days retention
+
+storage:
+  trace:
+    backend: local
+    wal:
+      path: /var/tempo/wal
+    local:
+      path: /var/tempo/blocks
+
+# Enable trace search
+search:
+  external_hedge_requests_up_to: 2
+
+# Metrics generator (for trace-to-metrics correlation)
+metrics_generator:
+  registry:
+    external_labels:
+      source: tempo
+      cluster: fhir-server
+  storage:
+    path: /var/tempo/generator/wal
+    remote_write:
+      - url: http://prometheus:9090/api/v1/write
+        send_exemplars: true
+
+overrides:
+  defaults:
+    metrics_generator:
+      processors: [service-graphs, span-metrics]

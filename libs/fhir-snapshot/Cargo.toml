@@ -1,0 +1,27 @@
+[package]
+name = "zunder-snapshot"
+version = { workspace = true }
+edition = { workspace = true }
+description = "FHIR StructureDefinition snapshot and differential generation and expansion."
+license = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+homepage = { workspace = true }
+documentation = { workspace = true }
+keywords = { workspace = true }
+categories = { workspace = true }
+
+[dependencies]
+zunder-context.workspace = true
+zunder-models.workspace = true
+serde = { workspace = true }
+serde_json = { workspace = true, features = ["preserve_order"] }
+thiserror = { workspace = true }
+clap = { workspace = true, optional = true }
+anyhow = { workspace = true, optional = true }
+zunder-registry-client = { workspace = true, optional = true }
+
+[dev-dependencies]
+serde_json = { workspace = true, features = ["preserve_order"] }
+zunder-registry-client.workspace = true
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
