@@ -1,5 +1,7 @@
 # Zunder
 
+![Zunder](assets/zunder.svg)
+
 A high-performance [FHIR](https://hl7.org/fhir/) server implementation in Rust.
 
 Developed by [ThalamiQ](https://thalamiq.io).
@@ -12,7 +14,7 @@ Developed by [ThalamiQ](https://thalamiq.io).
 curl -fsSL https://get.yourfhir.dev | sh
 ```
 
-This starts the FHIR server, database, background worker, and admin UI. Access the API at `http://localhost:8080/fhir` and the Admin UI at `http://localhost:3000`.
+This starts the FHIR server, database, background worker, and admin UI. Access the API at [http://localhost:8080/fhir](http://localhost:8080/fhir) and the Admin UI at [http://localhost:3000](http://localhost:3000).
 
 ## Features
 
@@ -39,4 +41,4 @@ Full documentation is available at [docs.thalamiq.io](https://docs.thalamiq.io/)
 ## License
 
 Licensed under the Apache License, Version 2.0.
-Copyright © 2026 ThalamiQ GmbH.
+Copyright © 2026 Thalamiq GmbH.
