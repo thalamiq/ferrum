@@ -1,5 +1,3 @@
-# Zunder
-
 ![Zunder](assets/zunder.svg)
 
 A high-performance [FHIR](https://hl7.org/fhir/) server implementation in Rust.
