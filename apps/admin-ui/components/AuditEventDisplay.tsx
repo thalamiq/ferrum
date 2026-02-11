@@ -679,7 +679,7 @@ const AuditEventDisplay = () => {
                 </CardContent>
               </Card>
 
-              {eventDetailsQuery.data.details && (
+              {eventDetailsQuery.data.details != null && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg">Additional Details</CardTitle>

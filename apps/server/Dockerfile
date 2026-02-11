@@ -1,33 +1,36 @@
 # syntax=docker/dockerfile:1.7
 #
-# Multi-stage build for FHIR Server
+# Multi-stage build for FHIR Server (cargo-chef for dependency caching)
 # Build context: repository root (not apps/server/)
 
-# Build arguments for versioning and reproducibility
-ARG RUST_VERSION=1.83
+ARG RUST_VERSION=1.92
 ARG BUILD_DATE
 ARG VCS_REF
 ARG VERSION=0.1.0
 
 ############################
-# Builder
+# Chef - base with cargo-chef
 ############################
-FROM rust:${RUST_VERSION}-slim-bookworm AS builder
+FROM rust:${RUST_VERSION}-slim-bookworm AS chef
 
-# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
     libssl-dev \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    cargo install cargo-chef --locked
+
 WORKDIR /build
 
-# ---- Better layer caching: copy manifests first ----
-# Copy workspace Cargo.toml and lockfile
-COPY Cargo.toml Cargo.lock ./
+############################
+# Planner - generate dependency recipe
+############################
+FROM chef AS planner
 
-# Copy all member Cargo.toml files (for dependency resolution)
+COPY Cargo.toml Cargo.lock ./
 COPY apps/server/Cargo.toml apps/server/Cargo.toml
 COPY apps/cli/Cargo.toml apps/cli/Cargo.toml
 COPY libs/fhir-models/Cargo.toml libs/fhir-models/Cargo.toml
@@ -41,7 +44,7 @@ COPY libs/fhir-codegen/Cargo.toml libs/fhir-codegen/Cargo.toml
 COPY libs/fhir-validator/Cargo.toml libs/fhir-validator/Cargo.toml
 COPY libs/ucum/Cargo.toml libs/ucum/Cargo.toml
 
-# Create dummy src files so cargo fetch can resolve the workspace
+# Stub sources so cargo can resolve the workspace
 RUN mkdir -p apps/server/src apps/cli/src && \
     echo "fn main() {}" > apps/server/src/main.rs && \
     echo "fn main() {}" > apps/cli/src/main.rs && \
@@ -51,29 +54,34 @@ RUN mkdir -p apps/server/src apps/cli/src && \
         mkdir -p "$lib/src" && echo "" > "$lib/src/lib.rs"; \
     done
 
-# Pre-fetch deps (cache-friendly)
+RUN cargo chef prepare --recipe-path recipe.json
+
+############################
+# Builder
+############################
+FROM chef AS builder
+
+# Cook dependencies (cached layer — only rebuilds when Cargo.toml/lock change)
+COPY --from=planner /build/recipe.json recipe.json
+# Create bench stubs that cargo-chef doesn't generate
+RUN mkdir -p libs/fhirpath/benches && echo "fn main() {}" > libs/fhirpath/benches/benchmark.rs
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/usr/local/cargo/git \
-    cargo fetch
+    cargo chef cook --release --recipe-path recipe.json
 
-# Copy the full source
+# Copy real source
+COPY Cargo.toml Cargo.lock ./
 COPY libs/ libs/
 COPY apps/server/ apps/server/
+# CLI manifest needed for workspace resolution (source not needed)
+COPY apps/cli/Cargo.toml apps/cli/Cargo.toml
+RUN mkdir -p apps/cli/src && echo "fn main() {}" > apps/cli/src/main.rs
 
-# Build with BuildKit cache mounts
+# Build application (deps already compiled by cook)
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/usr/local/cargo/git \
-    bash -c "set -euxo pipefail; \
-    echo '=== Starting cargo build for fhir-server and fhir-worker ===' && \
-    cargo build --release --locked --bin fhir-server --bin fhir-worker && \
-    echo '=== Build completed, verifying binaries ===' && \
-    test -f target/release/fhir-server && echo '✓ fhir-server found' || \
-    (echo '✗ ERROR: fhir-server binary not found' && exit 1) && \
-    test -f target/release/fhir-worker && echo '✓ fhir-worker found' || \
-    (echo '✗ ERROR: fhir-worker binary not found' && exit 1) && \
-    echo '=== Both binaries verified successfully ==='"
+    cargo build --release --locked --bin fhir-server --bin fhir-worker
 
-# Strip binaries to reduce size
 RUN strip target/release/fhir-server target/release/fhir-worker
 
 ############################
@@ -81,12 +89,10 @@ RUN strip target/release/fhir-server target/release/fhir-worker
 ############################
 FROM debian:bookworm-slim
 
-# Build arguments for labels
 ARG BUILD_DATE
 ARG VCS_REF
 ARG VERSION
 
-# Install runtime deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     libssl3 \
@@ -94,41 +100,30 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tini \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user and app dirs
 RUN useradd -m -u 1001 -s /usr/sbin/nologin fhir && \
     mkdir -p /app/migrations /app/data && \
     chown -R fhir:fhir /app
 
 WORKDIR /app
 
-# Copy binaries from builder
 COPY --from=builder /build/target/release/fhir-server /usr/local/bin/fhir-server
 COPY --from=builder /build/target/release/fhir-worker /usr/local/bin/fhir-worker
-
-# Copy migrations if they exist
 COPY --chown=fhir:fhir apps/server/migrations ./migrations
-
-# Copy internal FHIR packages (loaded at startup when `fhir.install_internal_packages=true`)
 COPY --chown=fhir:fhir apps/server/fhir_packages ./fhir_packages
-
-# Copy start script for combined server+worker mode
 COPY --chown=root:root apps/server/scripts/start-all.sh /usr/local/bin/start-all
 RUN chmod 0755 /usr/local/bin/start-all
 
-# Security hardening
 RUN chown root:root /usr/local/bin/fhir-server /usr/local/bin/fhir-worker && \
     chmod 0755 /usr/local/bin/fhir-server /usr/local/bin/fhir-worker
 
-# Add Docker labels
-LABEL org.opencontainers.image.title="FHIR Server" \
-      org.opencontainers.image.description="FHIR compliant server implementation" \
+LABEL org.opencontainers.image.title="Zunder FHIR Server" \
+      org.opencontainers.image.description="A spec compliant and performant FHIR server" \
       org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.revision="${VCS_REF}" \
-      org.opencontainers.image.vendor="TLQ" \
-      maintainer="TLQ Team"
+      org.opencontainers.image.vendor="ThalamiQ" \
+      maintainer="ThalamiQ"
 
-# Run as non-root
 USER fhir
 
 EXPOSE 8080
