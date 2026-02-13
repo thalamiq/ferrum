@@ -9,7 +9,7 @@ Developed by [ThalamiQ](https://thalamiq.io).
 ## Quickstart
 
 ```bash
-curl -fsSL https://get.yourfhir.dev | sh
+curl -fsSL https://get.zunder.thalamiq.io | sh
 ```
 
 This starts the FHIR server, database, and admin UI. Access the API at [http://localhost:8080/fhir](http://localhost:8080/fhir) and the Admin UI at [http://localhost:3000](http://localhost:3000).

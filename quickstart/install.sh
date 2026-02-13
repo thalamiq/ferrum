@@ -4,9 +4,19 @@ set -e
 # Zunder FHIR Server Installer
 # This script downloads and starts the FHIR server stack
 
-VERSION="${ZUNDER_VERSION:-v0.1.0}"
 REPO="${ZUNDER_REPO:-thalamiq/zunder}"
 INSTALL_DIR="${ZUNDER_HOME:-./zunder}"
+
+# Use explicit version or fetch latest from GitHub
+if [ -n "${ZUNDER_VERSION:-}" ]; then
+  VERSION="$ZUNDER_VERSION"
+else
+  VERSION=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" | grep '"tag_name"' | cut -d'"' -f4)
+  if [ -z "$VERSION" ]; then
+    echo "Error: Could not determine latest version. Set ZUNDER_VERSION manually."
+    exit 1
+  fi
+fi
 
 echo "Installing Zunder FHIR Server ${VERSION}"
 echo "Install directory: ${INSTALL_DIR}"
