@@ -14,7 +14,7 @@ description: "A quick introduction to the FHIR standard — just enough to use Z
 
 ## Resources
 
-A resource is a JSON document with a known shape. It might represent a person (`Patient`), an event (`Encounter`), or a clinical fact (`Observation`). Every resource has a `resourceType`, and most include an `id` and `meta`:
+A resource is a structured document with a known shape. FHIR defines several formats (JSON, XML, RDF). **Zunder supports JSON and XML**; this documentation uses JSON for examples. It might represent a person (`Patient`), an event (`Encounter`), or a clinical fact (`Observation`). Every resource has a `resourceType`, and most include an `id` and `meta`:
 
 ```json
 {

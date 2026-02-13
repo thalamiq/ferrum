@@ -20,12 +20,12 @@ This page documents **Zunder-specific behavior**, especially the transaction mec
 
 | Aspect | `batch` | `transaction` |
 | ------ | ------- | ------------- |
-| Atomic | ❌ No | ✅ Yes |
-| Inter-entry references via `fullUrl` | ❌ Rejected (non-conformant) | ✅ Supported (rewritten) |
-| Conditional references (`Patient?identifier=...`) | ✅ Supported (must resolve to exactly one match) | ✅ Supported (must resolve to exactly one match) |
+| Atomic | No | Yes |
+| Inter-entry references via `fullUrl` | Rejected (non-conformant) | Supported (rewritten) |
+| Conditional references (`Patient?identifier=...`) | Supported (must resolve to exactly one match) | Supported (must resolve to exactly one match) |
 | Overall HTTP status | `200` (with per-entry statuses) | `200` on success; non-2xx on any failure |
 | Processing order | `DELETE → POST → PUT/PATCH → GET/HEAD` | `DELETE → POST → PUT/PATCH → (finalize refs) → GET/HEAD` |
-| Conditional ops (If-None-Exist / criteria URLs) | ✅ Supported | ✅ Supported (resolved inside the DB transaction) |
+| Conditional ops (If-None-Exist / criteria URLs) | Supported | Supported (resolved inside the DB transaction) |
 
 ## Endpoint and Request Shape
 

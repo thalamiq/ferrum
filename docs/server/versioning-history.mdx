@@ -5,21 +5,21 @@ description: "How Zunder handles resource versioning, history tracking, and vers
 
 ## Implementation Features
 
-<span aria-hidden="true">🔗</span> **Spec**: [FHIR Versioning](https://hl7.org/fhir/R4/http.html#history),
+**Spec**: [FHIR Versioning](https://hl7.org/fhir/R4/http.html#history),
 [Version-aware Updates](https://hl7.org/fhir/R4/http.html#versionaware)
 
 | Feature                    | Support         | Notes                                       |
 | -------------------------- | --------------- | ------------------------------------------- |
-| **Sequential Versioning**  | ✅ Full         | Integer versionIds starting from 1          |
-| **Instance History**       | ✅ Full         | All versions of a single resource           |
-| **Type History**           | ✅ Full         | All versions of a resource type             |
-| **System History**         | ✅ Full         | All versions across all resource types      |
-| **Versioned Read (vread)** | ✅ Full         | Read specific version by versionId          |
-| **Version-aware Updates**  | ✅ Full         | If-Match header support                     |
-| **History Bundles**        | ✅ Full         | History replication via Bundle.type=history |
-| **Soft Delete History**    | ✅ Full         | Deleted versions preserved in history       |
-| **Hard Delete History**    | ✅ Configurable | Complete removal including history          |
-| **History Parameters**     | ✅ Full         | `_count`, `_since`, `_sort` support         |
+| **Sequential Versioning**  | Full         | Integer versionIds starting from 1          |
+| **Instance History**       | Full         | All versions of a single resource           |
+| **Type History**           | Full         | All versions of a resource type             |
+| **System History**         | Full         | All versions across all resource types      |
+| **Versioned Read (vread)** | Full         | Read specific version by versionId          |
+| **Version-aware Updates**  | Full         | If-Match header support                     |
+| **History Bundles**        | Full         | History replication via Bundle.type=history |
+| **Soft Delete History**    | Full         | Deleted versions preserved in history       |
+| **Hard Delete History**    | Configurable | Complete removal including history          |
+| **History Parameters**     | Full         | `_count`, `_since`, `_sort` support         |
 
 ## Version Management
 
@@ -82,7 +82,7 @@ WHERE resource_type = 'Patient' AND id = '123' AND version_id = 2;
 
 ## Versioned Read (vread)
 
-<span aria-hidden="true">🔗</span> **Spec**: [vread](https://hl7.org/fhir/R4/http.html#vread)
+**Spec**: [vread](https://hl7.org/fhir/R4/http.html#vread)
 
 Read a specific version of a resource:
 
@@ -164,7 +164,7 @@ Cache-Control: public, max-age=31536000, immutable
 
 ### Instance History
 
-<span aria-hidden="true">🔗</span> **Spec**: [Instance History](https://hl7.org/fhir/R4/http.html#history)
+**Spec**: [Instance History](https://hl7.org/fhir/R4/http.html#history)
 
 Get all versions of a specific resource:
 
@@ -247,7 +247,7 @@ Zunder automatically determines the HTTP method for each history entry:
 
 ### Optimistic Locking with If-Match
 
-<span aria-hidden="true">🔗</span> **Spec**: [Version-aware Updates](https://hl7.org/fhir/R4/http.html#versionaware)
+**Spec**: [Version-aware Updates](https://hl7.org/fhir/R4/http.html#versionaware)
 
 Always use `If-Match` for safe updates:
 
@@ -369,7 +369,7 @@ curl -X DELETE http://localhost:8080/fhir/Patient/123/_history
 
 ## History Bundles (Replication)
 
-<span aria-hidden="true">🔗</span> **Spec**: [Bundle.type=history](https://hl7.org/fhir/R4/bundle.html)
+**Spec**: [Bundle.type=history](https://hl7.org/fhir/R4/bundle.html)
 
 Zunder supports history bundle replication for data synchronization:
 
@@ -565,32 +565,16 @@ Common versioning-related errors:
 Use the interactive API playground to test versioning operations:
 
 <CardGroup cols={2}>
-  <Card
-    title="Versioned Read"
-    icon="clock"
-    href="/api-reference/history/versioned-read"
-  >
+  <Card title="Versioned Read" href="/api-reference/history/versioned-read">
     Test vread operations
   </Card>
-  <Card
-    title="Instance History"
-    icon="list"
-    href="/api-reference/history/resource"
-  >
+  <Card title="Instance History" href="/api-reference/history/resource">
     Browse resource history
   </Card>
-  <Card
-    title="Type History"
-    icon="layer-group"
-    href="/api-reference/history/type"
-  >
+  <Card title="Type History" href="/api-reference/history/type">
     Query type-level history
   </Card>
-  <Card
-    title="System History"
-    icon="globe"
-    href="/api-reference/history/system"
-  >
+  <Card title="System History" href="/api-reference/history/system">
     Access system-wide history
   </Card>
 </CardGroup>
@@ -598,20 +582,16 @@ Use the interactive API playground to test versioning operations:
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="CRUD Operations" icon="pen" href="/server/crud-operations">
+  <Card title="CRUD Operations" href="/server/crud-operations">
     Learn about create, read, update, delete
   </Card>
-  <Card title="Search Operations" icon="magnifying-glass" href="/server/search">
+  <Card title="Search Operations" href="/server/search">
     Query resources efficiently
   </Card>
-  <Card
-    title="Batch & Transaction"
-    icon="layer-group"
-    href="/server/batch-and-transactions"
-  >
+  <Card title="Batch & Transaction" href="/server/batch-and-transactions">
     Perform multiple operations atomically
   </Card>
-  <Card title="Configuration" icon="gear" href="/getting-started/configuration">
+  <Card title="Configuration" href="/getting-started/configuration">
     Configure versioning behavior
   </Card>
 </CardGroup>

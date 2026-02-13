@@ -178,8 +178,28 @@ logging:
   file_directory: "./logs"
   file_prefix: "fhir-server"
   file_rotation: "daily" # daily, hourly, minutely, never
-  audit_enabled: true
-  audit_directory: "./logs/audit"
+  audit:
+    enabled: true
+    include_success: true
+    include_authz_failure: true
+    include_processing_failure: true
+    capture_search_query: true
+    capture_operation_outcome: true
+    per_patient_events_for_search: true
+    interactions:
+      read: true
+      vread: true
+      history: true
+      search: true
+      create: true
+      update: true
+      patch: true
+      delete: true
+      capabilities: false
+      operation: true
+      batch: true
+      transaction: true
+      export: true
   opentelemetry_enabled: false
   otlp_endpoint: "http://localhost:4317"
   trace_sample_ratio: 1.0

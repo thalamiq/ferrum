@@ -5,372 +5,191 @@ description: "Configure Zunder with config.yaml and environment variables."
 
 ## Overview
 
-**Zunder** loads configuration from `config.yaml` and then applies environment variable overrides. This lets you keep non-sensitive defaults in a file while keeping secrets (passwords, tokens, connection strings) in a `.env` file or your deployment's secret manager.
-
-<Info>
-  If you installed via the Quickstart script, you’ll have a `zunder/` folder containing `compose.yaml` and `config.yaml`. This page documents that `config.yaml` and how to use `.env` with Docker Compose.
-</Info>
-
-## Configuration Files
-
-### `config.yaml` (main settings)
-
-- Location (Docker bundle): next to `compose.yaml`
-- Location (source checkout): `server/config.yaml` (optional)
-- Purpose: non-secret server configuration (features, limits, performance knobs)
-
-### `.env` (secrets + deployment-specific values)
-
-Docker Compose uses a `.env` file in the same directory as `compose.yaml` for variable substitution, and the release bundle’s `compose.yaml` also loads `./.env` into the server containers via `env_file`. Use it for:
-
-- Database credentials (`POSTGRES_PASSWORD`, etc.)
-- Admin UI password (`FHIR__UI__PASSWORD`)
-- Any `FHIR__...` overrides you don’t want in `config.yaml`
-
-<Warning>
-  Don’t commit `.env` files. Treat them as secrets.
-</Warning>
-
-## Load Order and Overrides
-
-Configuration precedence (last wins):
+Configuration is loaded in this order (later overrides earlier):
 
 1. Built-in defaults
-2. `config.yaml` (if present)
-3. Environment variables with the `FHIR__` prefix (e.g. `FHIR__SERVER__PORT`)
-4. Convenience fallback: `DATABASE_URL` is used as `database.url` if `FHIR__DATABASE__URL` is not set
-5. Runtime overrides in PostgreSQL (Admin UI / Admin API) for supported keys
+2. `config.yaml` (optional)
+3. Environment variables with `FHIR__` prefix (e.g. `FHIR__SERVER__PORT`)
+4. `DATABASE_URL` fallback for `database.url` when `FHIR__DATABASE__URL` is unset
+5. Runtime overrides in PostgreSQL (Admin UI / Admin API)
 
-### Environment Variable Mapping
+Nested keys map to env vars via `__`: `FHIR__DATABASE__URL` → `database.url`. Arrays use comma: `FHIR__SERVER__CORS_ORIGINS=https://a.com,https://b.com`.
 
-Nested config keys map to environment variables by joining segments with double underscores (`__`).
-
-Examples:
-
-```bash
-# Network / HTTP
-FHIR__SERVER__HOST=0.0.0.0
-FHIR__SERVER__PORT=8080
-
-# Database
-FHIR__DATABASE__URL=postgresql://fhir:supersecret@db:5432/fhir
-FHIR__DATABASE__POOL_MAX_SIZE=20
-
-# Admin UI auth
-FHIR__UI__PASSWORD=change-me
-
-# Logging
-FHIR__LOGGING__LEVEL=debug
-```
-
-## Using `.env` with Docker Compose
-
-Create a `.env` next to `compose.yaml`:
-
-```bash
-# Postgres (used by the db container)
-POSTGRES_USER=fhir
-POSTGRES_PASSWORD=change-me
-POSTGRES_DB=fhir
-
-# Optional: bind services to all interfaces (careful in production)
-# BIND_ADDRESS=0.0.0.0
-
-# FHIR server containers
-RUST_LOG=info
-
-# Secrets: keep these out of config.yaml
-FHIR__UI__PASSWORD=change-me
-```
-
-Then restart the stack:
-
-```bash
-docker compose up -d
-```
-
-<Info>
-  In the provided `compose.yaml`, the FHIR server containers get a `DATABASE_URL` derived from the Postgres variables above. This overrides the `database.url` value in `config.yaml` automatically.
-</Info>
-
-## Runtime Configuration (Admin UI)
-
-Zunder also supports *runtime* configuration for a subset of settings. These values are stored in PostgreSQL and can be edited from the Admin UI (Settings page) or via the Admin API. Runtime overrides take effect immediately and can be reset back to the current “static” value from `config.yaml` + env vars.
-
-<Info>
-  Runtime configuration is guarded by Admin authentication (same as the Admin UI). Make sure you’ve configured `FHIR__UI__PASSWORD` (and don’t expose `/admin` publicly).
-</Info>
-
-### How It Works
-
-- Stored in PostgreSQL tables `runtime_config` (current overrides) and `runtime_config_audit` (immutable change history)
-- Loaded into an in-memory cache on startup
-- Multi-instance deployments stay in sync via PostgreSQL `LISTEN/NOTIFY` (`runtime_config_changed`)
-
-### Admin API Endpoints
-
-- `GET /admin/config` (optional `?category=logging|search|interactions|format|behavior|audit`)
-- `GET /admin/config/{key}`
-- `PUT /admin/config/{key}` with JSON body `{ "value": ... }`
-- `POST /admin/config/{key}/reset`
-- `GET /admin/config/audit` (optional `?key=...`)
-
-### Supported Keys
-
-Runtime-configurable keys are defined in `apps/server/src/runtime_config/keys.rs` and include:
-
-- Search limits (e.g. `fhir.search.max_count`)
-- Interaction toggles (e.g. `fhir.interactions.instance.delete`)
-- Response defaults (e.g. `fhir.default_format`, `fhir.default_prefer_return`)
-- Behavior flags (e.g. `fhir.allow_update_create`, `fhir.hard_delete`)
-- Audit logging controls (e.g. `logging.audit.enabled`)
-
-<Info>
-  Some settings can’t be applied without restart (for example, `logging.level` affects the process-wide log filter).
-</Info>
-
-## `config.yaml` Reference
-
-The release bundle ships with an example `config.yaml`. If you're browsing the source repository, the same template lives at `dist/config.yaml`. You typically only need to change a few values.
+## Config Reference
 
 ### `server`
 
-Network and HTTP settings.
-
-```yaml
-server:
-  host: "0.0.0.0"                    # Bind address for the FHIR API (env: FHIR__SERVER__HOST)
-  port: 8080                         # Port for the FHIR API (env: FHIR__SERVER__PORT)
-  cors_origins:                      # List of allowed origins (empty = no CORS headers)
-    - "http://localhost:3000"
-  max_request_body_size: 10485760    # Max request size in bytes (10 MB)
-  max_response_body_size: 52428800   # Max response size in bytes (50 MB)
-```
+| Option | Default | Description |
+|--------|---------|-------------|
+| `host` | `"0.0.0.0"` | Bind address |
+| `port` | `8080` | Listen port |
+| `cors_origins` | `["http://localhost:3000"]` | Allowed CORS origins (empty = no CORS) |
+| `max_request_body_size` | `10485760` (10 MB) | Max request body bytes |
+| `max_response_body_size` | `52428800` (50 MB) | Max response body bytes |
 
 ### `database`
 
-PostgreSQL connection and performance tuning.
-
-```yaml
-database:
-  url: "postgresql://user:pass@db:5432/fhir"  # Connection string (env: FHIR__DATABASE__URL or DATABASE_URL)
-  test_database_url: null                      # Optional test database connection string
-
-  # API server connection pool
-  pool_min_size: 2
-  pool_max_size: 20
-  pool_timeout_seconds: 60
-
-  # Worker connection pool
-  worker_pool_min_size: 1
-  worker_pool_max_size: 5
-  worker_pool_timeout_seconds: 60
-
-  # Query and lock timeouts
-  statement_timeout_seconds: 300     # Max query execution time
-  lock_timeout_seconds: 30           # Max time waiting for locks
-
-  # Indexing performance
-  indexing_batch_size: 50            # Resources per batch
-  indexing_bulk_threshold: 200       # Min resources to use bulk indexing
-```
+| Option | Default | Description |
+|--------|---------|-------------|
+| `url` | `"postgresql://fhir:fhir@localhost/fhir"` | Connection string |
+| `test_database_url` | `null` | Override for test environments |
+| `pool_min_size` | `2` | API server pool min connections |
+| `pool_max_size` | `20` | API server pool max connections |
+| `pool_timeout_seconds` | `60` | API server pool timeout |
+| `worker_pool_min_size` | `1` | Worker pool min connections |
+| `worker_pool_max_size` | `5` | Worker pool max connections |
+| `worker_pool_timeout_seconds` | `60` | Worker pool timeout |
+| `indexing_batch_size` | `50` | Resources per indexing batch |
+| `indexing_bulk_threshold` | `200` | Min resources to use bulk indexing |
+| `statement_timeout_seconds` | `300` | Max query execution time |
+| `lock_timeout_seconds` | `30` | Max lock wait time |
 
 ### `fhir`
 
-FHIR behavior, interactions, search, packages, and capabilities.
+| Option | Default | Description |
+|--------|---------|-------------|
+| `version` | `"R4"` | FHIR version (R4, R4B, R5) |
+| `default_format` | `"json"` | Default format (json, xml) |
+| `default_prefer_return` | `"representation"` | Prefer header default (minimal, representation, operationoutcome) |
+| `allow_update_create` | `true` | Allow PUT to create resources |
+| `hard_delete` | `false` | Physical delete vs soft-delete |
+| `install_internal_packages` | `true` | Install bundled packages from `fhir_packages/` |
+| `internal_packages_dir` | `null` | Override path for internal packages |
+| `registry_url` | `null` | Custom package registry URL |
 
-```yaml
-fhir:
-  version: "R4"                      # R4, R4B, or R5
-  default_format: "json"             # json or xml
-  default_prefer_return: "representation"  # minimal, representation, or operationoutcome
-  allow_update_create: true          # Allow PUT to create resources
-  hard_delete: false                 # Permanently delete resources (true) or soft-delete (false)
+**`fhir.interactions`** — Toggle FHIR operations. All default to `true`.
 
-  # Enable/disable FHIR interactions
-  interactions:
-    system:
-      capabilities: true             # GET /metadata
-      search: true                   # GET /
-      history: true                  # GET /_history
-      delete: true                   # POST / with delete bundle entries
-      batch: true                    # POST / with batch bundles
-      transaction: true              # POST / with transaction bundles
-      history_bundle: true           # POST / with history bundles
+- `system`: capabilities, search, history, delete, batch, transaction, history_bundle
+- `type_level`: create, conditional_create, search, history, conditional_update, conditional_patch, conditional_delete
+- `instance`: read, vread, update, patch, delete, history, delete_history, delete_history_version
+- `compartment`: search
+- `operations`: system, type_level, instance
 
-    type_level:
-      create: true                   # POST /Patient
-      conditional_create: true       # POST /Patient with If-None-Exist
-      search: true                   # GET /Patient
-      history: true                  # GET /Patient/_history
-      conditional_update: true       # PUT /Patient with conditional match
-      conditional_patch: true        # PATCH /Patient with conditional match
-      conditional_delete: true       # DELETE /Patient with conditional match
+**`fhir.search`**
 
-    instance:
-      read: true                     # GET /Patient/123
-      vread: true                    # GET /Patient/123/_history/1
-      update: true                   # PUT /Patient/123
-      patch: true                    # PATCH /Patient/123
-      delete: true                   # DELETE /Patient/123
-      history: true                  # GET /Patient/123/_history
-      delete_history: true           # DELETE /Patient/123/_history
-      delete_history_version: true   # DELETE /Patient/123/_history/1
+| Option | Default | Description |
+|--------|---------|-------------|
+| `enable_text` | `true` | Enable `_text` search |
+| `enable_content` | `true` | Enable `_content` search |
+| `default_count` | `20` | Default page size |
+| `max_count` | `1000` | Max `_count` value |
+| `max_total_results` | `10000` | Max total results across pages |
+| `max_include_depth` | `3` | Max `_include`/`_revinclude` depth |
+| `max_includes` | `10` | Max `_include` parameters |
+| `search_parameter_active_statuses` | `["draft","active"]` | Active SearchParameter statuses |
 
-    compartment:
-      search: true                   # GET /Patient/123/Observation
+**`fhir.fhirpath`**
 
-    operations:
-      system: true                   # POST /$operation
-      type_level: true               # POST /Patient/$operation
-      instance: true                 # POST /Patient/123/$operation
+| Option | Default | Description |
+|--------|---------|-------------|
+| `enable_resolve` | `true` | Allow `resolve()` for references |
+| `enable_external_http` | `false` | Allow external HTTP fetches (security risk) |
+| `resolve_cache_size` | `100` | LRU cache size for resolved resources |
+| `http_timeout_seconds` | `5` | Timeout for external HTTP |
 
-  # Package installation
-  install_internal_packages: true    # Install bundled packages
-  internal_packages_dir: null        # Custom path to internal packages
-  registry_url: null                 # Custom package registry URL
+**`fhir.referential_integrity`**
 
-  # Search behavior
-  search:
-    enable_text: true                # Enable _text search
-    enable_content: true             # Enable _content search
-    default_count: 20                # Default page size
-    max_count: 1000                  # Max page size
-    max_total_results: 10000         # Max total results across pages
-    max_include_depth: 3             # Max depth for _include/_revinclude
-    max_includes: 10                 # Max number of _include parameters
-    search_parameter_active_statuses: ["draft", "active"]  # Which SearchParameter statuses to honor
+| Option | Default | Description |
+|--------|---------|-------------|
+| `mode` | `"lenient"` | `lenient` (no checks) or `strict` (reject broken refs, block deletes of referenced) |
 
-  # FHIRPath expression evaluation
-  fhirpath:
-    enable_resolve: true             # Allow resolve() function
-    enable_external_http: false      # ⚠️ Allow external HTTP fetches (security risk)
-    resolve_cache_size: 100          # LRU cache size for resolved resources
-    http_timeout_seconds: 5          # Timeout for external HTTP requests
+**`fhir.default_packages`** — core, extensions, terminology. Each: `install`, `install_examples`, `include_resource_types`, `exclude_resource_types` (mutually exclusive).
 
-  # Default packages from registry (e.g., hl7.fhir.r4.core)
-  default_packages:
-    core:
-      install: false                 # Install FHIR core definitions
-      install_examples: false
-      include_resource_types:
-        - "StructureDefinition"
-        - "CodeSystem"
-        - "ValueSet"
-        - "SearchParameter"
-        - "CompartmentDefinition"
-    extensions:
-      install: false                 # Install FHIR extensions pack
-      install_examples: false
-      include_resource_types: ["StructureDefinition"]
-    terminology:
-      install: false                 # Install FHIR terminology
-      install_examples: false
-      include_resource_types: ["ValueSet", "CodeSystem", "ConceptMap"]
+**`fhir.packages`** — Additional packages: `name`, `version`, `install_examples`, `include_resource_types`, `exclude_resource_types`.
 
-  # Additional implementation guides
-  packages: []
-  # packages:
-  #   - name: "hl7.fhir.us.core"
-  #     version: "5.0.1"
-  #     install_examples: false
-  #     include_resource_types: ["Patient", "Observation"]
-
-  # Capability statement metadata (GET /metadata)
-  capability_statement:
-    id: "zunder-capability-statement"
-    name: "zunder-capability-statement"
-    title: "Zunder"
-    publisher: "ThalamiQ"
-    description: "Capability Statement for **Zunder**"
-    software_name: "zunder"
-    software_version: "0.1.0"
-    contact_email: null
-    supported_resources: []          # Empty = all available resources
-```
+**`fhir.capability_statement`** — Metadata for GET /metadata: `id`, `name`, `title`, `publisher`, `description`, `software_name`, `software_version`, `contact_email`, `supported_resources`.
 
 ### `workers`
 
-Background job processing (e.g., package installation, indexing).
-
-```yaml
-workers:
-  enabled: true                      # Enable background workers
-  poll_interval_seconds: 5           # Polling interval (in addition to LISTEN/NOTIFY)
-  max_concurrent_jobs: 1             # Concurrency limit (keep low to avoid DB contention)
-  reconnect_initial_seconds: 1       # Initial reconnect backoff
-  reconnect_max_seconds: 30          # Max reconnect backoff
-  reconnect_jitter_ratio: 0.2        # Jitter for reconnect backoff
-```
-
-### `ui`
-
-Admin UI settings.
-
-```yaml
-ui:
-  enabled: true                      # Enable admin UI
-  title: "FHIR Admin"                # Browser tab title
-  password: null                     # Admin password (⚠️ use env: FHIR__UI__PASSWORD instead)
-  session_secret: null               # Session signing key (recommended: long random value)
-  session_ttl_seconds: 43200         # Session lifetime (12 hours)
-```
-
-### `auth`
-
-OIDC authentication settings.
-
-```yaml
-auth:
-  enabled: false                     # Enable OIDC authentication
-  required: true                     # Require auth for all endpoints except public_paths
-  public_paths:                      # Paths that don't require authentication
-    - "/health"
-    - "/"
-    - "/favicon.ico"
-    - "/fhir/metadata"
-    - "/fhir/metadata/"
-    - "/fhir/.well-known/smart-configuration"
-  oidc:
-    issuer_url: null                 # OIDC issuer URL (required when auth.enabled=true)
-    audience: null                   # Expected audience claim (required when auth.enabled=true)
-    jwks_url: null                   # JWKS URL (optional, auto-discovered from issuer)
-    jwks_cache_ttl_seconds: 300      # JWKS cache TTL
-    http_timeout_seconds: 5          # Timeout for OIDC requests
-```
+| Option | Default | Description |
+|--------|---------|-------------|
+| `enabled` | `true` | Enable background workers |
+| `embedded` | `true` | Run workers in server process; `false` = separate `fhir-worker` binary |
+| `poll_interval_seconds` | `5` | Poll interval (plus LISTEN/NOTIFY) |
+| `max_concurrent_jobs` | `1` | Max concurrent jobs |
+| `reconnect_initial_seconds` | `1` | Initial reconnect backoff |
+| `reconnect_max_seconds` | `30` | Max reconnect backoff |
+| `reconnect_jitter_ratio` | `0.2` | Jitter for reconnect (0–1) |
 
 ### `logging`
 
-Log verbosity, format, file output, and OpenTelemetry.
+| Option | Default | Description |
+|--------|---------|-------------|
+| `level` | `"info"` | trace, debug, info, warn, error |
+| `json` | `false` | JSON log format |
+| `file_enabled` | `false` | Enable file logging |
+| `file_directory` | `"./logs"` | Log file directory |
+| `file_prefix` | `"fhir-server"` | Log file prefix |
+| `file_rotation` | `"daily"` | daily, hourly, minutely, never |
+| `opentelemetry_enabled` | `false` | OpenTelemetry integration |
+| `otlp_endpoint` | `"http://localhost:4317"` | OTLP endpoint |
+| `trace_sample_ratio` | `1.0` | Trace sampling (0–1) |
+| `service_name` | `"fhir-server"` | Service name |
+| `deployment_environment` | `"development"` | dev, staging, prod |
+| `service_version` | `null` | Override version |
+| `otlp_timeout_seconds` | `10` | OTLP export timeout |
+
+**`logging.audit`** — Audit logging for FHIR operations.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `enabled` | `true` | Master switch |
+| `include_success` | `true` | Record successful interactions |
+| `include_authz_failure` | `true` | Record 401/403 |
+| `include_processing_failure` | `true` | Record other failures |
+| `capture_search_query` | `true` | Capture search request in AuditEvent |
+| `capture_operation_outcome` | `true` | Capture OperationOutcome on failure |
+| `per_patient_events_for_search` | `true` | One AuditEvent per patient for search |
+
+**`logging.audit.interactions`** — Per-interaction audit toggles: read, vread, history, search, create, update, patch, delete, capabilities (default: false), operation, batch, transaction, export.
+
+### `ui`
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `enabled` | `true` | Enable admin UI |
+| `title` | `"FHIR Admin"` | Browser tab title |
+| `password` | `null` | Admin password (use `FHIR__UI__PASSWORD` for secrets) |
+| `session_secret` | `null` | Session signing key (recommended in production) |
+| `session_ttl_seconds` | `43200` (12h) | Session lifetime |
+
+### `auth`
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `enabled` | `false` | Enable OIDC authentication |
+| `required` | `true` | Reject unauthenticated requests |
+| `public_paths` | health, /, favicon, metadata, smart-config | Paths that skip auth |
+
+**`auth.oidc`** — Required when `auth.enabled=true`: `issuer_url`, `audience`. Optional: `jwks_url`, `jwks_cache_ttl_seconds` (300), `http_timeout_seconds` (5).
+
+## Example
 
 ```yaml
-logging:
-  level: "info"                      # trace, debug, info, warn, error
-  json: false                        # JSON log format (true) or human-readable (false)
+server:
+  host: "0.0.0.0"
+  port: 8080
 
-  # File logging
-  file_enabled: false
-  file_directory: "./logs"
-  file_prefix: "fhir-server"
-  file_rotation: "daily"             # daily, hourly, minutely, never
+database:
+  url: "postgresql://fhir:fhir@db:5432/fhir"
 
-  # Audit logging (create/update/delete operations)
-  audit_enabled: true
-  audit_directory: "./logs/audit"
+fhir:
+  version: "R4"
+  allow_update_create: true
+  hard_delete: false
+  search:
+    max_count: 1000
 
-  # OpenTelemetry (traces and metrics)
-  opentelemetry_enabled: false
-  otlp_endpoint: "http://localhost:4317"
-  trace_sample_ratio: 1.0            # 0.0 to 1.0 (1.0 = trace everything)
-  service_name: "fhir-server"
-  deployment_environment: "development"
-  service_version: null
-  otlp_timeout_seconds: 10
+workers:
+  embedded: true
+
+ui:
+  password: null  # Use FHIR__UI__PASSWORD in production
+
+auth:
+  enabled: false
 ```
 
-## Production Checklist
+## Runtime Configuration
 
-- Set `FHIR__UI__PASSWORD` and restrict UI access at the network level.
-- Set `server.cors_origins` explicitly for browser-based clients.
-- Keep `fhir.fhirpath.enable_external_http=false` unless you fully trust callers.
-- Use a secret manager (Kubernetes secrets, Fly secrets, etc.) instead of shipping `.env` files.
+A subset of settings can be changed at runtime via Admin UI (Settings) or Admin API (`GET/PUT /admin/config/{key}`). Stored in PostgreSQL; multi-instance sync via LISTEN/NOTIFY. See `apps/server/src/runtime_config/keys.rs` for supported keys.

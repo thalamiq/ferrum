@@ -7,27 +7,27 @@ description: "How to search resources with FHIR search parameters."
 
 | Feature                        | Support          | Notes                                                                |
 | ------------------------------ | ---------------- | -------------------------------------------------------------------- |
-| **System-level Search**        | ✅ Full          | Requires `_type` parameter                                           |
-| **Type-level Search**          | ✅ Full          | Primary search form                                                  |
-| **Compartment Search**         | ✅ Full          | Supports specific type or all types (`*`)                            |
-| **GET Search**                 | ✅ Full          | Query string parameters                                              |
-| **POST Search**                | ✅ Full          | Form-urlencoded body                                                 |
-| **Parameter Types**            | ✅ Full          | string, token, date, number, quantity, reference, uri, text, content |
-| **Value Prefixes**             | ✅ Full          | `eq ne gt lt ge le sa eb ap` for date/number/quantity/`_lastUpdated` |
-| **Modifiers**                  | ⚠️ Partial       | Implemented subset; validated per type + SearchParameter metadata    |
-| **Special Parameters**         | ✅ Full          | `_id`, `_lastUpdated`, `_in`, `_list`, `_text`, `_content`           |
-| **Chaining**                   | ✅ Single-level  | `subject.name=peter`, `subject:Patient.name=peter`                   |
-| **Reverse chaining (`_has`)**  | ✅ Full          | `_has:Observation:subject:code=...`                                  |
-| **Membership Search**          | ✅ Full          | `_in` and `_list` parameters                                         |
-| **`_include` / `_revinclude`** | ✅ Full          | Wildcards (`*`, `Resource:*`), `:iterate` (depth-limited)            |
-| **`_filter` (R5-style)**       | ✅ Full          | Expression-based filtering with multiple operators                   |
-| **Pagination**                 | ✅ Cursor-based  | Keyset pagination with `_cursor` and `_cursor_direction`             |
-| **Totals**                     | ✅ Full          | `_total=accurate`, `_total=estimate`, `_total=none`                  |
-| **Summary Modes**              | ✅ Full          | `_summary=count`, `_summary=text`, `_summary=data`, `_summary=true`  |
-| **`_elements`**                | ✅ Full          | Element filtering (when `_summary` not specified)                    |
-| **Sorting**                    | ⚠️ Limited       | Only `_id` and `_lastUpdated` supported                              |
-| **Unknown Parameters**         | ✅ Lenient       | Ignored by default; strict mode via `Prefer: handling=strict`        |
-| **Composite Parameters**       | ❌ Not Supported | Future work                                                          |
+| **System-level Search**        | Full          | Requires `_type` parameter                                           |
+| **Type-level Search**          | Full          | Primary search form                                                  |
+| **Compartment Search**         | Full          | Supports specific type or all types (`*`)                            |
+| **GET Search**                 | Full          | Query string parameters                                              |
+| **POST Search**                | Full          | Form-urlencoded body                                                 |
+| **Parameter Types**            | Full          | string, token, date, number, quantity, reference, uri, text, content |
+| **Value Prefixes**             | Full          | `eq ne gt lt ge le sa eb ap` for date/number/quantity/`_lastUpdated` |
+| **Modifiers**                  | Partial       | Implemented subset; validated per type + SearchParameter metadata    |
+| **Special Parameters**         | Full          | `_id`, `_lastUpdated`, `_in`, `_list`, `_text`, `_content`           |
+| **Chaining**                   | Single-level  | `subject.name=peter`, `subject:Patient.name=peter`                   |
+| **Reverse chaining (`_has`)**  | Full          | `_has:Observation:subject:code=...`                                  |
+| **Membership Search**          | Full          | `_in` and `_list` parameters                                         |
+| **`_include` / `_revinclude`** | Full          | Wildcards (`*`, `Resource:*`), `:iterate` (depth-limited)            |
+| **`_filter` (R5-style)**       | Full          | Expression-based filtering with multiple operators                   |
+| **Pagination**                 | Cursor-based  | Keyset pagination with `_cursor` and `_cursor_direction`             |
+| **Totals**                     | Full          | `_total=accurate`, `_total=estimate`, `_total=none`                  |
+| **Summary Modes**              | Full          | `_summary=count`, `_summary=text`, `_summary=data`, `_summary=true`  |
+| **`_elements`**                | Full          | Element filtering (when `_summary` not specified)                    |
+| **Sorting**                    | Limited       | Only `_id` and `_lastUpdated` supported                              |
+| **Unknown Parameters**         | Lenient       | Ignored by default; strict mode via `Prefer: handling=strict`        |
+| **Composite Parameters**       | Not Supported | Future work                                                          |
 
 ## Endpoints Zunder implements
 

@@ -17,11 +17,10 @@ curl -fsSL https://get.yourfhir.dev | sh
 
 This will create a directory called `zunder` in your current working directory.
 
-When it finishes, four containers will be running:
+When it finishes, three containers will be running:
 
 - `zunder-db`: The PostgreSQL database exposed on port 5432
-- `zunder-server`: The FHIR API exposed on port 8080
-- `zunder-worker`: The FHIR worker
+- `zunder-server`: The FHIR API exposed on port 8080 (background workers run embedded in the same process)
 - `zunder-ui`: The Admin UI exposed on port 3000
 
 You can access the Admin UI at [http://localhost:3000](http://localhost:3000).

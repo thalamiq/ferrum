@@ -7,15 +7,15 @@ description: "FHIR operations (e.g. $validate) at system, type, or instance leve
 
 | Feature                  | Support | Notes                                              |
 | ------------------------ | ------- | -------------------------------------------------- |
-| **System Operations**    | ✅ Full | `POST [base]/$operation`                           |
-| **Type Operations**      | ✅ Full | `POST [base]/{type}/$operation`                    |
-| **Instance Operations**  | ✅ Full | `POST [base]/{type}/{id}/$operation`               |
-| **GET Support**          | ✅ Full | Query parameters converted to Parameters resource  |
-| **POST Support**         | ✅ Full | JSON/XML Parameters resource in body               |
-| **Parameter Validation** | ✅ Full | Based on OperationDefinition resources             |
-| **Content Negotiation**  | ✅ Full | Supports `_format` and `Accept` headers            |
-| **Async Operations**     | ✅ Full | Job queue integration for long-running operations  |
-| **Operation Registry**   | ✅ Full | Dynamic loading from OperationDefinition resources |
+| **System Operations**    | Full | `POST [base]/$operation`                           |
+| **Type Operations**      | Full | `POST [base]/{type}/$operation`                    |
+| **Instance Operations**  | Full | `POST [base]/{type}/{id}/$operation`               |
+| **GET Support**          | Full | Query parameters converted to Parameters resource  |
+| **POST Support**         | Full | JSON/XML Parameters resource in body               |
+| **Parameter Validation** | Full | Based on OperationDefinition resources             |
+| **Content Negotiation**  | Full | Supports `_format` and `Accept` headers            |
+| **Async Operations**     | Full | Job queue integration for long-running operations  |
+| **Operation Registry**   | Full | Dynamic loading from OperationDefinition resources |
 
 ## Endpoints
 

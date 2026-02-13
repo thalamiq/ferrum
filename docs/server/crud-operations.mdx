@@ -1,23 +1,23 @@
 ---
-title: "CRUD Operations"
+title: "CRUD"
 description: "How Zunder handles create, read, update, patch, and delete operations."
 ---
 
 ## Implementation Features
 
-<span aria-hidden="true">🔗</span> **Spec**: [FHIR RESTful API](https://hl7.org/fhir/R4/http.html)
+**Spec**: [FHIR RESTful API](https://hl7.org/fhir/R4/http.html)
 
 | Feature                | Support         | Notes                                |
 | ---------------------- | --------------- | ------------------------------------ |
-| **Create** (POST)      | ✅ Full         | Server-assigned IDs                  |
-| **Read** (GET)         | ✅ Full         | With ETag support                    |
-| **Update** (PUT)       | ✅ Full         | Update-as-create configurable        |
-| **Patch** (PATCH)      | ✅ JSON Patch   | RFC 6902 format                      |
-| **Delete**             | ✅ Configurable | Soft delete (default) or hard delete |
-| **Conditional Create** | ✅ Full         | Via `If-None-Exist`                  |
-| **Conditional Update** | ✅ Full         | Via query parameters                 |
-| **Conditional Delete** | ✅ Full         | Single match required                |
-| **Versioning**         | ✅ Full         | Sequential integer versionIds        |
+| **Create** (POST)      | Full         | Server-assigned IDs                  |
+| **Read** (GET)         | Full         | With ETag support                    |
+| **Update** (PUT)       | Full         | Update-as-create configurable        |
+| **Patch** (PATCH)      | JSON Patch   | RFC 6902 format                      |
+| **Delete**             | Configurable | Soft delete (default) or hard delete |
+| **Conditional Create** | Full         | Via `If-None-Exist`                  |
+| **Conditional Update** | Full         | Via query parameters                 |
+| **Conditional Delete** | Full         | Single match required                |
+| **Versioning**         | Full         | Sequential integer versionIds        |
 
 ## Conditional References (Search URIs)
 
@@ -42,7 +42,7 @@ processing (`batch` / `transaction`).
 
 ## Create Behavior
 
-<span aria-hidden="true">🔗</span> **Spec**: [create](https://hl7.org/fhir/R4/http.html#create),
+**Spec**: [create](https://hl7.org/fhir/R4/http.html#create),
 [conditional create](https://hl7.org/fhir/R4/http.html#ccreate), [update-as-create](https://hl7.org/fhir/R4/http.html#upsert)
 
 ### Server-Assigned IDs
@@ -125,7 +125,7 @@ curl -X POST "http://localhost:8080/fhir/Patient" \
 
 ## Read Behavior
 
-<span aria-hidden="true">🔗</span> **Spec**: [read](https://hl7.org/fhir/R4/http.html#read),
+**Spec**: [read](https://hl7.org/fhir/R4/http.html#read),
 [Concurrency Management (ETag/If-Match)](https://hl7.org/fhir/R4/http.html#versionaware),
 [Support for HEAD](https://hl7.org/fhir/R4/http.html#head)
 
@@ -201,7 +201,7 @@ curl -I http://localhost:8080/fhir/Patient/123
 
 ## Update Behavior
 
-<span aria-hidden="true">🔗</span> **Spec**: [update](https://hl7.org/fhir/R4/http.html#update),
+**Spec**: [update](https://hl7.org/fhir/R4/http.html#update),
 [update-as-create](https://hl7.org/fhir/R4/http.html#upsert), [conditional update](https://hl7.org/fhir/R4/http.html#cond-update),
 [Concurrency Management (If-Match)](https://hl7.org/fhir/R4/http.html#versionaware)
 
@@ -286,7 +286,7 @@ curl -X PUT "http://localhost:8080/fhir/Patient?identifier=http://hospital.examp
 
 ## Patch Behavior
 
-<span aria-hidden="true">🔗</span> **Spec**: [patch](https://hl7.org/fhir/R4/http.html#patch),
+**Spec**: [patch](https://hl7.org/fhir/R4/http.html#patch),
 [JSON Patch (RFC 6902)](https://www.rfc-editor.org/rfc/rfc6902)
 
 ### JSON Patch Support
@@ -365,7 +365,7 @@ Same matching rules as conditional update (requires exactly 1 match).
 
 ## Delete Behavior
 
-<span aria-hidden="true">🔗</span> **Spec**: [delete](https://hl7.org/fhir/R4/http.html#delete),
+**Spec**: [delete](https://hl7.org/fhir/R4/http.html#delete),
 [conditional delete](https://hl7.org/fhir/R4/http.html#3.1.0.7.1)
 
 ### Soft Delete (Default)
@@ -445,7 +445,7 @@ curl -i -X DELETE "http://localhost:8080/fhir/Patient?identifier=http://hospital
 
 ## Performance Considerations
 
-<span aria-hidden="true">🔗</span> **Spec (Batch/Transaction)**: [batch/transaction](https://hl7.org/fhir/R4/http.html#transaction)
+**Spec (Batch/Transaction)**: [batch/transaction](https://hl7.org/fhir/R4/http.html#transaction)
 
 ### Indexing
 
@@ -489,7 +489,7 @@ curl -X POST http://localhost:8080/fhir \
 
 ## Error Handling
 
-<span aria-hidden="true">🔗</span> **Spec**: [HTTP Status Codes](https://hl7.org/fhir/R4/http.html#Status-Codes),
+**Spec**: [HTTP Status Codes](https://hl7.org/fhir/R4/http.html#Status-Codes),
 [OperationOutcome](https://hl7.org/fhir/R4/operationoutcome.html)
 
 All errors return `OperationOutcome` with details:
@@ -531,7 +531,7 @@ curl -i -X POST http://localhost:8080/fhir/Patient \
 
 ## Configuration
 
-<span aria-hidden="true">🔗</span> **Spec (Capability Declaration)**: [CapabilityStatement](https://hl7.org/fhir/R4/capabilitystatement.html)
+**Spec (Capability Declaration)**: [CapabilityStatement](https://hl7.org/fhir/R4/capabilitystatement.html)
 
 Key configuration options for CRUD operations:
 
@@ -554,46 +554,38 @@ See [Configuration Guide](/getting-started/configuration) for complete options.
 
 ## Testing Your Implementation
 
-<span aria-hidden="true">🔗</span> **Spec (Capabilities)**: [capabilities (`GET [base]/metadata`)](https://hl7.org/fhir/R4/http.html#capabilities)
+**Spec (Capabilities)**: [capabilities (`GET [base]/metadata`)](https://hl7.org/fhir/R4/http.html#capabilities)
 
 Use the interactive API playground to test CRUD operations:
 
 <CardGroup cols={2}>
-  <Card title="Create" icon="plus" href="/api-reference/endpoint/create">
+  <Card title="Create" href="/api-reference/endpoint/create">
     Try creating resources
   </Card>
-  <Card title="Read" icon="eye" href="/api-reference/endpoint/read">
+  <Card title="Read" href="/api-reference/endpoint/read">
     Test read operations
   </Card>
-  <Card title="Update" icon="pen" href="/api-reference/endpoint/update">
+  <Card title="Update" href="/api-reference/endpoint/update">
     Practice updates
   </Card>
-  <Card title="Delete" icon="trash" href="/api-reference/endpoint/delete">
+  <Card title="Delete" href="/api-reference/endpoint/delete">
     Test deletion
   </Card>
 </CardGroup>
 
 ## Next Steps
 
-<span aria-hidden="true">🔗</span> **Spec**: [search](https://hl7.org/fhir/R4/http.html#search),
+**Spec**: [search](https://hl7.org/fhir/R4/http.html#search),
 [batch/transaction](https://hl7.org/fhir/R4/http.html#transaction), [history](https://hl7.org/fhir/R4/http.html#history)
 
 <CardGroup cols={2}>
-  <Card title="Search Operations" icon="magnifying-glass" href="/server/search">
+  <Card title="Search Operations" href="/server/search">
     Query resources efficiently
   </Card>
-  <Card
-    title="Batch & Transaction"
-    icon="layer-group"
-    href="/server/batch-and-transactions"
-  >
+  <Card title="Batch & Transaction" href="/server/batch-and-transactions">
     Perform multiple operations atomically
   </Card>
-  <Card
-    title="Versioning & History"
-    icon="clock-rotate-left"
-    href="/server/versioning-history"
-  >
+  <Card title="Versioning & History" href="/server/versioning-history">
     Access resource history
   </Card>
 </CardGroup>

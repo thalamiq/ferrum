@@ -23,16 +23,46 @@
             ]
           },
           {
-            "group": "Guide",
+            "group": "Server",
             "pages": [
-              "server/architecture",
-              "server/crud-operations",
-              "server/search",
-              "server/batch-and-transactions",
-              "server/versioning-history",
-              "server/compartments",
-              "server/operations",
-              "server/packages"
+              {
+                "group": "Core Operations",
+                "pages": [
+                  "server/crud-operations",
+                  "server/search",
+                  "server/batch-and-transactions",
+                  "server/versioning-history",
+                  "server/operations"
+                ]
+              },
+              {
+                "group": "Data & Access",
+                "pages": [
+                  "server/compartments",
+                  "server/referential-integrity",
+                  "server/indexing"
+                ]
+              },
+              {
+                "group": "Packages & Hooks",
+                "pages": ["server/packages", "server/hooks"]
+              },
+              {
+                "group": "Advanced",
+                "pages": [
+                  "server/performance",
+                  "server/security",
+                  "server/audit-logs"
+                ]
+              },
+              {
+                "group": "Deployment",
+                "pages": ["deployment/docker", "deployment/database"]
+              },
+              {
+                "group": "Admin UI",
+                "pages": ["ui/overview"]
+              }
             ]
           }
         ]
@@ -97,15 +127,6 @@
             ]
           }
         ]
-      },
-      {
-        "tab": "FHIR Core",
-        "groups": [
-          {
-            "group": "Snapshot Generation",
-            "pages": ["fhir-core/snapshot-generation"]
-          }
-        ]
       }
     ],
     "global": {
@@ -119,7 +140,7 @@
           "anchor": "FHIR Specification",
           "href": "https://hl7.org/fhir/",
           "icon": "book-open"
-        },
+        }
       ]
     }
   },
