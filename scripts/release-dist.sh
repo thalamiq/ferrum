@@ -3,7 +3,7 @@ set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 DIST_DIR="${REPO_ROOT}/quickstart"
-TARBALL="${1:-zunder.tar.gz}"
+TARBALL="${1:-ferrum.tar.gz}"
 
 if [ ! -d "$DIST_DIR" ]; then
   echo "quickstart/ directory not found at ${DIST_DIR}"

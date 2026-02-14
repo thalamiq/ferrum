@@ -4,7 +4,7 @@ mod test_support;
 #[test]
 fn test_as_quantity() {
     use serde_json::json;
-    use zunder_fhirpath::{Context, Value};
+    use ferrum_fhirpath::{Context, Value};
 
     let obs = json!({
       "resourceType": "Observation",
@@ -58,7 +58,7 @@ fn test_as_quantity() {
 #[test]
 fn test_as_with_multi_item_collection() {
     use serde_json::json;
-    use zunder_fhirpath::{Context, Value};
+    use ferrum_fhirpath::{Context, Value};
 
     // Test case for FHIR R4 search parameter compatibility
     // Expression like: (Observation.component.value as Quantity)

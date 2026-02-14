@@ -14,7 +14,7 @@ use crate::variables::VariableRegistry;
 use crate::vm::Plan;
 use lru::LruCache;
 use std::sync::{Arc, Mutex};
-use zunder_context::{DefaultFhirContext, FhirContext};
+use ferrum_context::{DefaultFhirContext, FhirContext};
 
 #[derive(Clone, Debug, Default)]
 pub struct CompileOptions {
@@ -109,7 +109,7 @@ impl Engine {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use zunder_fhirpath::Engine;
+    /// use ferrum_fhirpath::Engine;
     ///
     /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
     /// // Load R5 context from cache or download
@@ -162,7 +162,7 @@ impl Engine {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use zunder_fhirpath::Engine;
+    /// use ferrum_fhirpath::Engine;
     ///
     /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
     /// let engine = Engine::with_fhir_version("R5").await?;
@@ -393,7 +393,7 @@ impl Engine {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use zunder_fhirpath::{Engine, Context, Value};
+    /// use ferrum_fhirpath::{Engine, Context, Value};
     ///
     /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
     /// let engine = Engine::with_fhir_version("R5").await?;
@@ -450,7 +450,7 @@ impl Engine {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use zunder_fhirpath::Engine;
+    /// use ferrum_fhirpath::Engine;
     /// use serde_json::json;
     ///
     /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
@@ -486,7 +486,7 @@ impl Engine {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use zunder_fhirpath::Engine;
+    /// use ferrum_fhirpath::Engine;
     ///
     /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
     /// let engine = Engine::with_fhir_version("R5").await?;
@@ -524,7 +524,7 @@ impl Engine {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use zunder_fhirpath::{Engine, Value};
+    /// use ferrum_fhirpath::{Engine, Value};
     ///
     /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
     /// let engine = Engine::with_fhir_version("R5").await?;

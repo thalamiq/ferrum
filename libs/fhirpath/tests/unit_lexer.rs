@@ -1,7 +1,7 @@
 //! Unit tests for the FHIRPath lexer module
 
-use zunder_fhirpath::lexer::Lexer;
-use zunder_fhirpath::token::{Token, TokenType};
+use ferrum_fhirpath::lexer::Lexer;
+use ferrum_fhirpath::token::{Token, TokenType};
 
 /// Helper function to tokenize input and collect all tokens
 fn tokenize(input: &str) -> Vec<Token> {

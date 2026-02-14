@@ -7,10 +7,10 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value as JsonValue};
 use std::collections::HashMap;
-use zunder_registry_client::FhirPackage;
+use ferrum_registry_client::FhirPackage;
 
 use super::{BatchService, CrudService};
-use zunder_models::{Bundle, BundleEntry, BundleEntryRequest, BundleType};
+use ferrum_models::{Bundle, BundleEntry, BundleEntryRequest, BundleType};
 
 /// Categories of errors that can occur during package operations
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]

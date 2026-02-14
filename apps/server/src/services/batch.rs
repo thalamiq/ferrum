@@ -22,7 +22,7 @@ use std::{
     collections::{HashMap, HashSet},
     sync::Arc,
 };
-use zunder_models::{Bundle, BundleEntry, BundleEntryResponse, BundleType};
+use ferrum_models::{Bundle, BundleEntry, BundleEntryResponse, BundleType};
 use uuid::Uuid;
 
 use crate::db::search::engine::SearchEngine;

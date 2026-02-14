@@ -1,4 +1,4 @@
-# zunder-format
+# ferrum-format
 
 FHIR JSON ↔ XML conversion following the official HL7 mapping rules.
 
@@ -12,7 +12,7 @@ FHIR JSON ↔ XML conversion following the official HL7 mapping rules.
 ## Usage
 
 ```rust
-use zunder_format::{json_to_xml, xml_to_json};
+use ferrum_format::{json_to_xml, xml_to_json};
 
 // JSON → XML
 let xml = json_to_xml(r#"{"resourceType":"Patient","id":"p1","active":true}"#)?;
@@ -26,7 +26,7 @@ let json = xml_to_json(r#"<Patient xmlns="http://hl7.org/fhir"><id value="p1"/><
 The embedded `fhir_type_metadata.json` is generated from FHIR R4 core StructureDefinitions via the CLI:
 
 ```bash
-cargo run -p zunder-cli -- gen-format-metadata --fhir-version R4 \
+cargo run -p ferrum-cli -- gen-format-metadata --fhir-version R4 \
   --output libs/fhir-format/src/fhir_type_metadata.json
 ```
 
@@ -37,5 +37,5 @@ Regenerate after FHIR version upgrades or if new types need support.
 ## Testing
 
 ```bash
-cargo test -p zunder-format
+cargo test -p ferrum-format
 ```

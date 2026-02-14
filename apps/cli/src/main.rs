@@ -5,18 +5,18 @@ use std::sync::Arc;
 
 use anyhow::{Context as AnyhowContext, Result};
 use clap::{ArgAction, Parser, Subcommand};
-use zunder_codegen::generators::GeneratorConfig;
+use ferrum_codegen::generators::GeneratorConfig;
 use serde_json::{Map, Value};
-use zunder_context::{DefaultFhirContext, FhirContext};
-use zunder_models::{Snapshot, StructureDefinition};
-use zunder_registry_client::RegistryClient;
-use zunder_snapshot::{
+use ferrum_context::{DefaultFhirContext, FhirContext};
+use ferrum_models::{Snapshot, StructureDefinition};
+use ferrum_registry_client::RegistryClient;
+use ferrum_snapshot::{
     generate_deep_snapshot, generate_structure_definition_differential,
     generate_structure_definition_snapshot, SnapshotExpander,
 };
-use zunder_fhirpath::value::{Collection, ValueData};
-use zunder_fhirpath::vm::Plan;
-use zunder_fhirpath::{Context, Engine, Value as FhirValue};
+use ferrum_fhirpath::value::{Collection, ValueData};
+use ferrum_fhirpath::vm::Plan;
+use ferrum_fhirpath::{Context, Engine, Value as FhirValue};
 
 #[derive(Parser)]
 #[command(
@@ -589,7 +589,7 @@ async fn run_codegen(
         module_prefix,
     };
 
-    let generated = zunder_codegen::generate_rust_from_context(&context, output, config)
+    let generated = ferrum_codegen::generate_rust_from_context(&context, output, config)
         .with_context(|| "Failed to generate Rust models from context".to_string())?;
 
     println!(
@@ -757,7 +757,7 @@ fn collection_to_json(
 }
 
 async fn run_visualize(expr: &str, format: &str, stage: &str, output: Option<&Path>) -> Result<()> {
-    use zunder_fhirpath::{PipelineVisualization, VisualizationFormat};
+    use ferrum_fhirpath::{PipelineVisualization, VisualizationFormat};
 
     // Parse format
     let viz_format = match format.to_lowercase().as_str() {

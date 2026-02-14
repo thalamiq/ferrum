@@ -3,11 +3,11 @@
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::Arc;
-use zunder_context::FhirContext;
-use zunder_models::{Snapshot, StructureDefinition};
-use zunder_snapshot::SnapshotExpander;
+use ferrum_context::FhirContext;
+use ferrum_models::{Snapshot, StructureDefinition};
+use ferrum_snapshot::SnapshotExpander;
 
-/// Helper function to convert JSON snapshot to zunder_models::Snapshot
+/// Helper function to convert JSON snapshot to ferrum_models::Snapshot
 fn snapshot_from_json(snapshot: &Value) -> Snapshot {
     serde_json::from_value(snapshot.clone()).unwrap()
 }
@@ -148,14 +148,14 @@ impl FhirContext for MockContext {
         &self,
         _canonical_url: &str,
         _version: Option<&str>,
-    ) -> zunder_context::Result<Option<Arc<Value>>> {
+    ) -> ferrum_context::Result<Option<Arc<Value>>> {
         Ok(None)
     }
 
     fn get_structure_definition(
         &self,
         canonical_url: &str,
-    ) -> zunder_context::Result<Option<Arc<StructureDefinition>>> {
+    ) -> ferrum_context::Result<Option<Arc<StructureDefinition>>> {
         Ok(self
             .structure_definitions
             .get(canonical_url)

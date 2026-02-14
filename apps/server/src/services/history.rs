@@ -22,7 +22,7 @@ use crate::{
 use axum::http::StatusCode;
 use serde_json::{json, Value as JsonValue};
 use std::{collections::HashMap, sync::Arc};
-use zunder_models::{Bundle, BundleEntry, BundleEntryResponse, BundleType};
+use ferrum_models::{Bundle, BundleEntry, BundleEntryResponse, BundleType};
 use uuid::Uuid;
 
 pub struct HistoryService {

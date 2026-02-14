@@ -4,8 +4,8 @@
 //! onto base snapshot elements.
 
 use serde_json::Value;
-use zunder_context::FhirContext;
-use zunder_models::{ElementDefinition, ElementDefinitionBinding, ElementDefinitionType};
+use ferrum_context::FhirContext;
+use ferrum_models::{ElementDefinition, ElementDefinitionBinding, ElementDefinitionType};
 
 /// Merge a differential element onto a base element according to FHIR rules
 ///
@@ -463,10 +463,10 @@ fn merge_binding(
 
 /// Determine the more restrictive binding strength
 fn more_restrictive_binding_strength(
-    base: &zunder_models::BindingStrength,
-    diff: &zunder_models::BindingStrength,
-) -> zunder_models::BindingStrength {
-    use zunder_models::BindingStrength;
+    base: &ferrum_models::BindingStrength,
+    diff: &ferrum_models::BindingStrength,
+) -> ferrum_models::BindingStrength {
+    use ferrum_models::BindingStrength;
     // Order: Example < Preferred < Extensible < Required
     match (base, diff) {
         (BindingStrength::Example, _) => diff.clone(),
@@ -482,7 +482,7 @@ fn more_restrictive_binding_strength(
 mod tests {
     use super::*;
     use std::collections::HashMap;
-    use zunder_context::DefaultFhirContext;
+    use ferrum_context::DefaultFhirContext;
 
     /// Create an R4 context for testing
     async fn create_test_context() -> DefaultFhirContext {
@@ -578,7 +578,7 @@ mod tests {
     #[test]
     fn binding_strength_becomes_more_restrictive() {
         // This test doesn't need async context
-        use zunder_models::BindingStrength;
+        use ferrum_models::BindingStrength;
         assert_eq!(
             more_restrictive_binding_strength(
                 &BindingStrength::Example,

@@ -9,7 +9,7 @@ use crate::db::search::query_builder::ResolvedParam;
 use crate::models::Resource;
 use crate::services::indexing::SearchParameter;
 use crate::Result;
-use zunder_fhirpath::Context;
+use ferrum_fhirpath::Context;
 
 mod age;
 
@@ -29,7 +29,7 @@ pub(crate) trait IndexHook: Send + Sync {
         resource: &Resource,
         param: &SearchParameter,
         ctx: &Context,
-        fhirpath_engine: &zunder_fhirpath::Engine,
+        fhirpath_engine: &ferrum_fhirpath::Engine,
     ) -> Result<()>;
 }
 

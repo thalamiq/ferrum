@@ -4,7 +4,7 @@
 //! Workers handle indexing, terminology processing, and other async tasks.
 
 use anyhow::Context;
-use zunder::{
+use ferrum::{
     config::Config,
     logging,
     workers::{
@@ -116,7 +116,7 @@ async fn init_worker_state_with_retry(config: &Config) -> anyhow::Result<WorkerS
     loop {
         match WorkerState::new(config.clone()).await {
             Ok(state) => return Ok(state),
-            Err(zunder::Error::Database(e)) => {
+            Err(ferrum::Error::Database(e)) => {
                 tracing::error!(
                     "Failed to initialize worker state (db unavailable): {} (retrying in {:?})",
                     e,

@@ -172,9 +172,9 @@ fn init_tracer_provider(
 fn build_env_filter(config: &LoggingConfig) -> EnvFilter {
     EnvFilter::try_from_default_env().unwrap_or_else(|_| {
         // Suppress verbose PostgreSQL/sqlx debug logs by default
-        // Include both fhir_server (binary) and zunder (library crate) module paths
+        // Include both fhir_server (binary) and ferrum (library crate) module paths
         EnvFilter::new(format!(
-            "fhir_server={},zunder={},tower_http=debug,sqlx=warn,tokio_postgres=warn,postgres=warn",
+            "fhir_server={},ferrum={},tower_http=debug,sqlx=warn,tokio_postgres=warn,postgres=warn",
             config.level, config.level
         ))
     })
@@ -294,7 +294,7 @@ pub fn init_simple_logging() {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-                "fhir_server=info,zunder=info,sqlx=warn,tokio_postgres=warn,postgres=warn".into()
+                "fhir_server=info,ferrum=info,sqlx=warn,tokio_postgres=warn,postgres=warn".into()
             }),
         )
         .with(tracing_subscriber::fmt::layer())

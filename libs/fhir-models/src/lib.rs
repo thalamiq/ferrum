@@ -18,7 +18,7 @@
 //! # Example
 //!
 //! ```rust
-//! use zunder_models::common::{StructureDefinition, StructureDefinitionKind};
+//! use ferrum_models::common::{StructureDefinition, StructureDefinitionKind};
 //! use serde_json::json;
 //!
 //! let sd_json = json!({

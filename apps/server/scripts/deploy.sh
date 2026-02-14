@@ -9,8 +9,8 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 # Configuration
-APP_NAME="zunder"
-DB_APP="zunder-db"
+APP_NAME="ferrum"
+DB_APP="ferrum-db"
 ORG="thalamiq"
 REGION="fra"
 REGISTRY="registry.fly.io"

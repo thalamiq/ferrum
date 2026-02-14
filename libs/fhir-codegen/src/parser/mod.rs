@@ -8,8 +8,8 @@ use crate::ir::{
 };
 use anyhow::{anyhow, Result};
 use serde_json::Value;
-use zunder_context::DefaultFhirContext;
-use zunder_package::FhirPackage;
+use ferrum_context::DefaultFhirContext;
+use ferrum_package::FhirPackage;
 
 /// Parse a FHIR package and extract all type definitions
 pub fn parse_package(package: FhirPackage) -> Result<TypeRegistry> {

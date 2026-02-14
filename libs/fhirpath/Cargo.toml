@@ -1,5 +1,5 @@
 [package]
-name = "zunder-fhirpath"
+name = "ferrum-fhirpath"
 version = { workspace = true }
 edition = { workspace = true }
 description = "FHIRPath engine."
@@ -38,15 +38,15 @@ html-escape = { workspace = true, optional = true }
 urlencoding = { workspace = true }
 
 # FHIR context for runtime type resolution
-zunder-context.workspace = true
-zunder-ucum.workspace = true
+ferrum-context.workspace = true
+ferrum-ucum.workspace = true
 
 # XML support (optional)
-zunder-format = { workspace = true, optional = true }
+ferrum-format = { workspace = true, optional = true }
 
 [features]
 default = ["regex", "base64", "hex", "html-escape"]
-xml-support = ["zunder-format"]
+xml-support = ["ferrum-format"]
 
 [dev-dependencies]
 criterion = "0.5"

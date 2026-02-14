@@ -1,6 +1,6 @@
 use anyhow::Context as _;
 use std::sync::Arc;
-use zunder::Config;
+use ferrum::Config;
 use tokio::sync::OnceCell;
 
 static SHARED: OnceCell<Arc<SharedTestResources>> = OnceCell::const_new();

@@ -1,5 +1,5 @@
 [package]
-name = "zunder-format"
+name = "ferrum-format"
 version = { workspace = true }
 edition = { workspace = true }
 description = "FHIR format parsing and serialization (JSON, XML)"

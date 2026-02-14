@@ -12,7 +12,7 @@ use serde_json::Value as JsonValue;
 /// Axum extractor that accepts both `application/fhir+json` and `application/fhir+xml`
 /// (plus their generic variants `application/json` and `application/xml`/`text/xml`).
 ///
-/// XML bodies are converted to JSON via `zunder_format::xml_to_json` so that
+/// XML bodies are converted to JSON via `ferrum_format::xml_to_json` so that
 /// downstream handlers always work with `serde_json::Value`.
 pub struct FhirBody(pub JsonValue);
 
@@ -73,7 +73,7 @@ where
             })?;
 
             let json_str =
-                zunder_format::xml_to_json(xml_str).map_err(|e| FhirBodyRejection {
+                ferrum_format::xml_to_json(xml_str).map_err(|e| FhirBodyRejection {
                     status: StatusCode::BAD_REQUEST,
                     message: format!("Invalid FHIR XML: {}", e),
                 })?;
@@ -123,7 +123,7 @@ pub fn parse_fhir_body(bytes: &[u8], headers: &HeaderMap) -> crate::Result<JsonV
         let xml_str = std::str::from_utf8(bytes).map_err(|_| {
             crate::Error::InvalidResource("Request body is not valid UTF-8".to_string())
         })?;
-        let json_str = zunder_format::xml_to_json(xml_str)
+        let json_str = ferrum_format::xml_to_json(xml_str)
             .map_err(|e| crate::Error::InvalidResource(format!("Invalid FHIR XML: {}", e)))?;
         serde_json::from_str(&json_str).map_err(|e| {
             crate::Error::Internal(format!(

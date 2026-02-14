@@ -28,8 +28,8 @@ use sqlx::{PgConnection, PgPool};
 use std::num::NonZeroUsize;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
-use zunder_fhirpath::resolver::ResourceResolver;
-use zunder_fhirpath::Value;
+use ferrum_fhirpath::resolver::ResourceResolver;
+use ferrum_fhirpath::Value;
 
 /// Connection context for reference resolution
 ///
@@ -371,7 +371,7 @@ impl FhirResourceResolver {
 /// This implementation only returns cached results. For it to work, you must
 /// call prewarm_cache_for_resource() before FHIRPath evaluation.
 impl ResourceResolver for FhirResourceResolver {
-    fn resolve(&self, reference: &str) -> zunder_fhirpath::Result<Option<Value>> {
+    fn resolve(&self, reference: &str) -> ferrum_fhirpath::Result<Option<Value>> {
         // Check cache only (no async DB access in sync context)
         let mut cache = self.cache.lock().unwrap();
         if let Some(result) = cache.get(reference) {

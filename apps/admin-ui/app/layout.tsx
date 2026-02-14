@@ -12,11 +12,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Zunder",
-    template: "%s · Zunder",
+    default: "Ferrum",
+    template: "%s · Ferrum",
   },
-  applicationName: "Zunder",
-  description: "Admin UI for the Zunder FHIR Server",
+  applicationName: "Ferrum",
+  description: "Admin UI for the Ferrum FHIR Server",
   icons: {
     icon: "/icon.svg",
   },

@@ -1,6 +1,6 @@
-# Zunder - Distribution Package
+# Ferrum - Distribution Package
 
-Zunder is a spec compliant and performant FHIR server implementation built in Rust.
+Ferrum is a spec compliant and performant FHIR server implementation built in Rust.
 
 ## Quick Start
 
@@ -83,8 +83,8 @@ export BIND_ADDRESS=127.0.0.1    # localhost only (default)
 **Docker image versions:**
 
 ```bash
-export FHIR_SERVER_IMAGE=ghcr.io/thalamiq/zunder:v0.1.0
-export FHIR_UI_IMAGE=ghcr.io/thalamiq/zunder-ui:v0.1.0
+export FHIR_SERVER_IMAGE=ghcr.io/thalamiq/ferrum:v0.1.0
+export FHIR_UI_IMAGE=ghcr.io/thalamiq/ferrum-ui:v0.1.0
 ```
 
 ## Monitoring (Optional)
@@ -325,7 +325,7 @@ Deploy to Fly.io with a single script. This is ideal for cloud deployments with 
 2. Login: `fly auth login`
 3. Create a Fly Postgres database (if not exists):
    ```bash
-   fly postgres create --name zunder-db --region fra
+   fly postgres create --name ferrum-db --region fra
    ```
 
 ### One-Command Deployment
@@ -349,16 +349,16 @@ If you prefer to run steps manually:
 
 ```bash
 # 1. Build for linux (from macOS)
-docker build --platform linux/amd64 -t registry.fly.io/zunder:latest .
+docker build --platform linux/amd64 -t registry.fly.io/ferrum:latest .
 
 # 2. Authenticate
 fly auth docker
 
 # 3. Push image
-docker push registry.fly.io/zunder:latest
+docker push registry.fly.io/ferrum:latest
 
 # 4. Deploy
-fly deploy --image registry.fly.io/zunder:latest
+fly deploy --image registry.fly.io/ferrum:latest
 ```
 
 ### Initial Setup (One-Time)
@@ -367,13 +367,13 @@ After first deployment, configure the database connection:
 
 ```bash
 # Attach Postgres database
-fly postgres attach zunder-db --app zunder
+fly postgres attach ferrum-db --app ferrum
 
 # Verify DATABASE_URL is set
 fly secrets list
 
 # If not set or needs updating, set manually (adjust port to 5433 for Fly Postgres)
-fly secrets set DATABASE_URL="postgres://user:pass@zunder-db.flycast:5433/fhir?sslmode=disable"
+fly secrets set DATABASE_URL="postgres://user:pass@ferrum-db.flycast:5433/fhir?sslmode=disable"
 ```
 
 ### Disable FHIR Package Auto-Loading (Recommended for 1-2GB RAM)
@@ -422,7 +422,7 @@ fly postgres list
 **Database keeps stopping:**
 
 - Fly auto-stops idle Postgres databases by default
-- Start manually: `fly machine start <machine-id> --app zunder-db`
+- Start manually: `fly machine start <machine-id> --app ferrum-db`
 - Or configure to always run (increases costs)
 
 **Out of memory during package loading:**
@@ -437,8 +437,8 @@ fly postgres list
 
 ## Support
 
-- **Documentation**: https://github.com/thalamiq/zunder
-- **Issues**: https://github.com/thalamiq/zunder/issues
+- **Documentation**: https://github.com/thalamiq/ferrum
+- **Issues**: https://github.com/thalamiq/ferrum/issues
 - **FHIR R4 Spec**: https://hl7.org/fhir/R4/
 
 ## License

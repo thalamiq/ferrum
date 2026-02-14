@@ -119,7 +119,7 @@ New validation capabilities added by:
 ### Presets
 
 ```rust
-use zunder_validator::{ValidatorConfig, Preset};
+use ferrum_validator::{ValidatorConfig, Preset};
 
 // Use a preset
 let cfg = ValidatorConfig::preset(Preset::Server);

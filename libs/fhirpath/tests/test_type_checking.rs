@@ -6,7 +6,7 @@
 //! - Type checking priority: Runtime → Path hints → Declared types
 
 use serde_json::json;
-use zunder_fhirpath::{Context, Value};
+use ferrum_fhirpath::{Context, Value};
 
 mod test_support;
 

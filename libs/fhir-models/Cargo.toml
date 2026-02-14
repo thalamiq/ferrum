@@ -1,5 +1,5 @@
 [package]
-name = "zunder-models"
+name = "ferrum-models"
 version = { workspace = true }
 edition = { workspace = true }
 description = "FHIR data models."

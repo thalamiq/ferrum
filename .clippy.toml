@@ -1,4 +1,4 @@
-# Clippy configuration for zunder workspace
+# Clippy configuration for ferrum workspace
 # See https://rust-lang.github.io/rust-clippy/master/index.html for all available lints
 
 # Allow some lints that might be too strict for this project

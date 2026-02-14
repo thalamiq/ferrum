@@ -1,5 +1,5 @@
 {
-  "name": "zunder",
+  "name": "ferrum",
   "private": true,
   "scripts": {
     "dev:ui": "pnpm --filter ui dev",

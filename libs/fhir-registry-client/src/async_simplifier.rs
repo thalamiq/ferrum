@@ -4,7 +4,7 @@ use crate::error::{Error, Result};
 use crate::models::{SimplifierSearchParams, SimplifierSearchResult};
 use reqwest::Client;
 use std::time::Duration;
-use zunder_package::FhirPackage;
+use ferrum_package::FhirPackage;
 
 const SIMPLIFIER_BASE_URL: &str = "https://packages.simplifier.net";
 

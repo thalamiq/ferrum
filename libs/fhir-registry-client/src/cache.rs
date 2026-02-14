@@ -2,7 +2,7 @@
 
 use crate::error::{Error, Result};
 use std::path::{Path, PathBuf};
-use zunder_package::FhirPackage;
+use ferrum_package::FhirPackage;
 
 /// Trait for FHIR package cache implementations.
 ///

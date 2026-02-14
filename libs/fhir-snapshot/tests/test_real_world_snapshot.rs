@@ -2,8 +2,8 @@
 
 use serde_json::Value;
 use std::fs;
-use zunder_models::{BindingStrength, SlicingRules};
-use zunder_snapshot::{Differential, Snapshot};
+use ferrum_models::{BindingStrength, SlicingRules};
+use ferrum_snapshot::{Differential, Snapshot};
 
 /// Helper to load and parse a JSON file
 fn load_json(path: &str) -> Value {

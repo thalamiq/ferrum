@@ -1,5 +1,5 @@
 [package]
-name = "zunder-codegen"
+name = "ferrum-codegen"
 version = { workspace = true }
 edition = { workspace = true }
 description = "FHIR code generation tools."
@@ -13,9 +13,9 @@ categories = { workspace = true }
 publish = false
 
 [dependencies]
-zunder-package.workspace = true
-zunder-models.workspace = true
-zunder-context.workspace = true
+ferrum-package.workspace = true
+ferrum-models.workspace = true
+ferrum-context.workspace = true
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
@@ -24,5 +24,5 @@ clap = { workspace = true }
 heck = { workspace = true }
 
 [lib]
-name = "zunder_codegen"
+name = "ferrum_codegen"
 path = "src/lib.rs"

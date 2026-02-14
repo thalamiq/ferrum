@@ -58,7 +58,7 @@ fn calendar_is_strict_equal_to_ucum(unit: &str) -> bool {
     )
 }
 
-fn is_pure_time_dimension(dim: &zunder_ucum::DimensionVector) -> bool {
+fn is_pure_time_dimension(dim: &ferrum_ucum::DimensionVector) -> bool {
     dim.0[0] == 0
         && dim.0[1] == 0
         && dim.0[3] == 0
@@ -70,7 +70,7 @@ fn is_pure_time_dimension(dim: &zunder_ucum::DimensionVector) -> bool {
 }
 
 fn try_ucum_compare(lv: &Decimal, lu: &str, rv: &Decimal, ru: &str) -> Option<std::cmp::Ordering> {
-    zunder_ucum::compare_decimal_quantities(lv, lu, rv, ru).ok()
+    ferrum_ucum::compare_decimal_quantities(lv, lu, rv, ru).ok()
 }
 
 /// Get unit dimension for dimensional analysis
@@ -374,7 +374,7 @@ fn add(left: Collection, right: Collection) -> Result<Collection> {
             };
 
             let (l_unit, r_unit) =
-                match (zunder_ucum::Unit::parse(lu_eff), zunder_ucum::Unit::parse(ru_eff)) {
+                match (ferrum_ucum::Unit::parse(lu_eff), ferrum_ucum::Unit::parse(ru_eff)) {
                     (Ok(lu), Ok(ru)) => (lu, ru),
                     _ => return Ok(Collection::empty()),
                 };
@@ -384,8 +384,8 @@ fn add(left: Collection, right: Collection) -> Result<Collection> {
             }
 
             let (
-                zunder_ucum::UnitKind::Multiplicative { factor: lf },
-                zunder_ucum::UnitKind::Multiplicative { factor: rf },
+                ferrum_ucum::UnitKind::Multiplicative { factor: lf },
+                ferrum_ucum::UnitKind::Multiplicative { factor: rf },
             ) = (&l_unit.kind, &r_unit.kind)
             else {
                 return Ok(Collection::empty());
@@ -399,7 +399,7 @@ fn add(left: Collection, right: Collection) -> Result<Collection> {
             let lv_t = if target == lu_eff {
                 *lv
             } else {
-                match zunder_ucum::convert_decimal(*lv, lu_eff, target) {
+                match ferrum_ucum::convert_decimal(*lv, lu_eff, target) {
                     Ok(v) => v,
                     Err(_) => return Ok(Collection::empty()),
                 }
@@ -407,7 +407,7 @@ fn add(left: Collection, right: Collection) -> Result<Collection> {
             let rv_t = if target == ru_eff {
                 *rv
             } else {
-                match zunder_ucum::convert_decimal(*rv, ru_eff, target) {
+                match ferrum_ucum::convert_decimal(*rv, ru_eff, target) {
                     Ok(v) => v,
                     Err(_) => return Ok(Collection::empty()),
                 }
@@ -754,7 +754,7 @@ fn subtract(left: Collection, right: Collection) -> Result<Collection> {
             };
 
             let (l_unit, r_unit) =
-                match (zunder_ucum::Unit::parse(lu_eff), zunder_ucum::Unit::parse(ru_eff)) {
+                match (ferrum_ucum::Unit::parse(lu_eff), ferrum_ucum::Unit::parse(ru_eff)) {
                     (Ok(lu), Ok(ru)) => (lu, ru),
                     _ => return Ok(Collection::empty()),
                 };
@@ -764,8 +764,8 @@ fn subtract(left: Collection, right: Collection) -> Result<Collection> {
             }
 
             let (
-                zunder_ucum::UnitKind::Multiplicative { factor: lf },
-                zunder_ucum::UnitKind::Multiplicative { factor: rf },
+                ferrum_ucum::UnitKind::Multiplicative { factor: lf },
+                ferrum_ucum::UnitKind::Multiplicative { factor: rf },
             ) = (&l_unit.kind, &r_unit.kind)
             else {
                 return Ok(Collection::empty());
@@ -779,7 +779,7 @@ fn subtract(left: Collection, right: Collection) -> Result<Collection> {
             let lv_t = if target == lu_eff {
                 *lv
             } else {
-                match zunder_ucum::convert_decimal(*lv, lu_eff, target) {
+                match ferrum_ucum::convert_decimal(*lv, lu_eff, target) {
                     Ok(v) => v,
                     Err(_) => return Ok(Collection::empty()),
                 }
@@ -787,7 +787,7 @@ fn subtract(left: Collection, right: Collection) -> Result<Collection> {
             let rv_t = if target == ru_eff {
                 *rv
             } else {
-                match zunder_ucum::convert_decimal(*rv, ru_eff, target) {
+                match ferrum_ucum::convert_decimal(*rv, ru_eff, target) {
                     Ok(v) => v,
                     Err(_) => return Ok(Collection::empty()),
                 }
@@ -902,23 +902,23 @@ fn multiply(left: Collection, right: Collection) -> Result<Collection> {
             };
 
             let (l_unit, r_unit) =
-                match (zunder_ucum::Unit::parse(lu_eff), zunder_ucum::Unit::parse(ru_eff)) {
+                match (ferrum_ucum::Unit::parse(lu_eff), ferrum_ucum::Unit::parse(ru_eff)) {
                     (Ok(lu), Ok(ru)) => (lu, ru),
                     _ => return Ok(Collection::empty()),
                 };
-            if matches!(l_unit.kind, zunder_ucum::UnitKind::NonLinear)
-                || matches!(r_unit.kind, zunder_ucum::UnitKind::NonLinear)
+            if matches!(l_unit.kind, ferrum_ucum::UnitKind::NonLinear)
+                || matches!(r_unit.kind, ferrum_ucum::UnitKind::NonLinear)
             {
                 return Ok(Collection::empty());
             }
 
-            if l_unit.dimensions == zunder_ucum::DimensionVector::ZERO {
+            if l_unit.dimensions == ferrum_ucum::DimensionVector::ZERO {
                 return Ok(Collection::singleton(Value::quantity(
                     *lv * *rv,
                     Arc::from(ru_eff),
                 )));
             }
-            if r_unit.dimensions == zunder_ucum::DimensionVector::ZERO {
+            if r_unit.dimensions == ferrum_ucum::DimensionVector::ZERO {
                 return Ok(Collection::singleton(Value::quantity(
                     *lv * *rv,
                     Arc::from(lu_eff),
@@ -928,8 +928,8 @@ fn multiply(left: Collection, right: Collection) -> Result<Collection> {
             // Same dimension: normalize to the most granular unit and square it (e.g., m * cm -> cm2).
             if l_unit.dimensions == r_unit.dimensions {
                 let (
-                    zunder_ucum::UnitKind::Multiplicative { factor: lf },
-                    zunder_ucum::UnitKind::Multiplicative { factor: rf },
+                    ferrum_ucum::UnitKind::Multiplicative { factor: lf },
+                    ferrum_ucum::UnitKind::Multiplicative { factor: rf },
                 ) = (&l_unit.kind, &r_unit.kind)
                 else {
                     return Ok(Collection::empty());
@@ -943,7 +943,7 @@ fn multiply(left: Collection, right: Collection) -> Result<Collection> {
                 let lv_t = if target == lu_eff {
                     *lv
                 } else {
-                    match zunder_ucum::convert_decimal(*lv, lu_eff, target) {
+                    match ferrum_ucum::convert_decimal(*lv, lu_eff, target) {
                         Ok(v) => v,
                         Err(_) => return Ok(Collection::empty()),
                     }
@@ -951,7 +951,7 @@ fn multiply(left: Collection, right: Collection) -> Result<Collection> {
                 let rv_t = if target == ru_eff {
                     *rv
                 } else {
-                    match zunder_ucum::convert_decimal(*rv, ru_eff, target) {
+                    match ferrum_ucum::convert_decimal(*rv, ru_eff, target) {
                         Ok(v) => v,
                         Err(_) => return Ok(Collection::empty()),
                     }
@@ -1059,17 +1059,17 @@ fn divide(left: Collection, right: Collection) -> Result<Collection> {
             };
 
             let (l_unit, r_unit) =
-                match (zunder_ucum::Unit::parse(lu_eff), zunder_ucum::Unit::parse(ru_eff)) {
+                match (ferrum_ucum::Unit::parse(lu_eff), ferrum_ucum::Unit::parse(ru_eff)) {
                     (Ok(lu), Ok(ru)) => (lu, ru),
                     _ => return Ok(Collection::empty()),
                 };
-            if matches!(l_unit.kind, zunder_ucum::UnitKind::NonLinear)
-                || matches!(r_unit.kind, zunder_ucum::UnitKind::NonLinear)
+            if matches!(l_unit.kind, ferrum_ucum::UnitKind::NonLinear)
+                || matches!(r_unit.kind, ferrum_ucum::UnitKind::NonLinear)
             {
                 return Ok(Collection::empty());
             }
 
-            if r_unit.dimensions == zunder_ucum::DimensionVector::ZERO {
+            if r_unit.dimensions == ferrum_ucum::DimensionVector::ZERO {
                 return Ok(Collection::singleton(Value::quantity(
                     *lv / *rv,
                     Arc::from(lu_eff),
@@ -1078,7 +1078,7 @@ fn divide(left: Collection, right: Collection) -> Result<Collection> {
 
             // If the dimensions match, result is dimensionless (unit "1")
             if l_unit.dimensions == r_unit.dimensions {
-                let lv_in_ru = match zunder_ucum::convert_decimal(*lv, lu_eff, ru_eff) {
+                let lv_in_ru = match ferrum_ucum::convert_decimal(*lv, lu_eff, ru_eff) {
                     Ok(v) => v,
                     Err(_) => return Ok(Collection::empty()),
                 };
@@ -1557,7 +1557,7 @@ fn items_equal(left: &Value, right: &Value) -> Option<bool> {
                         .map(|ord| ord == std::cmp::Ordering::Equal)
                 }
                 (Some(lc), None) => {
-                    let Ok(other) = zunder_ucum::Unit::parse(ru) else {
+                    let Ok(other) = ferrum_ucum::Unit::parse(ru) else {
                         return None;
                     };
                     if !is_pure_time_dimension(&other.dimensions) {
@@ -1571,7 +1571,7 @@ fn items_equal(left: &Value, right: &Value) -> Option<bool> {
                     }
                 }
                 (None, Some(rc)) => {
-                    let Ok(other) = zunder_ucum::Unit::parse(lu) else {
+                    let Ok(other) = ferrum_ucum::Unit::parse(lu) else {
                         return None;
                     };
                     if !is_pure_time_dimension(&other.dimensions) {
@@ -1992,27 +1992,27 @@ fn items_equivalent(left: &Value, right: &Value) -> bool {
             }
 
             let (l_unit, r_unit) =
-                match (zunder_ucum::Unit::parse(lu_eff), zunder_ucum::Unit::parse(ru_eff)) {
+                match (ferrum_ucum::Unit::parse(lu_eff), ferrum_ucum::Unit::parse(ru_eff)) {
                     (Ok(lu), Ok(ru)) => (lu, ru),
                     _ => return false,
                 };
             if l_unit.dimensions != r_unit.dimensions {
                 return false;
             }
-            if matches!(l_unit.kind, zunder_ucum::UnitKind::NonLinear)
-                || matches!(r_unit.kind, zunder_ucum::UnitKind::NonLinear)
+            if matches!(l_unit.kind, ferrum_ucum::UnitKind::NonLinear)
+                || matches!(r_unit.kind, ferrum_ucum::UnitKind::NonLinear)
             {
                 return false;
             }
 
             match (&l_unit.kind, &r_unit.kind) {
                 // Affine units: normalize both to Kelvin and apply decimal equivalence.
-                (zunder_ucum::UnitKind::Affine { .. }, _) | (_, zunder_ucum::UnitKind::Affine { .. }) => {
-                    let lv_norm = match zunder_ucum::convert_decimal(*lv, lu_eff, "K") {
+                (ferrum_ucum::UnitKind::Affine { .. }, _) | (_, ferrum_ucum::UnitKind::Affine { .. }) => {
+                    let lv_norm = match ferrum_ucum::convert_decimal(*lv, lu_eff, "K") {
                         Ok(v) => v,
                         Err(_) => return false,
                     };
-                    let rv_norm = match zunder_ucum::convert_decimal(*rv, ru_eff, "K") {
+                    let rv_norm = match ferrum_ucum::convert_decimal(*rv, ru_eff, "K") {
                         Ok(v) => v,
                         Err(_) => return false,
                     };
@@ -2022,8 +2022,8 @@ fn items_equivalent(left: &Value, right: &Value) -> bool {
                         == round_to_precision(&rv_norm, min_precision)
                 }
                 (
-                    zunder_ucum::UnitKind::Multiplicative { factor: lf },
-                    zunder_ucum::UnitKind::Multiplicative { factor: rf },
+                    ferrum_ucum::UnitKind::Multiplicative { factor: lf },
+                    ferrum_ucum::UnitKind::Multiplicative { factor: rf },
                 ) => {
                     // Most granular unit of either input (smallest UCUM factor).
                     let target = match lf.cmp(rf) {
@@ -2031,11 +2031,11 @@ fn items_equivalent(left: &Value, right: &Value) -> bool {
                         _ => lu_eff,
                     };
 
-                    let lv_norm = match zunder_ucum::convert_decimal(*lv, lu_eff, target) {
+                    let lv_norm = match ferrum_ucum::convert_decimal(*lv, lu_eff, target) {
                         Ok(v) => v,
                         Err(_) => return false,
                     };
-                    let rv_norm = match zunder_ucum::convert_decimal(*rv, ru_eff, target) {
+                    let rv_norm = match ferrum_ucum::convert_decimal(*rv, ru_eff, target) {
                         Ok(v) => v,
                         Err(_) => return false,
                     };
@@ -2045,7 +2045,7 @@ fn items_equivalent(left: &Value, right: &Value) -> bool {
                     let lv_step = {
                         let p = decimal_scale_ignoring_trailing_zeros(lv);
                         let step = Decimal::new(1, p);
-                        match zunder_ucum::convert_decimal(step, lu_eff, target) {
+                        match ferrum_ucum::convert_decimal(step, lu_eff, target) {
                             Ok(v) => v,
                             Err(_) => return false,
                         }
@@ -2054,7 +2054,7 @@ fn items_equivalent(left: &Value, right: &Value) -> bool {
                     let rv_step = {
                         let p = decimal_scale_ignoring_trailing_zeros(rv);
                         let step = Decimal::new(1, p);
-                        match zunder_ucum::convert_decimal(step, ru_eff, target) {
+                        match ferrum_ucum::convert_decimal(step, ru_eff, target) {
                             Ok(v) => v,
                             Err(_) => return false,
                         }
@@ -2604,7 +2604,7 @@ where
                 (Some(lc), Some(rc)) => Ok(try_ucum_compare(lv, lc, rv, rc).map(op)),
                 (Some(lc), None) => {
                     if !calendar_is_strict_equal_to_ucum(lu) {
-                        let Ok(other) = zunder_ucum::Unit::parse(ru) else {
+                        let Ok(other) = ferrum_ucum::Unit::parse(ru) else {
                             return Ok(None);
                         };
                         if is_pure_time_dimension(&other.dimensions) {
@@ -2616,7 +2616,7 @@ where
                 }
                 (None, Some(rc)) => {
                     if !calendar_is_strict_equal_to_ucum(ru) {
-                        let Ok(other) = zunder_ucum::Unit::parse(lu) else {
+                        let Ok(other) = ferrum_ucum::Unit::parse(lu) else {
                             return Ok(None);
                         };
                         if is_pure_time_dimension(&other.dimensions) {

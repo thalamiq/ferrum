@@ -1,15 +1,15 @@
-![Zunder](assets/zunder.svg)
+![Ferrum](assets/ferrum.svg)
 
-**Zunder** is a [FHIR](https://hl7.org/fhir/) R4/R5 ecosystem built in Rust. At its core is a high performance REST server for healthcare interoperability: CRUD, search, batch and transaction bundles, terminology services, and more.
+**Ferrum** is a [FHIR](https://hl7.org/fhir/) R4/R5 ecosystem built in Rust. At its core is a high performance REST server for healthcare interoperability: CRUD, search, batch and transaction bundles, terminology services, and more.
 
 Developed by [ThalamiQ](https://thalamiq.io).
 
-> **Note:** This project is under active development. APIs may change at any time. If you encounter issues, please [open an issue](https://github.com/thalamiq/zunder/issues).
+> **Note:** This project is under active development. APIs may change at any time. If you encounter issues, please [open an issue](https://github.com/thalamiq/ferrum/issues).
 
 ## Quickstart
 
 ```bash
-curl -fsSL https://get.zunder.thalamiq.io | sh
+curl -fsSL https://get.ferrum.thalamiq.io | sh
 ```
 
 This starts the FHIR server, database, and admin UI. Access the API at [http://localhost:8080/fhir](http://localhost:8080/fhir) and the Admin UI at [http://localhost:3000](http://localhost:3000).

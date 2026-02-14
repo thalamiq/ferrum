@@ -11,9 +11,9 @@ use crate::generator::{
     post_process_snapshot,
 };
 // Types are used directly from fhir_models
-use zunder_context::FhirContext;
-use zunder_models::common::structure_definition::TypeDerivationRule;
-use zunder_models::StructureDefinition;
+use ferrum_context::FhirContext;
+use ferrum_models::common::structure_definition::TypeDerivationRule;
+use ferrum_models::StructureDefinition;
 
 // No conversion needed - we're using fhir_models types directly
 
@@ -57,7 +57,7 @@ pub fn generate_structure_definition_snapshot(
         .as_ref()
         .ok_or_else(|| Error::Snapshot("Base StructureDefinition missing snapshot".into()))?;
 
-    // use zunder_models types directly
+    // use ferrum_models types directly
     let base_snapshot = base_snapshot_models;
     let derived_diff = derived_diff_models;
 
@@ -105,7 +105,7 @@ pub fn generate_structure_definition_differential(
         .as_ref()
         .ok_or_else(|| Error::Snapshot("Derived StructureDefinition missing snapshot".into()))?;
 
-    // use zunder_models types directly
+    // use ferrum_models types directly
     let base_snapshot = base_snapshot_models;
     let derived_snapshot = derived_snapshot_models;
 
@@ -216,8 +216,8 @@ fn resolve_base_structure_definition(
 mod tests {
     use super::*;
     use serde_json::json;
-    use zunder_models::common::complex::PublicationStatus;
-    use zunder_models::common::structure_definition::StructureDefinitionKind;
+    use ferrum_models::common::complex::PublicationStatus;
+    use ferrum_models::common::structure_definition::StructureDefinitionKind;
 
     #[test]
     fn merges_metadata_correctly() {

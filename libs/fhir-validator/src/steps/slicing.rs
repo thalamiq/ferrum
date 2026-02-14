@@ -11,8 +11,8 @@ use crate::validator::{IssueCode, ValidationIssue};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
-use zunder_snapshot::ElementDefinition;
-use zunder_fhirpath::{Context as FhirPathContext, Engine as FhirPathEngine, Value as FhirPathValue};
+use ferrum_snapshot::ElementDefinition;
+use ferrum_fhirpath::{Context as FhirPathContext, Engine as FhirPathEngine, Value as FhirPathValue};
 
 /// Discriminator type per spec 5.1.0.13
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -366,7 +366,7 @@ fn extract_value_by_fhirpath(element: &Value, path: &str, engine: &Arc<FhirPathE
 
 /// Convert FHIRPath Value to serde_json::Value for comparison
 fn convert_fhirpath_value_to_json(value: &FhirPathValue) -> Value {
-    use zunder_fhirpath::value::ValueData;
+    use ferrum_fhirpath::value::ValueData;
 
     match value.data() {
         ValueData::Boolean(b) => Value::Bool(*b),

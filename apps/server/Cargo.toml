@@ -1,11 +1,11 @@
 [package]
-name = "zunder"
+name = "ferrum"
 version = "0.1.0"
 edition = "2021"
 description = "A production-ready FHIR server implementation in Rust"
 license = "Apache-2.0"
 authors = ["Thalamiq GmbH <till@thalamiq.io>"]
-repository = "https://github.com/thalamiq/zunder"
+repository = "https://github.com/thalamiq/ferrum"
 homepage = "https://thalamiq.io"
 documentation = "https://docs.thalamiq.io"
 readme = "README.md"
@@ -63,13 +63,13 @@ unicode-normalization = "0.1"
 jsonwebtoken = "9"
 
 # FHIR core libraries (workspace path dependencies)
-zunder-models.workspace = true
-zunder-snapshot.workspace = true
-zunder-fhirpath.workspace = true
-zunder-format.workspace = true
-zunder-registry-client.workspace = true
-zunder-context.workspace = true
-zunder-package.workspace = true
+ferrum-models.workspace = true
+ferrum-snapshot.workspace = true
+ferrum-fhirpath.workspace = true
+ferrum-format.workspace = true
+ferrum-registry-client.workspace = true
+ferrum-context.workspace = true
+ferrum-package.workspace = true
 
 # Error handling
 anyhow = "1"

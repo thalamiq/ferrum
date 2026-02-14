@@ -1,4 +1,4 @@
-# zunder-snapshot
+# ferrum-snapshot
 
 FHIR StructureDefinition snapshot generation, expansion, and differential computation.
 
@@ -27,8 +27,8 @@ Most use cases (validation, search parameter extraction, UI rendering) need the 
 ## Usage
 
 ```rust
-use zunder_snapshot::{generate_structure_definition_snapshot, generate_deep_snapshot, SnapshotExpander};
-use zunder_context::{DefaultFhirContext, FhirContext};
+use ferrum_snapshot::{generate_structure_definition_snapshot, generate_deep_snapshot, SnapshotExpander};
+use ferrum_context::{DefaultFhirContext, FhirContext};
 
 // Build a FHIR context (requires a loaded package)
 // let ctx = DefaultFhirContext::from_fhir_version_async(None, "R4").await?;
@@ -45,7 +45,7 @@ use zunder_context::{DefaultFhirContext, FhirContext};
 ### Unit / integration tests
 
 ```bash
-cargo test -p zunder-snapshot
+cargo test -p ferrum-snapshot
 ```
 
 ### Official FHIR test suite
@@ -57,10 +57,10 @@ The crate includes a test harness that runs the official HL7 FHIR snapshot-gener
 git submodule update --init --recursive
 
 # Run the official test suite
-cargo test -p zunder-snapshot --test test_fhir_test_cases -- --nocapture
+cargo test -p ferrum-snapshot --test test_fhir_test_cases -- --nocapture
 
 # Run a single test case
-cargo test -p zunder-snapshot --test test_fhir_test_cases fhir_test_case_simple_quantity -- --nocapture
+cargo test -p ferrum-snapshot --test test_fhir_test_cases fhir_test_case_simple_quantity -- --nocapture
 ```
 
 When a test fails, detailed diffs are written to `libs/fhir-snapshot/tests/test_output/`:

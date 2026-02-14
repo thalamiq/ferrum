@@ -11,7 +11,7 @@
 
 use crate::error::Result;
 use std::collections::HashMap;
-use zunder_models::{ElementDefinition, Snapshot};
+use ferrum_models::{ElementDefinition, Snapshot};
 
 /// Context for tracking inheritance during snapshot generation
 pub struct InheritanceContext {

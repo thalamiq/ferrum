@@ -12,12 +12,12 @@ use crate::ProfilesPlan;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
-use zunder_context::FhirContext;
-use zunder_models::common::element_definition::{
+use ferrum_context::FhirContext;
+use ferrum_models::common::element_definition::{
     DiscriminatorType as ModelDiscType, SlicingRules as ModelSlicingRules,
 };
-use zunder_snapshot::{ElementDefinition, ExpandedFhirContext};
-use zunder_fhirpath::Engine as FhirPathEngine;
+use ferrum_snapshot::{ElementDefinition, ExpandedFhirContext};
+use ferrum_fhirpath::Engine as FhirPathEngine;
 
 use super::slicing::{validate_slicing, SliceDefinition, SlicingRules};
 
@@ -130,7 +130,7 @@ fn validate_against_profile<C: FhirContext>(
     }
 
     // Ensure profile is a constraining profile (derivation=constraint)
-    use zunder_models::common::structure_definition::TypeDerivationRule;
+    use ferrum_models::common::structure_definition::TypeDerivationRule;
     if structure_def.derivation != Some(TypeDerivationRule::Constraint) {
         let derivation_str = structure_def
             .derivation

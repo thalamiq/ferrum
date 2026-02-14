@@ -1,5 +1,5 @@
 [package]
-name = "zunder-context"
+name = "ferrum-context"
 version = { workspace = true }
 edition = { workspace = true }
 description = "FHIR Context."
@@ -17,9 +17,9 @@ serde_json = { workspace = true }
 async-trait = { workspace = true }
 tokio = { workspace = true, features = ["rt", "rt-multi-thread"] }
 lru = { workspace = true }
-zunder-registry-client = { workspace = true, optional = true }
-zunder-package.workspace = true
-zunder-models.workspace = true
+ferrum-registry-client = { workspace = true, optional = true }
+ferrum-package.workspace = true
+ferrum-models.workspace = true
 thiserror = { workspace = true }
 anyhow = { workspace = true }
 semver = { workspace = true }
@@ -27,4 +27,4 @@ chrono = { workspace = true }
 
 [features]
 default = ["registry-loader"]
-registry-loader = ["dep:zunder-registry-client"]
+registry-loader = ["dep:ferrum-registry-client"]

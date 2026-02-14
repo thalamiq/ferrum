@@ -1,7 +1,7 @@
 //! Property-based tests using QuickCheck
 
 use quickcheck::{QuickCheck, TestResult};
-use zunder_fhirpath::{Context, Value};
+use ferrum_fhirpath::{Context, Value};
 
 mod test_support;
 

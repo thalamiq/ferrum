@@ -5,7 +5,7 @@ use crate::{db::IndexingRepository, Result};
 use sqlx::{PgPool, Row};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
-use zunder_fhirpath::{CompileOptions, Context, Engine as FhirPathEngine, Value as FhirPathValue};
+use ferrum_fhirpath::{CompileOptions, Context, Engine as FhirPathEngine, Value as FhirPathValue};
 
 mod resolver;
 
@@ -18,7 +18,7 @@ pub struct IndexingService {
     enable_text_search: bool,
     enable_content_search: bool,
     /// Cache of compiled FHIRPath plans by expression (indexing uses stable compile options).
-    plan_cache: Arc<RwLock<HashMap<String, Arc<zunder_fhirpath::vm::Plan>>>>,
+    plan_cache: Arc<RwLock<HashMap<String, Arc<ferrum_fhirpath::vm::Plan>>>>,
     /// Cache of search parameters by resource type
     /// Key: resource_type, Value: Vec<SearchParameter>
     search_params_cache: Arc<RwLock<HashMap<String, Vec<SearchParameter>>>>,
@@ -121,7 +121,7 @@ impl IndexingService {
     fn get_or_compile_plan(
         &self,
         expr: &str,
-    ) -> Result<(Arc<zunder_fhirpath::vm::Plan>, bool, std::time::Duration)> {
+    ) -> Result<(Arc<ferrum_fhirpath::vm::Plan>, bool, std::time::Duration)> {
         {
             let cache = self.plan_cache.read().unwrap();
             if let Some(plan) = cache.get(expr) {
@@ -240,7 +240,7 @@ impl IndexingService {
 
             // Build the FHIRPath runtime context once per resource (expensive on large resources).
             let root = FhirPathValue::from_json(resource.resource.clone());
-            // NOTE: `zunder_fhirpath::Value::from_json()` uses lazy objects. The current
+            // NOTE: `ferrum_fhirpath::Value::from_json()` uses lazy objects. The current
             // `resolve()` implementation expects reference objects to be materialized, so we
             // materialize the root only when at least one expression uses `resolve()`.
             let root = if needs_resolve {
@@ -1155,12 +1155,12 @@ pub(crate) struct SearchParameter {
 pub(super) fn get_or_compile_plan(
     param: &SearchParameter,
     fhir_version: &str,
-) -> Result<Option<Arc<zunder_fhirpath::vm::Plan>>> {
+) -> Result<Option<Arc<ferrum_fhirpath::vm::Plan>>> {
     use std::sync::OnceLock;
 
     // Static engine for plan compilation (bulk indexing doesn't have access to IndexingService)
     // Use a HashMap keyed by version to support multiple versions if needed
-    static GLOBAL_PLAN_CACHE: OnceLock<Arc<RwLock<HashMap<String, Arc<zunder_fhirpath::vm::Plan>>>>> =
+    static GLOBAL_PLAN_CACHE: OnceLock<Arc<RwLock<HashMap<String, Arc<ferrum_fhirpath::vm::Plan>>>>> =
         OnceLock::new();
     static GLOBAL_ENGINES: OnceLock<Arc<RwLock<HashMap<String, Arc<FhirPathEngine>>>>> =
         OnceLock::new();

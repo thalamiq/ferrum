@@ -3,7 +3,7 @@
 use crate::generators::GeneratorConfig;
 use crate::ir::{Property, PropertyType, TypeDefinition, TypeKind, TypeRegistry};
 use heck::ToSnakeCase;
-use zunder_models::common::structure_definition::StructureDefinitionKind;
+use ferrum_models::common::structure_definition::StructureDefinitionKind;
 
 /// Generate a Rust struct for a type definition
 pub fn generate_struct(

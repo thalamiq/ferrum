@@ -1,7 +1,7 @@
 use serde_json::Value;
 use std::fs;
 use std::path::PathBuf;
-use zunder_format::{json_to_xml, xml_to_json};
+use ferrum_format::{json_to_xml, xml_to_json};
 
 /// Helper to normalize JSON for comparison (ignoring formatting/whitespace differences)
 fn normalize_json(json_str: &str) -> Value {

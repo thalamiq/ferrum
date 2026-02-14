@@ -4,7 +4,7 @@ This document provides architectural context and implementation details for AI a
 
 ## Project Overview
 
-**Name**: fhir-server (Zunder)
+**Name**: fhir-server (Ferrum)
 **Language**: Rust (Edition 2024)
 **Framework**: Axum (async web framework)
 **Database**: PostgreSQL with SQLx
@@ -16,7 +16,7 @@ This is a production-grade FHIR (Fast Healthcare Interoperability Resources) ser
 
 ### Core components (deployables)
 
-Zunder is easiest to reason about as four parts:
+Ferrum is easiest to reason about as four parts:
 
 - **API**: Rust HTTP service that serves the FHIR REST surface area (CRUD, Search, Batch/Transaction, $operations) and reads/writes Postgres.
 - **Worker**: Rust background processor that performs non-interactive work (indexing, long-running jobs) outside the request path.

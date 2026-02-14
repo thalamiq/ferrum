@@ -13,7 +13,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use std::sync::Arc;
-use zunder_registry_client::RegistryClient;
+use ferrum_registry_client::RegistryClient;
 
 pub struct PackageWorker {
     job_queue: Arc<dyn JobQueue>,

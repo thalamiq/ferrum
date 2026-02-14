@@ -1,7 +1,7 @@
 //! Comprehensive tests for snapshot and differential generation
 
-use zunder_context::DefaultFhirContext;
-use zunder_snapshot::{
+use ferrum_context::DefaultFhirContext;
+use ferrum_snapshot::{
     generate_deep_snapshot, generate_differential, generate_snapshot, Differential,
     ElementDefinition, Snapshot,
 };

@@ -25,7 +25,7 @@ use crate::models::Resource;
 use crate::Result;
 use sqlx::PgPool;
 use std::collections::HashMap;
-use zunder_fhirpath::{Collection as FhirPathCollection, Context, ToJson, Value as FhirPathValue};
+use ferrum_fhirpath::{Collection as FhirPathCollection, Context, ToJson, Value as FhirPathValue};
 
 use super::text::{extract_all_textual_content, extract_narrative_text};
 use super::IndexingService;
@@ -390,7 +390,7 @@ impl BulkIndexer {
         enable_content_search: bool,
     ) -> Result<()> {
         use std::sync::OnceLock;
-        use zunder_fhirpath::Engine as FhirPathEngine;
+        use ferrum_fhirpath::Engine as FhirPathEngine;
 
         let param_start = std::time::Instant::now();
 

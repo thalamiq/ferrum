@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 // Re-export fhir-package types
-pub use zunder_package::{IndexedFile, PackageIndex, PackageManifest, PackageType};
+pub use ferrum_package::{IndexedFile, PackageIndex, PackageManifest, PackageType};
 
 /// Search result from Simplifier registry
 #[derive(Debug, Clone, Serialize, Deserialize)]

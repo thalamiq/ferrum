@@ -6,7 +6,7 @@
 //! `workers.embedded: false` and use the `fhir-worker` binary.
 
 use anyhow::Context;
-use zunder::{api::create_router, config::Config, logging, state::AppState};
+use ferrum::{api::create_router, config::Config, logging, state::AppState};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -97,11 +97,11 @@ async fn main() -> anyhow::Result<()> {
 
 struct EmbeddedWorkerHandles {
     shutdown_tx: tokio::sync::watch::Sender<bool>,
-    join_handles: Vec<tokio::task::JoinHandle<zunder::Result<()>>>,
+    join_handles: Vec<tokio::task::JoinHandle<ferrum::Result<()>>>,
 }
 
 async fn spawn_embedded_workers(config: &Config) -> anyhow::Result<EmbeddedWorkerHandles> {
-    use zunder::workers::{
+    use ferrum::workers::{
         create_workers, spawn_workers_with_config, WorkerConfig, WorkerRunnerConfig, WorkerState,
     };
 

@@ -3,7 +3,7 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use serde_json::json;
 use std::time::Duration;
-use zunder_fhirpath::{Context, Engine, Value};
+use ferrum_fhirpath::{Context, Engine, Value};
 
 fn create_test_engine() -> Engine {
     tokio::runtime::Runtime::new()

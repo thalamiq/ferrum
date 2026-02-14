@@ -36,5 +36,5 @@ pub enum Error {
     Registry(String),
 
     #[error("Package error: {0}")]
-    Package(#[from] zunder_package::PackageError),
+    Package(#[from] ferrum_package::PackageError),
 }

@@ -16,5 +16,5 @@ pub enum Error {
     Differential(String),
 
     #[error("FHIR context error: {0}")]
-    FhirContext(#[from] zunder_context::Error),
+    FhirContext(#[from] ferrum_context::Error),
 }

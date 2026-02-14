@@ -5,7 +5,7 @@
 use quick_xml::events::Event;
 use quick_xml::Reader;
 use serde_json::Value as JsonValue;
-use zunder_fhirpath::{Collection, Context, Engine, Value};
+use ferrum_fhirpath::{Collection, Context, Engine, Value};
 #[path = "../test_support/mod.rs"]
 mod test_support;
 
@@ -469,8 +469,8 @@ fn test_sample_expressions() {
     let resource = load_resource("patient-example.json");
     assert!(matches!(
         resource.data(),
-        zunder_fhirpath::value::ValueData::Empty
-            | zunder_fhirpath::value::ValueData::Object(_)
-            | zunder_fhirpath::value::ValueData::LazyJson { .. }
+        ferrum_fhirpath::value::ValueData::Empty
+            | ferrum_fhirpath::value::ValueData::Object(_)
+            | ferrum_fhirpath::value::ValueData::LazyJson { .. }
     ));
 }

@@ -5,7 +5,7 @@ use crate::db::search::string_normalization::{
 };
 use crate::models::Resource;
 use crate::Result;
-use zunder_fhirpath::{Collection as FhirPathCollection, ToJson};
+use ferrum_fhirpath::{Collection as FhirPathCollection, ToJson};
 
 use super::text::{extract_all_textual_content, extract_narrative_text};
 use super::IndexingService;

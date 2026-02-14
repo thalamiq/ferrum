@@ -1,4 +1,4 @@
-# Zunder FHIR Server Configuration
+# Ferrum FHIR Server Configuration
 #
 # Copy this file to `config.yaml` and adjust as needed.
 #
@@ -124,12 +124,12 @@ fhir:
   #     include_resource_types: ["Patient", "Observation"]
 
   capability_statement:
-    id: "zunder-capability-statement"
-    name: "zunder-capability-statement"
-    title: "Zunder FHIR Server"
+    id: "ferrum-capability-statement"
+    name: "ferrum-capability-statement"
+    title: "Ferrum FHIR Server"
     publisher: "ThalamiQ"
-    description: "Capability Statement for the Zunder FHIR Server"
-    software_name: "zunder"
+    description: "Capability Statement for the Ferrum FHIR Server"
+    software_name: "ferrum"
     software_version: "0.1.0"
     contact_email: null
     supported_resources: []

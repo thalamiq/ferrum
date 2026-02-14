@@ -15,9 +15,9 @@ use crate::normalization::{normalize_differential, normalize_snapshot};
 use crate::slicing::SlicingContext;
 use crate::validation::{validate_differential, validate_snapshot};
 use std::collections::HashMap;
-use zunder_context::FhirContext;
-use zunder_models::StructureDefinition;
-use zunder_models::{Differential, ElementDefinition, ElementDefinitionBase, Snapshot};
+use ferrum_context::FhirContext;
+use ferrum_models::StructureDefinition;
+use ferrum_models::{Differential, ElementDefinition, ElementDefinitionBase, Snapshot};
 
 /// Find the correct insertion position for a new non-slice element in the snapshot.
 ///
@@ -749,7 +749,7 @@ pub fn generate_deep_snapshot(snapshot: &Snapshot, context: &dyn FhirContext) ->
 
     let expander = SnapshotExpander::new();
 
-    // Use snapshot directly (it's already zunder_models::Snapshot)
+    // Use snapshot directly (it's already ferrum_models::Snapshot)
     let expanded_elements = expander.expand_snapshot(snapshot, context)?;
 
     // Create expanded snapshot
@@ -769,7 +769,7 @@ pub fn generate_deep_snapshot(snapshot: &Snapshot, context: &dyn FhirContext) ->
 mod tests {
     use super::*;
     use std::collections::HashMap;
-    use zunder_context::DefaultFhirContext;
+    use ferrum_context::DefaultFhirContext;
 
     /// Create an R4 context for testing
     async fn create_test_context() -> DefaultFhirContext {

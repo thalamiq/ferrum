@@ -350,7 +350,7 @@ async fn indexing_service_batch_api_reindexes_resolve_expressions() -> anyhow::R
             .await?;
             assert_eq!(count, 0);
 
-            let store = zunder::db::PostgresResourceStore::new(app.state.db_pool.clone());
+            let store = ferrum::db::PostgresResourceStore::new(app.state.db_pool.clone());
             let resources = store
                 .load_resources_batch("Observation", &[obs_id.clone()])
                 .await?;

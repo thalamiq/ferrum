@@ -1,7 +1,7 @@
 //! Tests to verify that all FHIRPath functions can be parsed
 
-use zunder_fhirpath::error::Result;
-use zunder_fhirpath::parser::Parser;
+use ferrum_fhirpath::error::Result;
+use ferrum_fhirpath::parser::Parser;
 
 fn parse_function_call(expr: &str) -> Result<()> {
     let mut parser = Parser::new(expr.to_string());

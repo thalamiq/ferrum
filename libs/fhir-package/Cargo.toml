@@ -1,5 +1,5 @@
 [package]
-name = "zunder-package"
+name = "ferrum-package"
 version = { workspace = true }
 edition = { workspace = true }
 description = "FHIR package handling."

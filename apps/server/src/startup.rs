@@ -1,7 +1,7 @@
 //! Server startup and initialization
 //!
 //! This module handles server initialization tasks including:
-//! - Internal server package (zunder.fhir.server) - loaded directly from filesystem
+//! - Internal server package (ferrum.fhir.server) - loaded directly from filesystem
 //! - Public FHIR packages (core, extensions, terminology) - loaded from registry with caching
 
 use crate::{
@@ -14,7 +14,7 @@ use crate::{
 };
 use sqlx::PgPool;
 use std::sync::Arc;
-use zunder_registry_client::RegistryClient;
+use ferrum_registry_client::RegistryClient;
 
 /// Package descriptor with installation configuration
 #[derive(Debug, Clone)]
@@ -162,7 +162,7 @@ async fn install_internal_packages(
         tracing::info!("Loading internal package from filesystem: {}", pkg_name);
 
         // Load package directly from filesystem
-        let package = zunder_registry_client::FhirPackage::from_directory(&package_path)
+        let package = ferrum_registry_client::FhirPackage::from_directory(&package_path)
             .map_err(|e| {
                 crate::Error::Internal(format!(
                     "Failed to load internal package {}: {}",
@@ -430,9 +430,9 @@ fn get_default_packages(
 
 /// Deduplicate packages and filter out already-installed ones
 async fn deduplicate_packages(
-    packages: Vec<zunder_registry_client::FhirPackage>,
+    packages: Vec<ferrum_registry_client::FhirPackage>,
     package_repo: &PackageRepository,
-) -> Result<Vec<zunder_registry_client::FhirPackage>> {
+) -> Result<Vec<ferrum_registry_client::FhirPackage>> {
     // Deduplicate by name#version
     let mut seen = std::collections::HashSet::new();
     let mut unique_packages = Vec::new();
@@ -475,7 +475,7 @@ async fn install_packages_batch(
     package_repo: &PackageRepository,
     db_pool: &PgPool,
     packages: &[(
-        zunder_registry_client::FhirPackage,
+        ferrum_registry_client::FhirPackage,
         bool,
         ResourceTypeFilter,
         PackageCategory,

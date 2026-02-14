@@ -1,5 +1,5 @@
 [package]
-name = "zunder-ucum"
+name = "ferrum-ucum"
 version = { workspace = true }
 edition = { workspace = true }
 description = "UCUM (Unified Code for Units of Measure) implementation."

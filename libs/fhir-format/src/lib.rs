@@ -3,7 +3,7 @@
 //! Uses pre-computed type metadata from FHIR R4 StructureDefinitions to
 //! correctly handle array cardinality and primitive type coercion during
 //! XML → JSON conversion. Metadata is embedded at compile time from
-//! `fhir_type_metadata.json` (generated via `zunder-cli gen-format-metadata`).
+//! `fhir_type_metadata.json` (generated via `ferrum-cli gen-format-metadata`).
 
 use quick_xml::events::{BytesEnd, BytesStart, Event};
 use quick_xml::Writer;

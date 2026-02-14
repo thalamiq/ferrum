@@ -13,8 +13,8 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! use zunder_fhirpath::Value;
-//! use zunder_fhirpath::conversion::ToJson;
+//! use ferrum_fhirpath::Value;
+//! use ferrum_fhirpath::conversion::ToJson;
 //!
 //! let value = Value::string("hello");
 //! assert_eq!(value.to_json(), Some(serde_json::json!("hello")));
@@ -37,7 +37,7 @@ pub trait ToJson {
 
 impl ToJson for Value {
     fn to_json(&self) -> Option<JsonValue> {
-        zunder_fhirpath_value_to_json(self)
+        ferrum_fhirpath_value_to_json(self)
     }
 }
 
@@ -52,7 +52,7 @@ impl ToJson for Value {
 ///
 /// - `Some(JsonValue)` for all non-empty values
 /// - `None` for `ValueData::Empty`
-pub fn zunder_fhirpath_value_to_json(value: &Value) -> Option<JsonValue> {
+pub fn ferrum_fhirpath_value_to_json(value: &Value) -> Option<JsonValue> {
     match value.data() {
         // OPTIMIZATION: Lazy JSON is already JSON - return it directly without conversion
         ValueData::LazyJson { .. } => value.data().resolved_json().cloned(),
@@ -88,7 +88,7 @@ pub fn zunder_fhirpath_value_to_json(value: &Value) -> Option<JsonValue> {
                 // Convert collection to JSON array
                 let json_values: Vec<JsonValue> = collection
                     .iter()
-                    .filter_map(zunder_fhirpath_value_to_json)
+                    .filter_map(ferrum_fhirpath_value_to_json)
                     .collect();
                 if !json_values.is_empty() {
                     json_map.insert(key.to_string(), JsonValue::Array(json_values));

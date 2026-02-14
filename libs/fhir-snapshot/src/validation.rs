@@ -3,7 +3,7 @@
 //! This module provides validation according to FHIR specification rules.
 
 use crate::error::{Error, Result};
-use zunder_models::{Differential, ElementDefinition, Snapshot};
+use ferrum_models::{Differential, ElementDefinition, Snapshot};
 
 /// Validate a differential according to FHIR rules
 pub fn validate_differential(differential: &Differential, base: &Snapshot) -> Result<()> {

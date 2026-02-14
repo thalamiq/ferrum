@@ -42,7 +42,7 @@ pub mod vm;
 
 // Re-export main types
 pub use context::Context;
-pub use conversion::{zunder_fhirpath_value_to_json, ToJson};
+pub use conversion::{ferrum_fhirpath_value_to_json, ToJson};
 pub use engine::{CompileOptions, Engine, EvalOptions, PipelineVisualization};
 pub use error::{Error, Result};
 pub use resolver::ResourceResolver;

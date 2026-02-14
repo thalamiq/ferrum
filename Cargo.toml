@@ -23,7 +23,7 @@ version = "0.1.10"
 edition = "2021"
 license = "Apache-2.0"
 authors = ["Thalamiq GmbH <till@thalamiq.io>"]
-repository = "https://github.com/thalamiq/zunder"
+repository = "https://github.com/thalamiq/ferrum"
 homepage = "https://thalamiq.io"
 documentation = "https://docs.thalamiq.io"
 keywords = ["fhir", "healthcare", "api", "interoperability"]
@@ -54,13 +54,13 @@ uuid = { version = "1", features = ["v4", "serde"] }
 
 # Internal crates (for use in workspace members)
 # Both `path` (for local dev) and `version` (for crates.io publish) are required.
-zunder-models = { path = "libs/fhir-models", version = "0.1.10" }
-zunder-context = { path = "libs/fhir-context", version = "0.1.10" }
-zunder-format = { path = "libs/fhir-format", version = "0.1.10" }
-zunder-snapshot = { path = "libs/fhir-snapshot", version = "0.1.10" }
-zunder-package = { path = "libs/fhir-package", version = "0.1.10" }
-zunder-registry-client = { path = "libs/fhir-registry-client", version = "0.1.10" }
-zunder-codegen = { path = "libs/fhir-codegen", version = "0.1.10" }
-zunder-validator = { path = "libs/fhir-validator", version = "0.1.10" }
-zunder-fhirpath = { path = "libs/fhirpath", version = "0.1.10" }
-zunder-ucum = { path = "libs/ucum", version = "0.1.10" }
+ferrum-models = { path = "libs/fhir-models", version = "0.1.10" }
+ferrum-context = { path = "libs/fhir-context", version = "0.1.10" }
+ferrum-format = { path = "libs/fhir-format", version = "0.1.10" }
+ferrum-snapshot = { path = "libs/fhir-snapshot", version = "0.1.10" }
+ferrum-package = { path = "libs/fhir-package", version = "0.1.10" }
+ferrum-registry-client = { path = "libs/fhir-registry-client", version = "0.1.10" }
+ferrum-codegen = { path = "libs/fhir-codegen", version = "0.1.10" }
+ferrum-validator = { path = "libs/fhir-validator", version = "0.1.10" }
+ferrum-fhirpath = { path = "libs/fhirpath", version = "0.1.10" }
+ferrum-ucum = { path = "libs/ucum", version = "0.1.10" }

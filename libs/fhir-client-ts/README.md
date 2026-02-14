@@ -1,6 +1,6 @@
 # @thalamiq/fhir-client
 
-A modern TypeScript FHIR client for Zunder.
+A modern TypeScript FHIR client for Ferrum.
 
 ## Installation
 

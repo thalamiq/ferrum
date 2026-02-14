@@ -17,7 +17,7 @@ This repository also contains a CLI wrapper in `crates/cli` that exercises the e
 ## Quick Start (API)
 
 ```rust
-use zunder_fhirpath::{Context, Engine, Value};
+use ferrum_fhirpath::{Context, Engine, Value};
 use serde_json::json;
 
 let engine = Engine::with_fhir_version("R5")?;
@@ -30,7 +30,7 @@ let result = engine.evaluate_expr("Patient.gender", &ctx, None)?;
 
 // Unrooted expression with type-aware compilation
 let result = engine.evaluate_expr("gender", &ctx, Some("Patient"))?;
-# Ok::<(), zunder_fhirpath::Error>(())
+# Ok::<(), ferrum_fhirpath::Error>(())
 ```
 
 ## CLI

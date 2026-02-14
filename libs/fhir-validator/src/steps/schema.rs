@@ -15,8 +15,8 @@ use crate::validator::{IssueCode, ValidationIssue};
 use crate::SchemaPlan;
 use serde_json::Value;
 use std::collections::HashMap;
-use zunder_context::FhirContext;
-use zunder_snapshot::{ElementDefinition, ExpandedFhirContext};
+use ferrum_context::FhirContext;
+use ferrum_snapshot::{ElementDefinition, ExpandedFhirContext};
 
 /// Validates a resource against its base StructureDefinition (core FHIR resource type)
 pub fn validate_schema<C: FhirContext>(
@@ -618,7 +618,7 @@ mod tests {
     use serde_json::json;
     use std::collections::HashMap;
     use std::sync::Arc;
-    use zunder_context::Result as ContextResult;
+    use ferrum_context::Result as ContextResult;
 
     #[test]
     fn test_get_resource_type() {
@@ -751,7 +751,7 @@ mod tests {
             })),
         );
 
-        let ctx = zunder_snapshot::ExpandedFhirContext::new(MockContext { by_url });
+        let ctx = ferrum_snapshot::ExpandedFhirContext::new(MockContext { by_url });
         let plan = SchemaPlan {
             allow_unknown_elements: false,
             allow_modifier_extensions: true,

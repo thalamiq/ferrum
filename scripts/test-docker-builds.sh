@@ -10,7 +10,7 @@ echo ""
 echo "[1/2] Building server image..."
 docker build \
   -f "${REPO_ROOT}/apps/server/Dockerfile" \
-  -t zunder-server:test \
+  -t ferrum-server:test \
   "${REPO_ROOT}"
 echo "  Server image built successfully."
 echo ""
@@ -19,7 +19,7 @@ echo ""
 echo "[2/2] Building admin-ui image..."
 docker build \
   -f "${REPO_ROOT}/apps/admin-ui/Dockerfile" \
-  -t zunder-ui:test \
+  -t ferrum-ui:test \
   "${REPO_ROOT}/apps/admin-ui"
 echo "  Admin UI image built successfully."
 echo ""

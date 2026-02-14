@@ -2,9 +2,9 @@
 
 use std::fs;
 use std::path::PathBuf;
-use zunder_context::{DefaultFhirContext, FhirContext};
-use zunder_registry_client::RegistryClient;
-use zunder_snapshot::SnapshotExpander;
+use ferrum_context::{DefaultFhirContext, FhirContext};
+use ferrum_registry_client::RegistryClient;
+use ferrum_snapshot::SnapshotExpander;
 
 mod test_support;
 
@@ -35,15 +35,15 @@ fn test_patient_expansion() {
     let original_count = original_elements.len();
     println!("Original Patient snapshot has {} elements", original_count);
 
-    // Expand snapshot (convert to zunder_models::Snapshot)
-    let fhir_models_snapshot = zunder_models::Snapshot {
+    // Expand snapshot (convert to ferrum_models::Snapshot)
+    let fhir_models_snapshot = ferrum_models::Snapshot {
         element: snapshot
             .element
             .iter()
             .map(|e| {
                 // Convert from fhir-snapshot ElementDefinition to fhir-models ElementDefinition
                 // This is a simplified conversion - in practice you'd want a more complete mapping
-                zunder_models::ElementDefinition {
+                ferrum_models::ElementDefinition {
                     id: e.id.clone(),
                     path: e.path.clone(),
                     representation: None,
@@ -59,7 +59,7 @@ fn test_patient_expansion() {
                     base: e
                         .base
                         .as_ref()
-                        .map(|b| zunder_models::ElementDefinitionBase {
+                        .map(|b| ferrum_models::ElementDefinitionBase {
                             path: b.path.clone(),
                             min: b.min,
                             max: b.max.clone(),
@@ -68,7 +68,7 @@ fn test_patient_expansion() {
                     types: e.types.as_ref().map(|types| {
                         types
                             .iter()
-                            .map(|t| zunder_models::ElementDefinitionType {
+                            .map(|t| ferrum_models::ElementDefinitionType {
                                 code: t.code.clone(),
                                 profile: t.profile.clone(),
                                 target_profile: t.target_profile.clone(),

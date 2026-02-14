@@ -5,12 +5,12 @@ use serde_json::Value;
 use sqlx::PgPool;
 use std::sync::Arc;
 use std::{collections::HashMap, sync::OnceLock};
-use zunder_context::{
+use ferrum_context::{
     ConformanceResourceProvider, DefaultFhirContext, Error as ContextError,
     FallbackConformanceProvider, FhirContext, FlexibleFhirContext, Result as ContextResult,
 };
-use zunder_package::FhirPackage;
-use zunder_registry_client::{FileSystemCache, PackageCache, RegistryClient};
+use ferrum_package::FhirPackage;
+use ferrum_registry_client::{FileSystemCache, PackageCache, RegistryClient};
 
 use crate::db::PostgresResourceStore;
 use crate::Result;
@@ -244,7 +244,7 @@ impl ConformanceResourceProvider for DbConformanceProvider {
 /// # Examples
 ///
 /// ```
-/// use zunder::conformance::is_conformance_resource_type;
+/// use ferrum::conformance::is_conformance_resource_type;
 ///
 /// assert!(is_conformance_resource_type("SearchParameter"));
 /// assert!(is_conformance_resource_type("CompartmentDefinition"));

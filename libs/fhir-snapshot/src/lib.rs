@@ -6,8 +6,8 @@
 //! # Example
 //!
 //! ```rust,no_run
-//! use zunder_snapshot::{SnapshotExpander, generate_snapshot, generate_differential, generate_deep_snapshot};
-//! use zunder_context::{DefaultFhirContext, FhirContext};
+//! use ferrum_snapshot::{SnapshotExpander, generate_snapshot, generate_differential, generate_deep_snapshot};
+//! use ferrum_context::{DefaultFhirContext, FhirContext};
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // Load a package (from registry-client)
@@ -47,7 +47,7 @@ pub use generator::{generate_deep_snapshot, generate_differential, generate_snap
 pub use snapshot_generation::{
     generate_structure_definition_differential, generate_structure_definition_snapshot,
 };
-pub use zunder_models::{Differential, ElementDefinition, ElementDefinitionType, Snapshot};
+pub use ferrum_models::{Differential, ElementDefinition, ElementDefinitionType, Snapshot};
 
 // Re-export validation for CLI and external use
 pub use validation::{validate_differential, validate_snapshot};

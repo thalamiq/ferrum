@@ -1,7 +1,7 @@
 {
   "name": "@thalamiq/fhir-client",
   "version": "0.1.0",
-  "description": "A modern TypeScript FHIR client for Zunder",
+  "description": "A modern TypeScript FHIR client for Ferrum",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

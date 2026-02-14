@@ -1,4 +1,4 @@
-# Zunder FHIR Server - Docker Compose Configuration
+# Ferrum FHIR Server - Docker Compose Configuration
 #
 # Start with: docker compose up -d
 #
@@ -10,7 +10,7 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: zunder-db
+    container_name: ferrum-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-fhir}
@@ -28,8 +28,8 @@ services:
       - fhir-network
 
   fhir-server:
-    image: ${FHIR_SERVER_IMAGE:-ghcr.io/thalamiq/zunder:latest}
-    container_name: zunder-server
+    image: ${FHIR_SERVER_IMAGE:-ghcr.io/thalamiq/ferrum:latest}
+    container_name: ferrum-server
     restart: unless-stopped
     env_file:
       - ./.env
@@ -57,7 +57,7 @@ services:
   # in config.yaml and uncomment the service below.
   #
   # fhir-worker:
-  #   image: ${FHIR_SERVER_IMAGE:-ghcr.io/thalamiq/zunder:latest}
+  #   image: ${FHIR_SERVER_IMAGE:-ghcr.io/thalamiq/ferrum:latest}
   #   restart: unless-stopped
   #   command: ["fhir-worker"]
   #   env_file:
@@ -76,8 +76,8 @@ services:
   #     - fhir-network
 
   ui:
-    image: ${FHIR_UI_IMAGE:-ghcr.io/thalamiq/zunder-ui:latest}
-    container_name: zunder-ui
+    image: ${FHIR_UI_IMAGE:-ghcr.io/thalamiq/ferrum-ui:latest}
+    container_name: ferrum-ui
     restart: unless-stopped
     environment:
       FHIR_SERVER_URL: http://fhir-server:8080

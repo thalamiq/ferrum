@@ -4,7 +4,7 @@
 //! according to FHIR specification rules.
 
 use crate::merge::cleanup_fixed_field;
-use zunder_models::{Differential, ElementDefinition, Snapshot};
+use ferrum_models::{Differential, ElementDefinition, Snapshot};
 
 /// Normalize IDs and slice names in a snapshot
 ///

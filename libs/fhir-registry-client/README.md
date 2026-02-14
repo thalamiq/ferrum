@@ -15,7 +15,7 @@ A Rust client for loading and caching FHIR packages from local cache and the Sim
 ### Load from Cache
 
 ```rust
-use zunder_registry_client::RegistryClient;
+use ferrum_registry_client::RegistryClient;
 
 let client = RegistryClient::new(None);
 let package = client.load_package("hl7.fhir.r5.core", "5.0.0")?;
@@ -24,7 +24,7 @@ let package = client.load_package("hl7.fhir.r5.core", "5.0.0")?;
 ### Search Simplifier Registry
 
 ```rust
-use zunder_registry_client::{RegistryClient, SimplifierSearchParams};
+use ferrum_registry_client::{RegistryClient, SimplifierSearchParams};
 
 let client = RegistryClient::new(None);
 let params = SimplifierSearchParams {
@@ -42,7 +42,7 @@ for result in results {
 ### Download from Simplifier
 
 ```rust
-use zunder_registry_client::RegistryClient;
+use ferrum_registry_client::RegistryClient;
 
 let client = RegistryClient::new(None);
 
@@ -56,7 +56,7 @@ let package = client.load_or_download_package("hl7.fhir.r4.core", "4.0.1")?;
 ### Get Package Versions
 
 ```rust
-use zunder_registry_client::RegistryClient;
+use ferrum_registry_client::RegistryClient;
 
 let client = RegistryClient::new(None);
 let versions = client.get_package_versions("hl7.fhir.r4.core")?;
@@ -284,7 +284,7 @@ cargo run --example simplifier_demo
 If you want to disable remote registry access:
 
 ```rust
-use zunder_registry_client::RegistryClient;
+use ferrum_registry_client::RegistryClient;
 
 let client = RegistryClient::cache_only(None);
 // This client will only load from local cache
@@ -296,7 +296,7 @@ The `PackageCache` trait allows you to implement custom cache backends:
 
 ```rust
 use fhir_package::FhirPackage;
-use zunder_registry_client::{PackageCache, RegistryClient, Result};
+use ferrum_registry_client::{PackageCache, RegistryClient, Result};
 use std::collections::HashMap;
 use std::sync::RwLock;
 

@@ -17,7 +17,7 @@ use crate::models::Resource;
 use crate::services::indexing::SearchParameter;
 use crate::Result;
 use chrono::{Datelike, Utc};
-use zunder_fhirpath::{Context, ToJson};
+use ferrum_fhirpath::{Context, ToJson};
 
 pub struct AgeIndexHook;
 
@@ -37,7 +37,7 @@ impl IndexHook for AgeIndexHook {
         resource: &Resource,
         param: &SearchParameter,
         ctx: &Context,
-        fhirpath_engine: &zunder_fhirpath::Engine,
+        fhirpath_engine: &ferrum_fhirpath::Engine,
     ) -> Result<()> {
         use crate::services::indexing::extract_date_ranges;
 

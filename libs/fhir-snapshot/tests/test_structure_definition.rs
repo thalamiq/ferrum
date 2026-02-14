@@ -3,10 +3,10 @@
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fs;
-use zunder_context::DefaultFhirContext;
-use zunder_models::StructureDefinition;
-use zunder_snapshot::normalization::normalize_snapshot;
-use zunder_snapshot::{
+use ferrum_context::DefaultFhirContext;
+use ferrum_models::StructureDefinition;
+use ferrum_snapshot::normalization::normalize_snapshot;
+use ferrum_snapshot::{
     generate_snapshot, generate_structure_definition_differential,
     generate_structure_definition_snapshot, Differential, Snapshot,
 };
@@ -363,7 +363,7 @@ fn test_generate_snapshot_compares_all_fields() {
     );
 
     // Build index of expected elements by ID
-    let mut expected_index: HashMap<String, &zunder_snapshot::ElementDefinition> = HashMap::new();
+    let mut expected_index: HashMap<String, &ferrum_snapshot::ElementDefinition> = HashMap::new();
     for elem in &expected_snapshot.element {
         if let Some(id) = &elem.id {
             expected_index.insert(id.clone(), elem);

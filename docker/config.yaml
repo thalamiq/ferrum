@@ -1,4 +1,4 @@
 server:
   cors_origins:
-    - "https://zunder.thalamiq.io"
+    - "https://ferrum.thalamiq.io"
     - "http://localhost:3000"

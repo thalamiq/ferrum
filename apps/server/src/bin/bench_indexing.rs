@@ -13,11 +13,11 @@ use serde_json::Value as JsonValue;
 use sqlx::PgPool;
 use std::collections::HashMap;
 use std::sync::Arc;
-use zunder_registry_client::RegistryClient;
+use ferrum_registry_client::RegistryClient;
 use tracing::{info, warn};
 
-use zunder::models::Resource;
-use zunder::services::IndexingService;
+use ferrum::models::Resource;
+use ferrum::services::IndexingService;
 
 #[derive(Parser, Debug)]
 #[clap(name = "bench-indexing")]
@@ -191,7 +191,7 @@ async fn main() -> Result<()> {
 
     if args.use_bulk {
         info!("Using COPY-based bulk indexing");
-        use zunder::services::indexing::BulkIndexer;
+        use ferrum::services::indexing::BulkIndexer;
         let bulk_indexer = BulkIndexer::new(indexing_service.pool().clone());
         bulk_indexer
             .bulk_index_with_copy(&resources, &indexing_service)

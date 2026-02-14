@@ -12,7 +12,7 @@
 
 use crate::error::{Error, Result};
 use std::collections::HashMap;
-use zunder_models::{
+use ferrum_models::{
     ElementDefinition, ElementDefinitionDiscriminator, ElementDefinitionSlicing,
 };
 
@@ -169,7 +169,7 @@ impl SlicingContext {
 
     /// Create a default slicing entry for implicit slicing
     pub fn create_default_slicing_entry(&self, _path: &str) -> ElementDefinitionSlicing {
-        use zunder_models::{DiscriminatorType, SlicingRules};
+        use ferrum_models::{DiscriminatorType, SlicingRules};
         ElementDefinitionSlicing {
             discriminator: Some(vec![ElementDefinitionDiscriminator {
                 discriminator_type: DiscriminatorType::Value,
@@ -215,7 +215,7 @@ impl SlicingContext {
         element: &ElementDefinition,
         discriminator: &ElementDefinitionDiscriminator,
     ) -> bool {
-        use zunder_models::DiscriminatorType;
+        use ferrum_models::DiscriminatorType;
         match discriminator.discriminator_type {
             DiscriminatorType::Value => {
                 // Check if element has a fixed value matching the discriminator path
@@ -273,7 +273,7 @@ impl SlicingContext {
                         .any(|d| self.matches_discriminator(&slice.element, d));
 
                     if !has_match && !discriminators.is_empty() {
-                        use zunder_models::SlicingRules;
+                        use ferrum_models::SlicingRules;
                         if entry.slicing.rules == SlicingRules::Closed {
                             return Err(Error::Snapshot(format!(
                                 "Slice '{}' does not match any discriminator for path '{}'",
@@ -294,7 +294,7 @@ impl SlicingContext {
 
     /// Check if adding a new slice is allowed by the slicing rules
     pub fn can_add_slice(&self, path: &str, _slice_name: &str) -> Result<bool> {
-        use zunder_models::SlicingRules;
+        use ferrum_models::SlicingRules;
         if let Some(entry) = self.get_slice_entry(path) {
             match entry.slicing.rules {
                 SlicingRules::Closed => {
@@ -367,7 +367,7 @@ fn merge_slicing_definitions(
     base: &ElementDefinitionSlicing,
     diff: &ElementDefinitionSlicing,
 ) -> Result<ElementDefinitionSlicing> {
-    use zunder_models::SlicingRules;
+    use ferrum_models::SlicingRules;
     Ok(ElementDefinitionSlicing {
         discriminator: diff
             .discriminator
@@ -498,7 +498,7 @@ mod tests {
     }
 
     fn make_slicing() -> ElementDefinitionSlicing {
-        use zunder_models::{DiscriminatorType, SlicingRules};
+        use ferrum_models::{DiscriminatorType, SlicingRules};
         ElementDefinitionSlicing {
             discriminator: Some(vec![ElementDefinitionDiscriminator {
                 discriminator_type: DiscriminatorType::Value,
@@ -566,7 +566,7 @@ mod tests {
 
     #[test]
     fn merges_slicing_definitions() {
-        use zunder_models::{DiscriminatorType, SlicingRules};
+        use ferrum_models::{DiscriminatorType, SlicingRules};
         let base = ElementDefinitionSlicing {
             discriminator: Some(vec![ElementDefinitionDiscriminator {
                 discriminator_type: DiscriminatorType::Value,
@@ -594,7 +594,7 @@ mod tests {
 
     #[test]
     fn validates_slicing_rules_closed() {
-        use zunder_models::SlicingRules;
+        use ferrum_models::SlicingRules;
         let mut ctx = SlicingContext::new();
         let slicing = ElementDefinitionSlicing {
             discriminator: None,
@@ -612,7 +612,7 @@ mod tests {
 
     #[test]
     fn validates_slicing_rules_open() {
-        use zunder_models::SlicingRules;
+        use ferrum_models::SlicingRules;
         let mut ctx = SlicingContext::new();
         let slicing = ElementDefinitionSlicing {
             discriminator: None,

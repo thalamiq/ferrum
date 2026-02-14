@@ -7,8 +7,8 @@
 
 use crate::error::{Error, Result};
 use std::collections::{HashMap, HashSet};
-use zunder_context::FhirContext;
-use zunder_models::{ElementDefinition, Snapshot};
+use ferrum_context::FhirContext;
+use ferrum_models::{ElementDefinition, Snapshot};
 
 /// Context tracking for recursion prevention
 #[derive(Debug, Clone)]
@@ -447,7 +447,7 @@ impl SnapshotExpander {
                 let mut choice_element = element.clone();
                 choice_element.id = Some(choice_id.clone());
                 choice_element.path = choice_path.clone();
-                choice_element.types = Some(vec![zunder_models::ElementDefinitionType {
+                choice_element.types = Some(vec![ferrum_models::ElementDefinitionType {
                     code: type_code.clone(),
                     profile: type_info.profile.clone(),
                     target_profile: type_info.target_profile.clone(),

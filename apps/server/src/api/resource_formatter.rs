@@ -18,7 +18,7 @@ use serde_json::Value as JsonValue;
 #[derive(Debug, thiserror::Error)]
 pub enum FormatError {
     #[error("Format conversion failed: {0}")]
-    ConversionFailed(#[from] zunder_format::FormatError),
+    ConversionFailed(#[from] ferrum_format::FormatError),
 
     #[error("Unsupported format: {0:?}")]
     UnsupportedFormat(ContentFormat),
@@ -66,7 +66,7 @@ impl ResourceFormatter {
             ContentFormat::Xml => {
                 // XML format - convert JSON to XML using fhir-format
                 let json_str = serde_json::to_string(&resource)?;
-                let xml_str = zunder_format::json_to_xml(&json_str)?;
+                let xml_str = ferrum_format::json_to_xml(&json_str)?;
                 Ok(xml_str.into_bytes())
             }
             ContentFormat::Html | ContentFormat::Turtle => {

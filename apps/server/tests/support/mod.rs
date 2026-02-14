@@ -12,7 +12,7 @@ use axum::{
 };
 use futures::FutureExt as _;
 use sqlx::Connection as _;
-use zunder::{
+use ferrum::{
     api::create_router,
     state::{AppStateOptions, JobQueueKind},
     AppState, Config,

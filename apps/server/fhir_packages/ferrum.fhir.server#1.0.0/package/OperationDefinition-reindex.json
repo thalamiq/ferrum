@@ -1,7 +1,7 @@
 {
   "resourceType": "OperationDefinition",
   "id": "reindex",
-  "url": "http://zunder.fhir.server/OperationDefinition/reindex",
+  "url": "http://ferrum.fhir.server/OperationDefinition/reindex",
   "version": "1.0.0",
   "name": "Reindex",
   "title": "Reindex Search Indices",

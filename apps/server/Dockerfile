@@ -116,7 +116,7 @@ RUN chmod 0755 /usr/local/bin/start-all
 RUN chown root:root /usr/local/bin/fhir-server /usr/local/bin/fhir-worker && \
     chmod 0755 /usr/local/bin/fhir-server /usr/local/bin/fhir-worker
 
-LABEL org.opencontainers.image.title="Zunder FHIR Server" \
+LABEL org.opencontainers.image.title="Ferrum FHIR Server" \
       org.opencontainers.image.description="A spec compliant and performant FHIR server" \
       org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.created="${BUILD_DATE}" \

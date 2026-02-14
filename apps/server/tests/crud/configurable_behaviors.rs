@@ -16,7 +16,7 @@ use crate::support::{
 };
 use axum::http::{Method, StatusCode};
 use serde_json::json;
-use zunder::db::{PostgresResourceStore, ResourceStore};
+use ferrum::db::{PostgresResourceStore, ResourceStore};
 
 // ============================================================================
 // Interaction Enable/Disable Tests

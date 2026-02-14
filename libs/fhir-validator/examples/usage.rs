@@ -1,4 +1,4 @@
-use zunder_validator::*;
+use ferrum_validator::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Example 1: Using presets

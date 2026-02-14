@@ -16,7 +16,7 @@ use crate::hir::HirBinaryOperator;
 use crate::resolver::ResourceResolver;
 use crate::value::{Collection, Value, ValueData};
 use crate::vm::operations::execute_binary_op;
-use zunder_context::FhirContext;
+use ferrum_context::FhirContext;
 
 use super::type_helpers::{
     choose_declared_type_for_value, infer_type_descriptor, normalize_type_code, type_info_value,

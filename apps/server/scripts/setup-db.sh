@@ -8,7 +8,7 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-DB_APP="zunder-db"
+DB_APP="ferrum-db"
 DB_NAME="fhir"
 
 echo -e "${BLUE}Setting up Postgres database...${NC}\n"

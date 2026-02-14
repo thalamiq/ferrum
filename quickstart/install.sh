@@ -1,24 +1,24 @@
 #!/usr/bin/env sh
 set -e
 
-# Zunder FHIR Server Installer
+# Ferrum FHIR Server Installer
 # This script downloads and starts the FHIR server stack
 
-REPO="${ZUNDER_REPO:-thalamiq/zunder}"
-INSTALL_DIR="${ZUNDER_HOME:-./zunder}"
+REPO="${FERRUM_REPO:-thalamiq/ferrum}"
+INSTALL_DIR="${FERRUM_HOME:-./ferrum}"
 
 # Use explicit version or fetch latest from GitHub
-if [ -n "${ZUNDER_VERSION:-}" ]; then
-  VERSION="$ZUNDER_VERSION"
+if [ -n "${FERRUM_VERSION:-}" ]; then
+  VERSION="$FERRUM_VERSION"
 else
   VERSION=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" | grep '"tag_name"' | cut -d'"' -f4)
   if [ -z "$VERSION" ]; then
-    echo "Error: Could not determine latest version. Set ZUNDER_VERSION manually."
+    echo "Error: Could not determine latest version. Set FERRUM_VERSION manually."
     exit 1
   fi
 fi
 
-echo "Installing Zunder FHIR Server ${VERSION}"
+echo "Installing Ferrum FHIR Server ${VERSION}"
 echo "Install directory: ${INSTALL_DIR}"
 
 BASE_URL="https://github.com/${REPO}/releases/download/${VERSION}"
@@ -29,8 +29,8 @@ mkdir -p "${INSTALL_DIR}"
 cd "${INSTALL_DIR}"
 
 # Download tarball and extract
-if ! curl -fsSL "${BASE_URL}/zunder.tar.gz" | tar xz; then
-  echo "Error: Failed to download or extract distribution from ${BASE_URL}/zunder.tar.gz"
+if ! curl -fsSL "${BASE_URL}/ferrum.tar.gz" | tar xz; then
+  echo "Error: Failed to download or extract distribution from ${BASE_URL}/ferrum.tar.gz"
   echo "Please check that the release exists and try again."
   exit 1
 fi

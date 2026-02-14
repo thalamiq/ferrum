@@ -100,7 +100,7 @@ pub struct FhirConfig {
     /// Install internal packages from fhir_packages/ directory
     #[serde(default = "default_true")]
     pub install_internal_packages: bool,
-    /// Optional directory containing internal FHIR packages (e.g. `zunder.fhir.server#1.0.0/package`).
+    /// Optional directory containing internal FHIR packages (e.g. `ferrum.fhir.server#1.0.0/package`).
     ///
     /// If not set, the server looks for `./fhir_packages` relative to the current working
     /// directory, then falls back to the compile-time crate directory.
@@ -1029,15 +1029,15 @@ fn default_lock_timeout() -> u64 {
 }
 
 fn default_cs_id() -> String {
-    "zunder-capability-statement".to_string()
+    "ferrum-capability-statement".to_string()
 }
 
 fn default_cs_name() -> String {
-    "zunder-capability-statement".to_string()
+    "ferrum-capability-statement".to_string()
 }
 
 fn default_cs_title() -> String {
-    "Zunder FHIR Server".to_string()
+    "Ferrum FHIR Server".to_string()
 }
 
 fn default_cs_publisher() -> String {
@@ -1045,7 +1045,7 @@ fn default_cs_publisher() -> String {
 }
 
 fn default_cs_description() -> String {
-    "Capability Statement for the Zunder FHIR Server".to_string()
+    "Capability Statement for the Ferrum FHIR Server".to_string()
 }
 
 fn default_cs_software_name() -> String {

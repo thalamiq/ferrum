@@ -1,5 +1,5 @@
 [package]
-name = "zunder-validator"
+name = "ferrum-validator"
 version = { workspace = true }
 edition = { workspace = true }
 description = "FHIR resource validation engine."
@@ -12,10 +12,10 @@ keywords = { workspace = true }
 categories = { workspace = true }
 
 [dependencies]
-zunder-context.workspace = true
-zunder-fhirpath.workspace = true
-zunder-models.workspace = true
-zunder-snapshot.workspace = true
+ferrum-context.workspace = true
+ferrum-fhirpath.workspace = true
+ferrum-models.workspace = true
+ferrum-snapshot.workspace = true
 
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }

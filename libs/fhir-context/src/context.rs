@@ -14,8 +14,8 @@ use std::sync::atomic::{AtomicU64, Ordering as AtomicOrdering};
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
-use zunder_models::{ElementTypeInfo, StructureDefinition};
-use zunder_package::FhirPackage;
+use ferrum_models::{ElementTypeInfo, StructureDefinition};
+use ferrum_package::FhirPackage;
 use tokio::runtime::Handle;
 
 #[async_trait]
@@ -921,10 +921,10 @@ impl DefaultFhirContext {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use zunder_context::DefaultFhirContext;
+    /// use ferrum_context::DefaultFhirContext;
     /// use std::sync::Arc;
-    /// use zunder_context::PackageLoader;
-    /// use zunder_registry_client::RegistryClient;
+    /// use ferrum_context::PackageLoader;
+    /// use ferrum_registry_client::RegistryClient;
     ///
     /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
     /// let loader: Arc<dyn PackageLoader> = Arc::new(RegistryClient::new(None));
@@ -966,7 +966,7 @@ impl DefaultFhirContext {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use zunder_context::DefaultFhirContext;
+    /// use ferrum_context::DefaultFhirContext;
     ///
     /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
     /// // Default loader
@@ -1006,10 +1006,10 @@ impl DefaultFhirContext {
     /// # Example
     ///
     /// ```rust,ignore
-    /// use zunder_context::{DefaultFhirContext, PackageLock};
+    /// use ferrum_context::{DefaultFhirContext, PackageLock};
     /// use std::sync::Arc;
-    /// use zunder_context::PackageLoader;
-    /// use zunder_registry_client::RegistryClient;
+    /// use ferrum_context::PackageLoader;
+    /// use ferrum_registry_client::RegistryClient;
     ///
     /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
     /// let loader: Arc<dyn PackageLoader> = Arc::new(RegistryClient::new(None));
@@ -1057,7 +1057,7 @@ impl DefaultFhirContext {
     /// # Example
     ///
     /// ```rust,no_run
-    /// use zunder_context::DefaultFhirContext;
+    /// use ferrum_context::DefaultFhirContext;
     ///
     /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
     /// let context = DefaultFhirContext::from_fhir_version_async(None, "R5").await?;
@@ -1216,7 +1216,7 @@ mod tests {
     use serde_json::json;
     use std::collections::HashMap;
     use std::sync::atomic::{AtomicUsize, Ordering};
-    use zunder_package::PackageManifest;
+    use ferrum_package::PackageManifest;
 
     /// Create a mock StructureDefinition for testing
     fn create_mock_patient_sd() -> Value {

@@ -32,4 +32,4 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Run server tests
-        run: cargo test -p zunder
+        run: cargo test -p ferrum

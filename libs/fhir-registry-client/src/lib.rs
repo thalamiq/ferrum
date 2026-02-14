@@ -8,7 +8,7 @@
 //! ## Load from cache (async)
 //!
 //! ```rust,no_run
-//! use zunder_registry_client::RegistryClient;
+//! use ferrum_registry_client::RegistryClient;
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! let client = RegistryClient::new(None);
@@ -20,7 +20,7 @@
 //! ## Download from Simplifier (async)
 //!
 //! ```rust,no_run
-//! use zunder_registry_client::RegistryClient;
+//! use ferrum_registry_client::RegistryClient;
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! let client = RegistryClient::new(None);
@@ -45,4 +45,4 @@ pub use models::{SimplifierSearchParams, SimplifierSearchResult};
 pub use version_resolver::select_version;
 
 // Re-export fhir_package types for convenience
-pub use zunder_package::FhirPackage;
+pub use ferrum_package::FhirPackage;

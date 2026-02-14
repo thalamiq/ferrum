@@ -1,7 +1,7 @@
 use crate::error::{Error, Result};
 use async_trait::async_trait;
 use std::sync::Arc;
-use zunder_package::FhirPackage;
+use ferrum_package::FhirPackage;
 
 #[async_trait]
 pub trait PackageLoader: Send + Sync {
@@ -20,16 +20,16 @@ pub trait PackageLoader: Send + Sync {
 
 #[cfg(feature = "registry-loader")]
 #[async_trait]
-impl<C> PackageLoader for zunder_registry_client::RegistryClient<C>
+impl<C> PackageLoader for ferrum_registry_client::RegistryClient<C>
 where
-    C: zunder_registry_client::PackageCache + Send + Sync + 'static,
+    C: ferrum_registry_client::PackageCache + Send + Sync + 'static,
 {
     async fn load_package_with_dependencies(
         &self,
         package_name: &str,
         version: Option<&str>,
     ) -> Result<Vec<FhirPackage>> {
-        zunder_registry_client::RegistryClient::load_package_with_dependencies(
+        ferrum_registry_client::RegistryClient::load_package_with_dependencies(
             self,
             package_name,
             version,
@@ -43,7 +43,7 @@ where
         package_name: &str,
         version: &str,
     ) -> Result<FhirPackage> {
-        zunder_registry_client::RegistryClient::load_or_download_package(
+        ferrum_registry_client::RegistryClient::load_or_download_package(
             self,
             package_name,
             version,
@@ -56,7 +56,7 @@ where
 pub fn default_package_loader() -> Result<Arc<dyn PackageLoader>> {
     #[cfg(feature = "registry-loader")]
     {
-        Ok(Arc::new(zunder_registry_client::RegistryClient::new(
+        Ok(Arc::new(ferrum_registry_client::RegistryClient::new(
             None,
         )))
     }

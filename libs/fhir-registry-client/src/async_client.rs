@@ -10,7 +10,7 @@ use crate::version_resolver::select_version;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::Arc;
-use zunder_package::FhirPackage;
+use ferrum_package::FhirPackage;
 
 /// Registry client for loading FHIR packages.
 ///

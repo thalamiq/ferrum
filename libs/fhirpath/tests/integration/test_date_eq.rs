@@ -4,7 +4,7 @@ mod test_support;
 #[test]
 fn test_date_equality() {
     use serde_json::json;
-    use zunder_fhirpath::{Context, Value};
+    use ferrum_fhirpath::{Context, Value};
 
     let patient = json!({
       "resourceType": "Patient",

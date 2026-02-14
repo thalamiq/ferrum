@@ -24,8 +24,8 @@ use anyhow::{Context, Result};
 use generators::rust::RustGenerator;
 use generators::GeneratorConfig;
 use ir::TypeRegistry;
-use zunder_context::DefaultFhirContext;
-use zunder_package::FhirPackage;
+use ferrum_context::DefaultFhirContext;
+use ferrum_package::FhirPackage;
 
 /// Main entry point for code generation
 pub struct CodeGenerator {

@@ -1,5 +1,5 @@
 [package]
-name = "zunder-cli"
+name = "ferrum-cli"
 version = { workspace = true }
 edition = { workspace = true }
 description = "CLI."
@@ -8,11 +8,11 @@ publish = false
 [dependencies]
 clap = { workspace = true }
 anyhow = { workspace = true }
-zunder-context.workspace = true
-zunder-models.workspace = true
-zunder-snapshot.workspace = true
-zunder-fhirpath.workspace = true
-zunder-codegen.workspace = true
-zunder-registry-client.workspace = true
+ferrum-context.workspace = true
+ferrum-models.workspace = true
+ferrum-snapshot.workspace = true
+ferrum-fhirpath.workspace = true
+ferrum-codegen.workspace = true
+ferrum-registry-client.workspace = true
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["full"] }

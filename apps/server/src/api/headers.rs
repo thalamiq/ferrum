@@ -33,7 +33,7 @@ use chrono::{DateTime, Utc};
 ///
 /// # Examples
 /// ```
-/// use zunder::api::headers::parse_etag;
+/// use ferrum::api::headers::parse_etag;
 /// assert_eq!(parse_etag("W/\"3141\""), Some(3141));
 /// assert_eq!(parse_etag("W/\"23\""), Some(23));
 /// assert_eq!(parse_etag("invalid"), None);
@@ -51,7 +51,7 @@ pub fn parse_etag(etag: &str) -> Option<i32> {
 ///
 /// # Examples
 /// ```
-/// use zunder::api::headers::format_etag;
+/// use ferrum::api::headers::format_etag;
 /// assert_eq!(format_etag(3141), "W/\"3141\"");
 /// assert_eq!(format_etag(23), "W/\"23\"");
 /// ```
@@ -71,7 +71,7 @@ pub fn format_etag(version: i32) -> String {
 /// # Examples
 /// ```
 /// use chrono::{DateTime, Utc};
-/// use zunder::api::headers::format_last_modified;
+/// use ferrum::api::headers::format_last_modified;
 /// let dt = DateTime::parse_from_rfc3339("2023-01-01T12:00:00Z").unwrap().with_timezone(&Utc);
 /// let formatted = format_last_modified(&dt);
 /// assert!(formatted.contains("GMT"));
@@ -143,7 +143,7 @@ impl Default for PreferPreferences {
 /// # Examples
 /// ```
 /// use axum::http::HeaderMap;
-/// use zunder::api::headers::{extract_prefer_preferences, PreferHandling, PreferReturn};
+/// use ferrum::api::headers::{extract_prefer_preferences, PreferHandling, PreferReturn};
 /// let mut headers = HeaderMap::new();
 /// headers.insert("prefer", "return=minimal, handling=strict".parse().unwrap());
 /// let prefs = extract_prefer_preferences(&headers);
@@ -194,7 +194,7 @@ pub fn extract_prefer_preferences(headers: &HeaderMap) -> PreferPreferences {
 /// # Examples
 /// ```
 /// use axum::http::HeaderMap;
-/// use zunder::api::headers::{extract_prefer_return, PreferReturn};
+/// use ferrum::api::headers::{extract_prefer_return, PreferReturn};
 /// let mut headers = HeaderMap::new();
 /// headers.insert("prefer", "return=minimal".parse().unwrap());
 /// assert_eq!(extract_prefer_return(&headers), PreferReturn::Minimal);
@@ -211,7 +211,7 @@ pub fn extract_prefer_return(headers: &HeaderMap) -> PreferReturn {
 /// # Examples
 /// ```
 /// use axum::http::HeaderMap;
-/// use zunder::api::headers::{extract_prefer_handling, PreferHandling};
+/// use ferrum::api::headers::{extract_prefer_handling, PreferHandling};
 /// let mut headers = HeaderMap::new();
 /// headers.insert("prefer", "handling=strict".parse().unwrap());
 /// assert_eq!(extract_prefer_handling(&headers), PreferHandling::Strict);

@@ -3,7 +3,7 @@
 //! Tests the full pipeline: Parse → AST → HIR → VM → Execution
 
 use rust_decimal::Decimal;
-use zunder_fhirpath::{Collection, Context, Engine, Value};
+use ferrum_fhirpath::{Collection, Context, Engine, Value};
 #[path = "../test_support/mod.rs"]
 mod test_support;
 
@@ -46,7 +46,7 @@ fn test_literals() {
     assert_eq!(result.len(), 1);
     let item = result.iter().next().unwrap();
     match item.data() {
-        zunder_fhirpath::value::ValueData::Decimal(d) => {
+        ferrum_fhirpath::value::ValueData::Decimal(d) => {
             assert_eq!(*d, Decimal::new(314, 2));
         }
         _ => panic!("Expected decimal"),
@@ -71,7 +71,7 @@ fn test_arithmetic() {
     let result = eval_empty("1.5 + 2.5");
     let item = result.iter().next().unwrap();
     match item.data() {
-        zunder_fhirpath::value::ValueData::Decimal(d) => {
+        ferrum_fhirpath::value::ValueData::Decimal(d) => {
             assert_eq!(*d, Decimal::new(40, 1)); // 4.0
         }
         _ => panic!("Expected decimal"),
@@ -89,7 +89,7 @@ fn test_arithmetic() {
     let result = eval_empty("10 / 2");
     let item = result.iter().next().unwrap();
     match item.data() {
-        zunder_fhirpath::value::ValueData::Decimal(d) => {
+        ferrum_fhirpath::value::ValueData::Decimal(d) => {
             assert_eq!(*d, Decimal::new(50, 1)); // 5.0
         }
         _ => panic!("Expected decimal"),
@@ -315,7 +315,7 @@ fn test_where() {
     let values: Vec<i64> = result
         .iter()
         .map(|v| match v.data() {
-            zunder_fhirpath::value::ValueData::Integer(i) => *i,
+            ferrum_fhirpath::value::ValueData::Integer(i) => *i,
             _ => panic!("Expected integer"),
         })
         .collect();
@@ -362,7 +362,7 @@ fn test_select() {
     let values: Vec<i64> = result
         .iter()
         .map(|v| match v.data() {
-            zunder_fhirpath::value::ValueData::Integer(i) => *i,
+            ferrum_fhirpath::value::ValueData::Integer(i) => *i,
             _ => panic!("Expected integer"),
         })
         .collect();
@@ -378,7 +378,7 @@ fn test_select() {
     let values: Vec<&str> = result
         .iter()
         .map(|v| match v.data() {
-            zunder_fhirpath::value::ValueData::String(s) => s.as_ref(),
+            ferrum_fhirpath::value::ValueData::String(s) => s.as_ref(),
             _ => panic!("Expected string"),
         })
         .collect();
@@ -406,7 +406,7 @@ fn test_repeat() {
     let values: Vec<i64> = result
         .iter()
         .map(|v| match v.data() {
-            zunder_fhirpath::value::ValueData::Integer(i) => *i,
+            ferrum_fhirpath::value::ValueData::Integer(i) => *i,
             _ => panic!("Expected integer"),
         })
         .collect();
@@ -507,7 +507,7 @@ fn test_conversion_functions() {
     let result = eval_empty("42.toDecimal()");
     let dec = result.iter().next().unwrap();
     match dec.data() {
-        zunder_fhirpath::value::ValueData::Decimal(d) => {
+        ferrum_fhirpath::value::ValueData::Decimal(d) => {
             use rust_decimal::Decimal;
             assert_eq!(*d, Decimal::from(42));
         }
@@ -517,7 +517,7 @@ fn test_conversion_functions() {
     let result = eval_empty("3.14.toDecimal()");
     let dec = result.iter().next().unwrap();
     match dec.data() {
-        zunder_fhirpath::value::ValueData::Decimal(d) => {
+        ferrum_fhirpath::value::ValueData::Decimal(d) => {
             use rust_decimal::Decimal;
             assert_eq!(*d, Decimal::new(314, 2));
         }
@@ -527,7 +527,7 @@ fn test_conversion_functions() {
     let result = eval_empty("'3.14'.toDecimal()");
     let dec = result.iter().next().unwrap();
     match dec.data() {
-        zunder_fhirpath::value::ValueData::Decimal(d) => {
+        ferrum_fhirpath::value::ValueData::Decimal(d) => {
             use rust_decimal::Decimal;
             assert_eq!(*d, Decimal::new(314, 2));
         }
@@ -587,7 +587,7 @@ fn test_math_functions() {
     let result = eval_empty("3.7.floor()");
     let item = result.iter().next().unwrap();
     match item.data() {
-        zunder_fhirpath::value::ValueData::Decimal(d) => {
+        ferrum_fhirpath::value::ValueData::Decimal(d) => {
             assert_eq!(*d, Decimal::new(3, 0));
         }
         _ => panic!("Expected decimal"),
@@ -597,7 +597,7 @@ fn test_math_functions() {
     let result = eval_empty("3.2.ceiling()");
     let item = result.iter().next().unwrap();
     match item.data() {
-        zunder_fhirpath::value::ValueData::Decimal(d) => {
+        ferrum_fhirpath::value::ValueData::Decimal(d) => {
             assert_eq!(*d, Decimal::new(4, 0));
         }
         _ => panic!("Expected decimal"),
@@ -607,7 +607,7 @@ fn test_math_functions() {
     let result = eval_empty("3.5.round()");
     let item = result.iter().next().unwrap();
     match item.data() {
-        zunder_fhirpath::value::ValueData::Decimal(d) => {
+        ferrum_fhirpath::value::ValueData::Decimal(d) => {
             assert_eq!(*d, Decimal::new(4, 0));
         }
         _ => panic!("Expected decimal"),
@@ -617,7 +617,7 @@ fn test_math_functions() {
     let result = eval_empty("3.9.truncate()");
     let item = result.iter().next().unwrap();
     match item.data() {
-        zunder_fhirpath::value::ValueData::Decimal(d) => {
+        ferrum_fhirpath::value::ValueData::Decimal(d) => {
             assert_eq!(*d, Decimal::new(3, 0));
         }
         _ => panic!("Expected decimal"),
@@ -690,7 +690,7 @@ fn test_complex_expressions() {
     let result = eval_empty("1 + 2.5");
     let item = result.iter().next().unwrap();
     match item.data() {
-        zunder_fhirpath::value::ValueData::Decimal(d) => {
+        ferrum_fhirpath::value::ValueData::Decimal(d) => {
             assert_eq!(*d, Decimal::new(35, 1)); // 3.5
         }
         _ => panic!("Expected decimal"),
@@ -796,7 +796,7 @@ fn test_type_name_resolution() {
 
     // Test: Patient.name.given should work (type name matches context)
     let engine = get_test_engine();
-    let ctx = zunder_fhirpath::Context::new(patient.clone());
+    let ctx = ferrum_fhirpath::Context::new(patient.clone());
     let result = engine
         .evaluate_expr("Patient.name.given", &ctx, None)
         .unwrap();
@@ -852,7 +852,7 @@ fn test_path_with_parent_type_prefix() {
 
     let resource = Value::from_json(resource_json);
     let engine = get_test_engine();
-    let ctx = zunder_fhirpath::Context::new(resource.clone());
+    let ctx = ferrum_fhirpath::Context::new(resource.clone());
 
     // Test: Resource.Resource.meta.lastUpdated should work
     // The first Resource is the parent type, second Resource navigates to the resource itself
@@ -1066,7 +1066,7 @@ fn test_code_coding_expression() {
     let codes: Vec<&str> = code_result
         .iter()
         .map(|v| match v.data() {
-            zunder_fhirpath::value::ValueData::String(s) => s.as_ref(),
+            ferrum_fhirpath::value::ValueData::String(s) => s.as_ref(),
             _ => panic!("Expected string"),
         })
         .collect();

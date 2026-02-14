@@ -1,9 +1,9 @@
 //! Unit tests for the FHIRPath parser module
 
-use zunder_fhirpath::parser::Parser;
+use ferrum_fhirpath::parser::Parser;
 
 /// Helper to parse expression and return AST
-fn parse(expr: &str) -> Result<zunder_fhirpath::ast::AstNode, zunder_fhirpath::Error> {
+fn parse(expr: &str) -> Result<ferrum_fhirpath::ast::AstNode, ferrum_fhirpath::Error> {
     let mut parser = Parser::new(expr.to_string());
     parser.parse()
 }
@@ -113,7 +113,7 @@ fn test_parse_type_operations() {
 
 #[test]
 fn test_type_precedence_over_union() {
-    use zunder_fhirpath::ast::AstNode;
+    use ferrum_fhirpath::ast::AstNode;
 
     // Per HL7 test suite precedence, union binds tighter than `as/is`,
     // so parentheses are required to write a union of `(a as X)` and `b`.

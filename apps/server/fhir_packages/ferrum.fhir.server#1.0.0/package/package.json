@@ -1,0 +1,10 @@
+{
+  "name": "ferrum.fhir.server",
+  "version": "1.0.1",
+  "title": "Ferrum Internal Package",
+  "description": "Internal FHIR package containing custom OperationDefinitions for the Ferrum FHIR server.",
+  "fhirVersions": ["4.0.1"],
+  "dependencies": {},
+  "keywords": ["ferrum", "fhir", "server", "operations"],
+  "author": "ThalamiQ"
+}

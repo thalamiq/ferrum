@@ -299,8 +299,8 @@ export default function AppSidebar() {
               >
                 <Image
                   className="overflow-hidden shrink-0"
-                  src="/logos/zunder.svg"
-                  alt="Zunder"
+                  src="/logos/ferrum.svg"
+                  alt="Ferrum"
                   width={80}
                   height={80}
                 />
@@ -314,7 +314,7 @@ export default function AppSidebar() {
                   asChild
                 >
                   <Link
-                    href="https://github.com/thalamiq/zunder"
+                    href="https://github.com/thalamiq/ferrum"
                     target="_blank"
                   >
                     <Image
@@ -382,8 +382,8 @@ export default function AppSidebar() {
             >
               {mounted && (
                 <Image
-                  src="/logos/zunder-icon.svg"
-                  alt="Zunder"
+                  src="/logos/ferrum-icon.svg"
+                  alt="Ferrum"
                   width={20}
                   height={20}
                 />

@@ -19,8 +19,8 @@ use serde_json::Value as JsonValue;
 use sqlx::PgPool;
 use std::num::NonZeroUsize;
 use std::sync::Mutex;
-use zunder_fhirpath::resolver::ResourceResolver;
-use zunder_fhirpath::Value;
+use ferrum_fhirpath::resolver::ResourceResolver;
+use ferrum_fhirpath::Value;
 
 #[derive(Debug)]
 pub(crate) struct IndexingResourceResolver {
@@ -150,7 +150,7 @@ impl IndexingResourceResolver {
 }
 
 impl ResourceResolver for IndexingResourceResolver {
-    fn resolve(&self, reference: &str) -> zunder_fhirpath::Result<Option<Value>> {
+    fn resolve(&self, reference: &str) -> ferrum_fhirpath::Result<Option<Value>> {
         let normalized = self.normalize_reference(reference);
         let cache_key = normalized.as_deref().unwrap_or(reference);
 
@@ -235,7 +235,7 @@ fn extract_references_recursive(value: &JsonValue, out: &mut Vec<String>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use zunder_fhirpath::conversion::ToJson;
+    use ferrum_fhirpath::conversion::ToJson;
 
     #[test]
     fn resolves_type_stub_for_relative_reference() {

@@ -5,7 +5,7 @@
 //!
 //! This test is `#[ignore]` — run explicitly:
 //! ```bash
-//! cargo test -p zunder-validator --test official_suite -- --ignored --nocapture
+//! cargo test -p ferrum-validator --test official_suite -- --ignored --nocapture
 //! ```
 
 mod test_support;
@@ -16,8 +16,8 @@ use test_support::{
     block_on, fhir_version_label, is_eligible, load_manifest, load_test_resource,
     resolve_expected_errors,
 };
-use zunder_context::DefaultFhirContext;
-use zunder_validator::{Preset, ValidationOutcome, Validator, ValidatorConfig};
+use ferrum_context::DefaultFhirContext;
+use ferrum_validator::{Preset, ValidationOutcome, Validator, ValidatorConfig};
 
 #[test]
 #[ignore]

@@ -1,8 +1,8 @@
-# CLAUDE.md - Zunder FHIR Server
+# CLAUDE.md - Ferrum FHIR Server
 
 ## What is this?
 
-Zunder is a high-performance FHIR R4/R5 server in Rust. Monorepo with server, CLI, admin UI, and shared FHIR libraries.
+Ferrum is a high-performance FHIR R4/R5 server in Rust. Monorepo with server, CLI, admin UI, and shared FHIR libraries.
 
 ## Project Structure
 
@@ -34,7 +34,7 @@ docker/            # Docker compose files for local/hetzner deployments
 # Build & check
 cargo check                        # Type-check workspace
 cargo build                        # Build all
-cargo build -p zunder              # Build server only
+cargo build -p ferrum              # Build server only
 cargo clippy                       # Lint
 
 # Run
@@ -43,8 +43,8 @@ cargo run --bin fhir-worker        # Start background worker
 
 # Test
 cargo test                         # All tests (needs PostgreSQL)
-cargo test -p zunder               # Server tests only
-cargo test -p zunder-fhirpath      # FHIRPath tests only
+cargo test -p ferrum               # Server tests only
+cargo test -p ferrum-fhirpath      # FHIRPath tests only
 cargo test --test search_tests     # Specific integration test
 RUST_TEST_THREADS=4 cargo test     # Control parallelism
 
@@ -57,9 +57,9 @@ pnpm dev:ui                        # Dev server (port 3000)
 pnpm build:ui                      # Production build
 
 # CLI
-cargo run -p zunder-cli -- fp "Patient.name.family" --resource '{"resourceType":"Patient","name":[{"family":"Smith"}]}'
-cargo run -p zunder-cli -- snap gen --base base.json --differential diff.json
-cargo run -p zunder-cli -- codegen --output ./generated --fhir-version R4
+cargo run -p ferrum-cli -- fp "Patient.name.family" --resource '{"resourceType":"Patient","name":[{"family":"Smith"}]}'
+cargo run -p ferrum-cli -- snap gen --base base.json --differential diff.json
+cargo run -p ferrum-cli -- codegen --output ./generated --fhir-version R4
 ```
 
 ## Architecture (Server)
@@ -158,31 +158,31 @@ Not tested: Admin endpoints, /metadata, /metrics, background workers, SMART auth
 
 | Crate | Cargo name | Import name | Directory |
 |-------|-----------|-------------|-----------|
-| Server | `zunder` | `zunder` | `apps/server` |
-| CLI | `zunder-cli` | `zunder_cli` | `apps/cli` |
-| Models | `zunder-models` | `zunder_models` | `libs/fhir-models` |
-| Context | `zunder-context` | `zunder_context` | `libs/fhir-context` |
-| FHIRPath | `zunder-fhirpath` | `zunder_fhirpath` | `libs/fhirpath` |
-| Snapshot | `zunder-snapshot` | `zunder_snapshot` | `libs/fhir-snapshot` |
-| Validator | `zunder-validator` | `zunder_validator` | `libs/fhir-validator` |
-| Format | `zunder-format` | `zunder_format` | `libs/fhir-format` |
-| Package | `zunder-package` | `zunder_package` | `libs/fhir-package` |
-| Registry | `zunder-registry-client` | `zunder_registry_client` | `libs/fhir-registry-client` |
-| Codegen | `zunder-codegen` | `zunder_codegen` | `libs/fhir-codegen` |
-| UCUM | `zunder-ucum` | `zunder_ucum` | `libs/ucum` |
+| Server | `ferrum` | `ferrum` | `apps/server` |
+| CLI | `ferrum-cli` | `ferrum_cli` | `apps/cli` |
+| Models | `ferrum-models` | `ferrum_models` | `libs/fhir-models` |
+| Context | `ferrum-context` | `ferrum_context` | `libs/fhir-context` |
+| FHIRPath | `ferrum-fhirpath` | `ferrum_fhirpath` | `libs/fhirpath` |
+| Snapshot | `ferrum-snapshot` | `ferrum_snapshot` | `libs/fhir-snapshot` |
+| Validator | `ferrum-validator` | `ferrum_validator` | `libs/fhir-validator` |
+| Format | `ferrum-format` | `ferrum_format` | `libs/fhir-format` |
+| Package | `ferrum-package` | `ferrum_package` | `libs/fhir-package` |
+| Registry | `ferrum-registry-client` | `ferrum_registry_client` | `libs/fhir-registry-client` |
+| Codegen | `ferrum-codegen` | `ferrum_codegen` | `libs/fhir-codegen` |
+| UCUM | `ferrum-ucum` | `ferrum_ucum` | `libs/ucum` |
 
 ## Docker Images
 
-- `ghcr.io/thalamiq/zunder` — server + worker (select binary via command)
-- `ghcr.io/thalamiq/zunder-ui` — admin UI
-- Container names: `zunder-db`, `zunder-server`, `zunder-worker`, `zunder-ui`, `zunder-caddy`
+- `ghcr.io/thalamiq/ferrum` — server + worker (select binary via command)
+- `ghcr.io/thalamiq/ferrum-ui` — admin UI
+- Container names: `ferrum-db`, `ferrum-server`, `ferrum-worker`, `ferrum-ui`, `ferrum-caddy`
 
 ## Deployment
 
 - **Local**: `docker compose -f docker/compose.local.yaml up --build`
 - **Production**: `docker compose -f docker/compose.hetzner.yaml up -d` (with Caddy TLS)
-- **Fly.io**: `fly deploy` from `apps/server/` (app: `zunder`, db: `zunder-db`)
-- **Distribution**: `./scripts/release-dist.sh` creates `zunder.tar.gz`
+- **Fly.io**: `fly deploy` from `apps/server/` (app: `ferrum`, db: `ferrum-db`)
+- **Distribution**: `./scripts/release-dist.sh` creates `ferrum.tar.gz`
 
 ## CI/CD
 
@@ -191,4 +191,4 @@ Not tested: Admin endpoints, /metadata, /metrics, background workers, SMART auth
 
 ## Internal FHIR Package
 
-`apps/server/fhir_packages/zunder.fhir.server#1.0.0/` contains custom OperationDefinitions ($reindex, $install-package). Loaded automatically at startup when `install_internal_packages: true`.
+`apps/server/fhir_packages/ferrum.fhir.server#1.0.0/` contains custom OperationDefinitions ($reindex, $install-package). Loaded automatically at startup when `install_internal_packages: true`.

@@ -10,7 +10,7 @@ use crate::{
 };
 use sqlx::PgPool;
 use std::sync::Arc;
-use zunder_fhirpath::Engine as FhirPathEngine;
+use ferrum_fhirpath::Engine as FhirPathEngine;
 
 /// Lightweight state for background workers
 ///
@@ -22,7 +22,7 @@ pub struct WorkerState {
     pub config: Arc<Config>,
     pub db_pool: PgPool,
     pub job_queue: Arc<dyn JobQueue>,
-    pub fhir_context: Arc<dyn zunder_context::FhirContext>,
+    pub fhir_context: Arc<dyn ferrum_context::FhirContext>,
     pub fhirpath_engine: Arc<FhirPathEngine>,
     pub indexing_service: Arc<crate::services::IndexingService>,
 }

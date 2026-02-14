@@ -82,7 +82,7 @@ Steps are stateless - they only add issues to the provided vector.
 For best performance across many validations, wrap your context once so expanded StructureDefinitions are cached:
 
 ```rust
-use zunder_validator::Validator;
+use ferrum_validator::Validator;
 
 let validator = Validator::new(plan, context).with_expanded_snapshots();
 ```
