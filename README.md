@@ -38,14 +38,14 @@ This starts the FHIR server, database, and admin UI. Access the API at `localhos
 ## Architecture
 
 ```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│   Admin UI   │    │  FHIR Server │    │    Worker    │
+┌──────────────┐    ┌──────────────┐    ┌───────────────┐
+│   Admin UI   │    │  FHIR Server │    │    Worker     │
 │   (Next.js)  │───▶│    (Axum)    │◀──▶│  (Background) │
-└──────────────┘    └──────┬───────┘    └──────┬───────┘
+└──────────────┘    └──────┬───────┘    └──────┬────────┘
                            │                   │
                            ▼                   ▼
                     ┌──────────────────────────────┐
-                    │          PostgreSQL           │
+                    │          PostgreSQL          │
                     └──────────────────────────────┘
 ```
 

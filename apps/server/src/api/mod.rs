@@ -15,11 +15,12 @@ use axum::{
     extract::DefaultBodyLimit,
     extract::State,
     http::StatusCode,
-    response::{IntoResponse, Json},
+    response::{IntoResponse, Json, Redirect},
     routing::get,
     Router,
 };
 use serde_json::json;
+use tower_http::services::{ServeDir, ServeFile};
 
 /// Create the main application router
 pub fn create_router(state: AppState) -> Router {
@@ -44,19 +45,30 @@ pub fn create_router(state: AppState) -> Router {
         crate::admin_auth::admin_middleware,
     ));
 
-    Router::new()
+    let mut router = Router::new()
         // Health check
         .route("/health", get(health_check))
-        // Root endpoint
-        .route("/", get(root))
+        // Root endpoint — redirect to UI if serving static files, otherwise JSON info
+        .route("/", get(root_redirect))
         // Favicon handler (returns 204 to prevent 404 logs)
         .route("/favicon.ico", get(favicon))
         // Metrics endpoint
         .merge(routes::metrics::metrics_routes())
-        // FHIR API routes (to be implemented)
+        // FHIR API routes
         .nest("/fhir", fhir_router)
-        // Internal admin routes (to be implemented)
-        .nest("/admin", admin_router)
+        // Internal admin routes
+        .nest("/admin", admin_router);
+
+    // Serve admin UI static files at /ui/ if a static_dir is configured
+    if let Some(ref static_dir) = state.config.ui.static_dir {
+        let index_path = format!("{}/index.html", static_dir);
+        let ui_service = ServeDir::new(static_dir)
+            .not_found_service(ServeFile::new(&index_path));
+        router = router.nest_service("/ui", ui_service);
+        tracing::info!(path = %static_dir, "Serving admin UI at /ui/");
+    }
+
+    router
         // Add state
         .with_state(state)
         // Add middleware (applied in reverse order)
@@ -79,17 +91,19 @@ async fn health_check() -> impl IntoResponse {
     }))
 }
 
-async fn root(State(state): State<AppState>) -> impl IntoResponse {
-    // Note: This is an informational endpoint (not a FHIR interaction).
-    (
-        StatusCode::OK,
+async fn root_redirect(State(state): State<AppState>) -> impl IntoResponse {
+    // If UI static files are configured, redirect to the UI
+    if state.config.ui.static_dir.is_some() {
+        Redirect::temporary("/ui/").into_response()
+    } else {
         Json(json!({
             "server": "FHIR Server (Rust)",
             "version": env!("CARGO_PKG_VERSION"),
             "fhirVersion": state.config.fhir.version,
             "status": "running"
-        })),
-    )
+        }))
+        .into_response()
+    }
 }
 
 async fn favicon() -> impl IntoResponse {

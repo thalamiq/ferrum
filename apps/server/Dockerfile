@@ -85,6 +85,21 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 RUN strip target/release/fhir-server target/release/fhir-worker
 
 ############################
+# UI Builder
+############################
+FROM node:20-alpine AS ui-builder
+
+WORKDIR /ui
+
+RUN corepack enable && corepack prepare pnpm@9.15.3 --activate
+
+COPY apps/admin-ui/package.json apps/admin-ui/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+COPY apps/admin-ui/ .
+RUN pnpm build
+
+############################
 # Runtime
 ############################
 FROM debian:bookworm-slim
@@ -112,6 +127,7 @@ COPY --from=builder /build/target/release/fhir-server /usr/local/bin/fhir-server
 COPY --from=builder /build/target/release/fhir-worker /usr/local/bin/fhir-worker
 COPY --chown=fhir:fhir apps/server/migrations ./migrations
 COPY --chown=fhir:fhir apps/server/fhir_packages ./fhir_packages
+COPY --from=ui-builder --chown=fhir:fhir /ui/dist ./ui
 COPY --chown=root:root apps/server/scripts/start-all.sh /usr/local/bin/start-all
 RUN chmod 0755 /usr/local/bin/start-all
 
@@ -125,6 +141,8 @@ LABEL org.opencontainers.image.title="Ferrum FHIR Server" \
       org.opencontainers.image.revision="${VCS_REF}" \
       org.opencontainers.image.vendor="ThalamiQ" \
       maintainer="ThalamiQ"
+
+ENV FHIR__UI__STATIC_DIR=./ui
 
 USER fhir
 

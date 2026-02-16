@@ -872,6 +872,12 @@ pub struct UiConfig {
     /// When false, the /admin/config endpoints return 404 and the settings page is hidden.
     #[serde(default = "default_true")]
     pub runtime_config_enabled: bool,
+
+    /// Path to the built admin UI static files directory.
+    /// When set, the server serves the SPA at `/ui/`.
+    /// Set via `FHIR__UI__STATIC_DIR`. Default: `./ui` in Docker, None otherwise.
+    #[serde(default)]
+    pub static_dir: Option<String>,
 }
 
 impl Default for UiConfig {
@@ -883,6 +889,7 @@ impl Default for UiConfig {
             session_secret: None,
             session_ttl_seconds: default_ui_session_ttl_seconds(),
             runtime_config_enabled: true,
+            static_dir: None,
         }
     }
 }

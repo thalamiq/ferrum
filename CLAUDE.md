@@ -26,6 +26,8 @@ libs/
 docs/              # Mintlify documentation site
 quickstart/        # Quickstart bundle (compose.yaml, config.yaml, install.sh)
 docker/            # Docker compose files for local/hetzner deployments
+scripts/           # Release and testing scripts
+fhir-test-cases/   # HL7 FHIR test cases (git submodule)
 ```
 
 ## Commands
@@ -181,13 +183,13 @@ Not tested: Admin endpoints, /metadata, /metrics, background workers, SMART auth
 
 - **Local**: `docker compose -f docker/compose.local.yaml up --build`
 - **Production**: `docker compose -f docker/compose.hetzner.yaml up -d` (with Caddy TLS)
-- **Fly.io**: `fly deploy` from `apps/server/` (app: `ferrum`, db: `ferrum-db`)
 - **Distribution**: `./scripts/release-dist.sh` creates `ferrum.tar.gz`
 
 ## CI/CD
 
 - `.github/workflows/docker-build.yml` — builds + pushes Docker images on tags, creates GitHub releases
-- `.github/workflows/deploy-fly.yml` — deploys to Fly.io on tags
+- `.github/workflows/test.yml` — runs library and server tests on push/PR to main
+- `.github/workflows/publish-libs.yml` — publishes library crates
 
 ## Internal FHIR Package
 

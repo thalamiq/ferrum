@@ -84,29 +84,8 @@ services:
   #   networks:
   #     - fhir-network
 
-  ui:
-    pull_policy: never
-    build:
-      context: ../apps/admin-ui
-      dockerfile: Dockerfile
-    image: ferrum-ui:local
-    restart: unless-stopped
-    environment:
-      FHIR_SERVER_URL: http://fhir-server:8080
-      NODE_ENV: production
-    ports:
-      - "${BIND_ADDRESS:-127.0.0.1}:3000:3000"
-    depends_on:
-      fhir-server:
-        condition: service_started
-    networks:
-      - fhir-network
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000 >/dev/null 2>&1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+  # Admin UI is now served by fhir-server at /ui/
+  # No separate UI container needed
 
 volumes:
   postgres_data_local:

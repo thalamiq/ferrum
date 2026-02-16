@@ -98,7 +98,7 @@ fhir:
   # Public packages (downloaded from the registry). Set `install: true` to enable.
   default_packages:
     core:
-      install: false
+      install: true
       install_examples: false
       include_resource_types:
         - "StructureDefinition"

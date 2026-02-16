@@ -1,6 +1,6 @@
 # Ferrum - Distribution Package
 
-Ferrum is a spec compliant and performant FHIR server implementation built in Rust.
+Ferrum is a fast FHIR R4/R5 server built in Rust.
 
 ## Quick Start
 
