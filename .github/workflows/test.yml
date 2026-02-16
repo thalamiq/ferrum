@@ -23,7 +23,11 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Run library tests
-        run: cargo test --workspace --exclude ferrum
+        run: |
+          # Run snapshot tests single-threaded to avoid package extraction race conditions
+          cargo test -p ferrum-snapshot -- --test-threads=1
+          # Run remaining library tests in parallel
+          cargo test --workspace --exclude ferrum --exclude ferrum-snapshot
 
   server-tests:
     name: Server tests
