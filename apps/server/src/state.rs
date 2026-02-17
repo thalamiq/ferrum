@@ -234,6 +234,9 @@ impl AppState {
             config_arc.logging.service_name.clone(),
             db_pool.clone(),
         ));
+        let transaction_recorder =
+            crate::db::admin::TransactionRecorder::new(db_pool.clone());
+
         let mut batch_service_inner = crate::services::BatchService::new_with_runtime_config(
             store.clone(),
             resource_hooks.clone(),
@@ -246,6 +249,7 @@ impl AppState {
         batch_service_inner.set_referential_integrity_mode(
             config_arc.fhir.referential_integrity.mode.clone(),
         );
+        batch_service_inner.set_transaction_recorder(transaction_recorder.clone());
         let batch_service = Arc::new(batch_service_inner);
         let mut transaction_service_inner =
             crate::services::TransactionService::new_with_runtime_config(
@@ -261,6 +265,7 @@ impl AppState {
         transaction_service_inner.set_referential_integrity_mode(
             config_arc.fhir.referential_integrity.mode.clone(),
         );
+        transaction_service_inner.set_transaction_recorder(transaction_recorder);
         let transaction_service = Arc::new(transaction_service_inner);
         let history_service = Arc::new(crate::services::HistoryService::new_with_runtime_config(
             store.clone(),

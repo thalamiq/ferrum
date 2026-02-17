@@ -49,6 +49,8 @@ pub struct BundleRequestOptions {
     pub base_url: Option<String>,
 }
 
+use crate::db::admin::{TransactionEntryRecord, TransactionRecorder};
+
 pub struct BatchService {
     store: PostgresResourceStore,
     #[allow(dead_code)] // Kept for conformance hook processing
@@ -60,6 +62,7 @@ pub struct BatchService {
     hard_delete: bool,
     runtime_config_cache: Option<Arc<RuntimeConfigCache>>,
     referential_integrity_mode: String,
+    transaction_recorder: Option<TransactionRecorder>,
 }
 
 impl BatchService {
@@ -81,7 +84,12 @@ impl BatchService {
             hard_delete,
             runtime_config_cache: None,
             referential_integrity_mode: "lenient".to_string(),
+            transaction_recorder: None,
         }
+    }
+
+    pub fn set_transaction_recorder(&mut self, recorder: TransactionRecorder) {
+        self.transaction_recorder = Some(recorder);
     }
 
     pub fn set_referential_integrity_mode(&mut self, mode: String) {
@@ -130,7 +138,67 @@ impl BatchService {
             )));
         }
 
-        let response_bundle = self.process_batch(bundle, &options).await?;
+        let entry_count = bundle.entry.as_ref().map(|e| e.len() as i32).unwrap_or(0);
+        let tracking_id = Uuid::new_v4();
+
+        if let Some(recorder) = &self.transaction_recorder {
+            if let Err(e) = recorder
+                .record_start(tracking_id, "batch", entry_count, None)
+                .await
+            {
+                tracing::warn!("Failed to record batch start: {}", e);
+            }
+        }
+
+        // Keep original entries for tracking (lightweight: just method + url)
+        let original_requests: Vec<(String, String)> = bundle
+            .entry
+            .as_ref()
+            .map(|entries| {
+                entries
+                    .iter()
+                    .map(|e| {
+                        let req = e.request.as_ref();
+                        (
+                            req.map(|r| r.method.to_uppercase()).unwrap_or_default(),
+                            req.map(|r| r.url.clone()).unwrap_or_default(),
+                        )
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+
+        let response_bundle = match self.process_batch(bundle, &options).await {
+            Ok(bundle) => bundle,
+            Err(err) => {
+                if let Some(recorder) = &self.transaction_recorder {
+                    if let Err(e) = recorder
+                        .record_complete(tracking_id, "failed", Some(&err.to_string()))
+                        .await
+                    {
+                        tracing::warn!("Failed to record batch failure: {}", e);
+                    }
+                }
+                return Err(err);
+            }
+        };
+
+        if let Some(recorder) = &self.transaction_recorder {
+            let (status, entry_records) =
+                extract_entry_records(&response_bundle, &original_requests);
+            if let Err(e) = recorder
+                .record_complete(tracking_id, status, None)
+                .await
+            {
+                tracing::warn!("Failed to record batch completion: {}", e);
+            }
+            if let Err(e) = recorder
+                .record_entries(tracking_id, &entry_records)
+                .await
+            {
+                tracing::warn!("Failed to record batch entries: {}", e);
+            }
+        }
 
         if let Err(e) = self.trigger_conformance_hooks(&response_bundle).await {
             tracing::warn!("Failed to trigger conformance hooks: {}", e);
@@ -1252,6 +1320,89 @@ impl ParsedUrl {
             _ => None,
         }
     }
+}
+
+// =============================================================================
+// Transaction tracking helpers
+// =============================================================================
+
+fn extract_entry_records<'a>(
+    bundle: &'a Bundle,
+    original_requests: &'a [(String, String)],
+) -> (&'a str, Vec<TransactionEntryRecord>) {
+    let entries = bundle.entry.as_ref();
+    let mut records = Vec::new();
+    let mut has_failure = false;
+
+    if let Some(entries) = entries {
+        for (i, entry) in entries.iter().enumerate() {
+            let (method, url) = original_requests
+                .get(i)
+                .cloned()
+                .unwrap_or_default();
+
+            let (status_code, error_msg) = entry
+                .response
+                .as_ref()
+                .map(|r| {
+                    let code = r
+                        .status
+                        .split_whitespace()
+                        .next()
+                        .and_then(|s| s.parse::<i32>().ok());
+                    let err = if code.unwrap_or(0) >= 400 {
+                        r.outcome
+                            .as_ref()
+                            .and_then(|o| {
+                                o.get("issue")
+                                    .and_then(|issues| issues.as_array())
+                                    .and_then(|arr| arr.first())
+                                    .and_then(|issue| issue.get("diagnostics"))
+                                    .and_then(|d| d.as_str())
+                                    .map(|s| s.to_string())
+                            })
+                    } else {
+                        None
+                    };
+                    if code.unwrap_or(0) >= 400 {
+                        has_failure = true;
+                    }
+                    (code, err)
+                })
+                .unwrap_or((None, None));
+
+            let (resource_type, resource_id, version_id) = entry
+                .response
+                .as_ref()
+                .and_then(|r| r.location.as_ref())
+                .map(|loc| {
+                    let parts: Vec<&str> = loc.split('/').filter(|s| !s.is_empty()).collect();
+                    let rt = parts.first().map(|s| s.to_string());
+                    let rid = parts.get(1).map(|s| s.to_string());
+                    let vid = parts
+                        .iter()
+                        .position(|p| *p == "_history")
+                        .and_then(|idx| parts.get(idx + 1))
+                        .and_then(|v| v.parse::<i32>().ok());
+                    (rt, rid, vid)
+                })
+                .unwrap_or((None, None, None));
+
+            records.push(TransactionEntryRecord {
+                entry_index: i as i32,
+                method,
+                url,
+                status: status_code,
+                resource_type,
+                resource_id,
+                version_id,
+                error_message: error_msg,
+            });
+        }
+    }
+
+    let status = if has_failure { "partial" } else { "completed" };
+    (status, records)
 }
 
 // fhir_models BundleEntryResponse doesn't include ResourceOperation; use crate model.

@@ -7,6 +7,7 @@ use crate::{
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
+use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -172,6 +173,69 @@ pub struct SearchParameterIndexingStatus {
     pub indexing_needed: bool,
     pub oldest_indexed_at: Option<DateTime<Utc>>,
     pub newest_indexed_at: Option<DateTime<Utc>>,
+}
+
+// =============================================================================
+// Transaction tracking types
+// =============================================================================
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TransactionListQuery {
+    pub bundle_type: Option<String>,
+    pub status: Option<String>,
+    pub limit: Option<i64>,
+    pub offset: Option<i64>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TransactionListResponse {
+    pub items: Vec<TransactionAdminListItem>,
+    pub total: i64,
+}
+
+#[derive(Debug, Clone, Serialize, sqlx::FromRow)]
+#[serde(rename_all = "camelCase")]
+pub struct TransactionAdminListItem {
+    pub id: Uuid,
+    #[sqlx(rename = "type")]
+    #[serde(rename = "type")]
+    pub bundle_type: String,
+    pub status: String,
+    pub entry_count: Option<i32>,
+    pub created_at: DateTime<Utc>,
+    pub started_at: Option<DateTime<Utc>>,
+    pub completed_at: Option<DateTime<Utc>>,
+    pub error_message: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TransactionAdminDetail {
+    pub id: Uuid,
+    #[serde(rename = "type")]
+    pub bundle_type: String,
+    pub status: String,
+    pub entry_count: Option<i32>,
+    pub created_at: DateTime<Utc>,
+    pub started_at: Option<DateTime<Utc>>,
+    pub completed_at: Option<DateTime<Utc>>,
+    pub error_message: Option<String>,
+    pub entries: Vec<TransactionEntryItem>,
+}
+
+#[derive(Debug, Clone, Serialize, sqlx::FromRow)]
+#[serde(rename_all = "camelCase")]
+pub struct TransactionEntryItem {
+    pub entry_index: i32,
+    pub method: String,
+    pub url: String,
+    pub status: Option<i32>,
+    pub resource_type: Option<String>,
+    pub resource_id: Option<String>,
+    pub version_id: Option<i32>,
+    pub error_message: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -345,6 +409,36 @@ impl AdminService {
 
     pub async fn compartment_memberships(&self) -> Result<Vec<CompartmentMembershipRecord>> {
         self.repo.fetch_compartment_memberships().await
+    }
+
+    pub async fn list_transactions(
+        &self,
+        query: TransactionListQuery,
+    ) -> Result<TransactionListResponse> {
+        let limit = query.limit.unwrap_or(100).clamp(1, 1000);
+        let offset = query.offset.unwrap_or(0).max(0);
+
+        let bundle_type = query
+            .bundle_type
+            .as_ref()
+            .map(|s| s.trim().to_lowercase())
+            .filter(|s| !s.is_empty());
+        let status = query
+            .status
+            .as_ref()
+            .map(|s| s.trim().to_lowercase())
+            .filter(|s| !s.is_empty());
+
+        let (items, total) = self
+            .repo
+            .list_transactions(bundle_type.as_deref(), status.as_deref(), limit, offset)
+            .await?;
+
+        Ok(TransactionListResponse { items, total })
+    }
+
+    pub async fn get_transaction(&self, id: Uuid) -> Result<TransactionAdminDetail> {
+        self.repo.get_transaction(id).await
     }
 }
 

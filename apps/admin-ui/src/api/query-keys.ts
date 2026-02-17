@@ -83,6 +83,13 @@ import { ConfigCategory } from "@/api/config";
   auditEvent: (id: number) => ["auditEvent", id],
   runtimeConfig: (category: ConfigCategory) => ["runtimeConfig", category],
   runtimeConfigAudit: (key?: string, limit?: number, offset?: number) => ["runtimeConfigAudit", key, limit, offset],
+  transactions: (
+    bundleType?: string,
+    status?: string,
+    limit?: number,
+    offset?: number
+  ) => ["transactions", bundleType, status, limit, offset],
+  transaction: (id: string) => ["transaction", id],
   compartmentMemberships: ["compartmentMemberships"],
   resourceReferences: (resourceType: string, id: string) => [
     "resourceReferences",

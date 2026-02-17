@@ -66,6 +66,9 @@ pub fn admin_routes() -> Router<AppState> {
             "/compartments/memberships",
             get(admin::get_compartment_memberships),
         )
+        // Transaction tracking
+        .route("/transactions", get(admin::list_transactions))
+        .route("/transactions/:id", get(admin::get_transaction))
         // Audit log (internal, read-only - audit logs are immutable)
         .route("/audit/events", get(admin::list_audit_events))
         .route("/audit/events/:id", get(admin::get_audit_event))

@@ -3,11 +3,14 @@
 use crate::services::admin::{
     AuditEventAdminDetail, AuditEventAdminListItem, SearchHashCollisionStatus,
     SearchIndexTableStatus, SearchParameterAdminListItem, SearchParameterIndexingStatus,
+    TransactionAdminDetail, TransactionAdminListItem, TransactionEntryItem,
 };
 use crate::Result;
 use chrono::{DateTime, Utc};
 use serde::Serialize;
+use serde_json::Value as JsonValue;
 use sqlx::{PgPool, Row};
+use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -559,6 +562,148 @@ impl AdminRepository {
         Ok(rows)
     }
 
+    pub async fn list_transactions(
+        &self,
+        bundle_type: Option<&str>,
+        status: Option<&str>,
+        limit: i64,
+        offset: i64,
+    ) -> Result<(Vec<TransactionAdminListItem>, i64)> {
+        let mut where_clauses = vec![];
+        let mut bind_count = 0;
+
+        let mut query_str = String::from(
+            r#"
+            SELECT
+                id,
+                type,
+                status,
+                entry_count,
+                created_at,
+                started_at,
+                completed_at,
+                error_message
+            FROM fhir_transactions
+            "#,
+        );
+
+        if bundle_type.is_some() {
+            bind_count += 1;
+            where_clauses.push(format!("type = ${}", bind_count));
+        }
+        if status.is_some() {
+            bind_count += 1;
+            where_clauses.push(format!("status = ${}", bind_count));
+        }
+
+        if !where_clauses.is_empty() {
+            query_str.push_str(" WHERE ");
+            query_str.push_str(&where_clauses.join(" AND "));
+        }
+
+        query_str.push_str(" ORDER BY created_at DESC");
+
+        let mut count_query = String::from("SELECT COUNT(*) FROM fhir_transactions");
+        if !where_clauses.is_empty() {
+            count_query.push_str(" WHERE ");
+            count_query.push_str(&where_clauses.join(" AND "));
+        }
+
+        bind_count += 1;
+        let limit_param = bind_count;
+        bind_count += 1;
+        let offset_param = bind_count;
+        query_str.push_str(&format!(" LIMIT ${} OFFSET ${}", limit_param, offset_param));
+
+        let mut count_q = sqlx::query_scalar::<_, i64>(&count_query);
+        if let Some(v) = bundle_type {
+            count_q = count_q.bind(v);
+        }
+        if let Some(v) = status {
+            count_q = count_q.bind(v);
+        }
+
+        let total = count_q
+            .fetch_one(&self.pool)
+            .await
+            .map_err(crate::Error::Database)?;
+
+        let mut main_q = sqlx::query_as::<_, TransactionAdminListItem>(&query_str);
+        if let Some(v) = bundle_type {
+            main_q = main_q.bind(v);
+        }
+        if let Some(v) = status {
+            main_q = main_q.bind(v);
+        }
+        main_q = main_q.bind(limit).bind(offset);
+
+        let items = main_q
+            .fetch_all(&self.pool)
+            .await
+            .map_err(crate::Error::Database)?;
+
+        Ok((items, total))
+    }
+
+    pub async fn get_transaction(&self, id: Uuid) -> Result<TransactionAdminDetail> {
+        let row = sqlx::query_as::<_, TransactionAdminListItem>(
+            r#"
+            SELECT
+                id,
+                type,
+                status,
+                entry_count,
+                created_at,
+                started_at,
+                completed_at,
+                error_message
+            FROM fhir_transactions
+            WHERE id = $1
+            "#,
+        )
+        .bind(id)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(crate::Error::Database)?;
+
+        let transaction = row.ok_or_else(|| {
+            crate::Error::NotFound(format!("Transaction {} not found", id))
+        })?;
+
+        let entries = sqlx::query_as::<_, TransactionEntryItem>(
+            r#"
+            SELECT
+                entry_index,
+                method,
+                url,
+                status,
+                resource_type,
+                resource_id,
+                version_id,
+                error_message
+            FROM fhir_transaction_entries
+            WHERE transaction_id = $1
+            ORDER BY entry_index
+            "#,
+        )
+        .bind(id)
+        .fetch_all(&self.pool)
+        .await
+        .map_err(crate::Error::Database)?;
+
+        Ok(TransactionAdminDetail {
+            id: transaction.id,
+            bundle_type: transaction.bundle_type,
+            status: transaction.status,
+            entry_count: transaction.entry_count,
+            created_at: transaction.created_at,
+            started_at: transaction.started_at,
+            completed_at: transaction.completed_at,
+            error_message: transaction.error_message,
+            entries,
+        })
+    }
+
     pub async fn fetch_compartment_memberships(&self) -> Result<Vec<CompartmentMembershipRecord>> {
         let rows = sqlx::query_as::<_, CompartmentMembershipRecord>(
             r#"
@@ -590,6 +735,135 @@ pub struct CompartmentMembershipRecord {
     pub start_param: Option<String>,
     pub end_param: Option<String>,
     pub loaded_at: DateTime<Utc>,
+}
+
+// =============================================================================
+// Transaction Recorder (write path for batch/transaction tracking)
+// =============================================================================
+
+pub struct TransactionEntryRecord {
+    pub entry_index: i32,
+    pub method: String,
+    pub url: String,
+    pub status: Option<i32>,
+    pub resource_type: Option<String>,
+    pub resource_id: Option<String>,
+    pub version_id: Option<i32>,
+    pub error_message: Option<String>,
+}
+
+#[derive(Clone)]
+pub struct TransactionRecorder {
+    pool: PgPool,
+}
+
+impl TransactionRecorder {
+    pub fn new(pool: PgPool) -> Self {
+        Self { pool }
+    }
+
+    pub async fn record_start(
+        &self,
+        id: Uuid,
+        bundle_type: &str,
+        entry_count: i32,
+        metadata: Option<JsonValue>,
+    ) -> Result<()> {
+        sqlx::query(
+            r#"
+            INSERT INTO fhir_transactions (id, type, status, entry_count, started_at, metadata)
+            VALUES ($1, $2, 'processing', $3, NOW(), $4)
+            "#,
+        )
+        .bind(id)
+        .bind(bundle_type)
+        .bind(entry_count)
+        .bind(metadata)
+        .execute(&self.pool)
+        .await
+        .map_err(crate::Error::Database)?;
+        Ok(())
+    }
+
+    pub async fn record_complete(
+        &self,
+        id: Uuid,
+        status: &str,
+        error_message: Option<&str>,
+    ) -> Result<()> {
+        sqlx::query(
+            r#"
+            UPDATE fhir_transactions
+            SET status = $2, completed_at = NOW(), error_message = $3
+            WHERE id = $1
+            "#,
+        )
+        .bind(id)
+        .bind(status)
+        .bind(error_message)
+        .execute(&self.pool)
+        .await
+        .map_err(crate::Error::Database)?;
+        Ok(())
+    }
+
+    pub async fn record_entries(
+        &self,
+        transaction_id: Uuid,
+        entries: &[TransactionEntryRecord],
+    ) -> Result<()> {
+        if entries.is_empty() {
+            return Ok(());
+        }
+
+        let mut values_parts = Vec::with_capacity(entries.len());
+        let mut param_idx = 0usize;
+        for (i, _) in entries.iter().enumerate() {
+            let base = i * 9;
+            values_parts.push(format!(
+                "(${}, ${}, ${}, ${}, ${}, ${}, ${}, ${}, ${})",
+                base + 1,
+                base + 2,
+                base + 3,
+                base + 4,
+                base + 5,
+                base + 6,
+                base + 7,
+                base + 8,
+                base + 9,
+            ));
+            param_idx = base + 9;
+        }
+        let _ = param_idx;
+
+        let query = format!(
+            r#"
+            INSERT INTO fhir_transaction_entries
+                (transaction_id, entry_index, method, url, status, resource_type, resource_id, version_id, error_message)
+            VALUES {}
+            "#,
+            values_parts.join(", ")
+        );
+
+        let mut q = sqlx::query(&query);
+        for entry in entries {
+            q = q
+                .bind(transaction_id)
+                .bind(entry.entry_index)
+                .bind(&entry.method)
+                .bind(&entry.url)
+                .bind(entry.status)
+                .bind(&entry.resource_type)
+                .bind(&entry.resource_id)
+                .bind(entry.version_id)
+                .bind(&entry.error_message);
+        }
+
+        q.execute(&self.pool)
+            .await
+            .map_err(crate::Error::Database)?;
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone, Serialize, sqlx::FromRow)]

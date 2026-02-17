@@ -1,6 +1,6 @@
 //! Admin statistics handlers.
 
-use crate::services::admin::{AuditEventListQuery, SearchParameterListQuery};
+use crate::services::admin::{AuditEventListQuery, SearchParameterListQuery, TransactionListQuery};
 use crate::{state::AppState, Result};
 use axum::{
     extract::Query,
@@ -273,4 +273,20 @@ pub async fn get_resource_references(
 pub async fn get_compartment_memberships(State(state): State<AppState>) -> Result<Response> {
     let memberships = state.admin_service.compartment_memberships().await?;
     Ok((StatusCode::OK, Json(memberships)).into_response())
+}
+
+pub async fn list_transactions(
+    State(state): State<AppState>,
+    Query(query): Query<TransactionListQuery>,
+) -> Result<Response> {
+    let result = state.admin_service.list_transactions(query).await?;
+    Ok((StatusCode::OK, Json(result)).into_response())
+}
+
+pub async fn get_transaction(
+    State(state): State<AppState>,
+    Path(id): Path<uuid::Uuid>,
+) -> Result<Response> {
+    let result = state.admin_service.get_transaction(id).await?;
+    Ok((StatusCode::OK, Json(result)).into_response())
 }

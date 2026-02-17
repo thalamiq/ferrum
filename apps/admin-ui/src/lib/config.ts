@@ -4,6 +4,7 @@ import {
   DatabaseIcon,
   FilterIcon,
   InfoIcon,
+  LayersIcon,
   LayoutDashboardIcon,
   ScrollTextIcon,
   SettingsIcon,
@@ -109,6 +110,11 @@ export const config = {
       path: "/jobs",
       label: "Jobs",
       icon: ClipboardListIcon,
+    },
+    transactions: {
+      path: "/transactions",
+      label: "Transactions",
+      icon: LayersIcon,
     },
     logs: {
       path: "/audit-logs",

@@ -9,6 +9,7 @@ import { metadataRoute } from "./metadata";
 import { jobsRoute } from "./jobs";
 import { settingsRoute } from "./settings";
 import { auditLogsRoute } from "./audit-logs";
+import { transactionsRoute } from "./transactions";
 import { packagesRoute } from "./packages";
 import { packageDetailRoute } from "./package-detail";
 import { searchRoute } from "./search/search";
@@ -27,6 +28,7 @@ const routeTree = rootRoute.addChildren([
   jobsRoute,
   settingsRoute,
   auditLogsRoute,
+  transactionsRoute,
   packagesRoute,
   packageDetailRoute,
   searchRoute,
