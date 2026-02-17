@@ -65,8 +65,13 @@ async fn main() -> anyhow::Result<()> {
         .await
         .with_context(|| format!("Failed to bind TCP listener on {addr}"))?;
 
-    // Run server with graceful shutdown
-    if let Err(e) = axum::serve(listener, app)
+    // Run server with graceful shutdown.
+    // NormalizePath wraps the Router so we use ServiceExt::into_make_service().
+    use axum::ServiceExt;
+    if let Err(e) = axum::serve(
+        listener,
+        <_ as ServiceExt<axum::extract::Request>>::into_make_service(app),
+    )
         .with_graceful_shutdown(shutdown_signal())
         .await
     {

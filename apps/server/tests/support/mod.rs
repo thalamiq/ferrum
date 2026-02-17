@@ -8,8 +8,8 @@ use anyhow::Context as _;
 use axum::{
     body::{Body, Bytes},
     http::{HeaderMap, HeaderName, HeaderValue, Method, Request, StatusCode},
-    Router,
 };
+use tower_http::normalize_path::NormalizePath;
 use futures::FutureExt as _;
 use sqlx::Connection as _;
 use ferrum::{
@@ -28,7 +28,7 @@ pub use fixtures::*;
 pub use search_helpers::*;
 
 pub struct TestApp {
-    pub router: Router,
+    pub router: NormalizePath<axum::Router>,
     pub state: AppState,
     schema: String,
     admin_database_url: String,

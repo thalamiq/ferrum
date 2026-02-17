@@ -12,18 +12,22 @@ pub mod url;
 
 use crate::state::AppState;
 use axum::{
-    extract::DefaultBodyLimit,
-    extract::State,
+    extract::{DefaultBodyLimit, State},
     http::StatusCode,
     response::{IntoResponse, Json, Redirect},
     routing::get,
     Router,
 };
 use serde_json::json;
+use tower::Layer;
+use tower_http::normalize_path::{NormalizePath, NormalizePathLayer};
 use tower_http::services::{ServeDir, ServeFile};
 
-/// Create the main application router
-pub fn create_router(state: AppState) -> Router {
+/// Create the main application router.
+///
+/// The returned service normalizes trailing slashes (e.g. `/fhir/` → `/fhir`)
+/// before routing, so individual routes only need to be registered once.
+pub fn create_router(state: AppState) -> NormalizePath<Router> {
     // Get request body size limit from config
     let max_body_size = state.config.server.max_request_body_size;
     let cors_origins = state.config.server.cors_origins.clone();
@@ -68,7 +72,7 @@ pub fn create_router(state: AppState) -> Router {
         tracing::info!(path = %static_dir, "Serving admin UI at /ui/");
     }
 
-    router
+    let router = router
         // Add state
         .with_state(state)
         // Add middleware (applied in reverse order)
@@ -81,7 +85,12 @@ pub fn create_router(state: AppState) -> Router {
         .layer(middleware::cors(&cors_origins))
         .layer(middleware::trace())
         // Limit request body size to prevent DoS via large payloads
-        .layer(DefaultBodyLimit::max(max_body_size))
+        .layer(DefaultBodyLimit::max(max_body_size));
+
+    // NormalizePath wraps the entire service so trailing slashes are stripped
+    // BEFORE routing. Router::layer() only applies middleware AFTER routing,
+    // which is too late to affect path matching.
+    NormalizePathLayer::trim_trailing_slash().layer(router)
 }
 
 async fn health_check() -> impl IntoResponse {
