@@ -3,12 +3,12 @@
 use serde::Deserialize;
 use serde_json::Value;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::OnceLock;
 use tokio::runtime::Runtime;
 
 // ---------------------------------------------------------------------------
-// Async runtime helpers (shared with fhir-snapshot test pattern)
+// Async runtime helpers
 // ---------------------------------------------------------------------------
 
 static RUNTIME: OnceLock<Runtime> = OnceLock::new();
@@ -25,12 +25,19 @@ pub fn block_on<F: std::future::Future>(future: F) -> F::Output {
 }
 
 // ---------------------------------------------------------------------------
-// Manifest types
+// Paths
 // ---------------------------------------------------------------------------
 
 pub const VALIDATOR_DIR: &str = "../../fhir-test-cases/validator";
 
-/// Top-level manifest.json
+pub fn validator_dir() -> PathBuf {
+    PathBuf::from(VALIDATOR_DIR)
+}
+
+// ---------------------------------------------------------------------------
+// Manifest types
+// ---------------------------------------------------------------------------
+
 #[derive(Debug, Deserialize)]
 pub struct Manifest {
     #[serde(rename = "test-cases")]
@@ -57,10 +64,8 @@ pub struct TestCase {
     pub profile: Option<ProfileTest>,
     #[serde(default)]
     pub packages: Option<Vec<String>>,
-    /// Can be a string URL or a complex object — we only care about presence, not content.
     #[serde(default)]
     pub logical: Option<Value>,
-    /// Catch all other fields we don't care about.
     #[serde(flatten)]
     _extra: serde_json::Map<String, Value>,
 }
@@ -77,12 +82,11 @@ pub struct ProfileTest {
     _extra: serde_json::Map<String, Value>,
 }
 
-/// The `java` field is polymorphic: either a string path or an inline object.
+/// The `java` field is polymorphic: either a string path to an outcome file
+/// or an inline object with `errorCount` / `output`.
 #[derive(Debug, Clone)]
 pub enum JavaExpectation {
-    /// Path to an outcome file, e.g. "java/R4.allergy-base.json"
     FilePath(String),
-    /// Inline expectation with errorCount
     Inline { error_count: u32 },
 }
 
@@ -114,22 +118,14 @@ impl<'de> Deserialize<'de> for JavaExpectation {
 // Expected error count resolution
 // ---------------------------------------------------------------------------
 
-/// Resolve a JavaExpectation to an expected error count.
-pub fn resolve_expected_errors(expectation: &JavaExpectation) -> u32 {
+pub fn resolve_expected_errors(expectation: &JavaExpectation) -> Option<u32> {
     match expectation {
-        JavaExpectation::Inline { error_count } => *error_count,
+        JavaExpectation::Inline { error_count } => Some(*error_count),
         JavaExpectation::FilePath(path) => {
-            let outcome_path = PathBuf::from(VALIDATOR_DIR).join("outcomes").join(path);
-            if !outcome_path.exists() {
-                return u32::MAX;
-            }
-            let content = fs::read_to_string(&outcome_path).unwrap_or_else(|e| {
-                panic!("Failed to read outcome file {}: {}", outcome_path.display(), e)
-            });
-            let outcome: Value = serde_json::from_str(&content).unwrap_or_else(|e| {
-                panic!("Failed to parse outcome file {}: {}", outcome_path.display(), e)
-            });
-            count_errors_in_outcome(&outcome)
+            let outcome_path = validator_dir().join("outcomes").join(path);
+            let content = fs::read_to_string(&outcome_path).ok()?;
+            let outcome: Value = serde_json::from_str(&content).ok()?;
+            Some(count_errors_in_outcome(&outcome))
         }
     }
 }
@@ -152,10 +148,10 @@ fn count_errors_in_outcome(outcome: &Value) -> u32 {
 }
 
 // ---------------------------------------------------------------------------
-// Filtering helpers
+// Filtering
 // ---------------------------------------------------------------------------
 
-/// Modules we skip (require external services or unsupported formats).
+/// Modules we skip (require external terminology server, unsupported formats, etc.).
 const SKIP_MODULES: &[&str] = &[
     "tx",
     "tx-advanced",
@@ -166,17 +162,10 @@ const SKIP_MODULES: &[&str] = &[
     "json5",
 ];
 
-/// FHIR versions we support.
 fn is_supported_version(version: Option<&str>) -> bool {
-    match version {
-        None => true,        // absent = R5
-        Some("4.0") => true, // R4
-        Some("5.0") => true, // R5
-        _ => false,          // R3, R4B, etc. — skip for now
-    }
+    matches!(version, None | Some("4.0") | Some("5.0"))
 }
 
-/// Determine which FHIR version label to use for context creation.
 pub fn fhir_version_label(version: Option<&str>) -> &str {
     match version {
         Some("4.0") => "R4",
@@ -184,49 +173,41 @@ pub fn fhir_version_label(version: Option<&str>) -> &str {
     }
 }
 
-/// Check if a test case is eligible for our harness.
-pub fn is_eligible(tc: &TestCase) -> bool {
-    // Skip if explicitly disabled
+/// Determine why a test case is skipped, or `None` if eligible.
+pub fn skip_reason(tc: &TestCase) -> Option<&'static str> {
     if tc.use_test == Some(false) {
-        return false;
+        return Some("disabled via use-test");
     }
-
-    // Skip non-JSON files
     if !tc.file.ends_with(".json") {
-        return false;
+        return Some("non-JSON file");
     }
-
-    // Skip unsupported FHIR versions
     if !is_supported_version(tc.version.as_deref()) {
-        return false;
+        return Some("unsupported FHIR version");
     }
-
-    // Skip unsupported modules
     if let Some(ref module) = tc.module {
         if SKIP_MODULES.contains(&module.as_str()) {
-            return false;
+            return Some("unsupported module");
         }
     }
-
-    // Skip tests without java expectations
     if tc.java.is_none() {
-        return false;
+        return Some("no java expectations");
     }
-
-    // Skip tests requiring external packages
     if tc.packages.is_some() {
-        return false;
+        return Some("requires external packages");
     }
+    None
+}
 
-    true
+pub fn is_eligible(tc: &TestCase) -> bool {
+    skip_reason(tc).is_none()
 }
 
 // ---------------------------------------------------------------------------
-// Manifest loading
+// Loading
 // ---------------------------------------------------------------------------
 
 pub fn load_manifest() -> Option<Manifest> {
-    let manifest_path = Path::new(VALIDATOR_DIR).join("manifest.json");
+    let manifest_path = validator_dir().join("manifest.json");
     if !manifest_path.exists() {
         return None;
     }
@@ -237,9 +218,8 @@ pub fn load_manifest() -> Option<Manifest> {
     Some(manifest)
 }
 
-/// Load a test resource file from the validator test cases directory.
 pub fn load_test_resource(file: &str) -> Option<Value> {
-    let path = PathBuf::from(VALIDATOR_DIR).join(file);
+    let path = validator_dir().join(file);
     if !path.exists() {
         return None;
     }

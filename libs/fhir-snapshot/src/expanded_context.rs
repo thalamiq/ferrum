@@ -186,12 +186,23 @@ impl<C: FhirContext> ExpandedFhirContext<C> {
             ))
         })?;
 
-        let deep = generate_deep_snapshot(snapshot, self).map_err(|e| {
-            Error::InvalidStructureDefinition(format!(
-                "Failed to deep-expand snapshot for {}: {}",
-                canonical_url, e
-            ))
-        })?;
+        // IMPORTANT: Pass a MaterializedView — NOT self — to the deep expander.
+        //
+        // The SnapshotExpander calls context.get_structure_definition() to resolve
+        // complex child types (e.g. Reference, CodeableConcept). If we passed `self`,
+        // the expander would receive *already deep-expanded* snapshots and then try
+        // to expand them further, causing exponential element blowup.
+        //
+        // By giving it the materialized view, the expander gets plain snapshots
+        // (with no deep children) and its own resolution_stack controls the depth.
+        let materialized_view = MaterializedView { ctx: self };
+        let deep =
+            generate_deep_snapshot(snapshot, &materialized_view).map_err(|e| {
+                Error::InvalidStructureDefinition(format!(
+                    "Failed to deep-expand snapshot for {}: {}",
+                    canonical_url, e
+                ))
+            })?;
 
         let mut expanded_sd = (*materialized).clone();
         expanded_sd.snapshot = Some(deep);
@@ -202,6 +213,31 @@ impl<C: FhirContext> ExpandedFhirContext<C> {
         }
 
         Ok(Some(expanded_sd))
+    }
+}
+
+/// A view over [`ExpandedFhirContext`] that returns **materialized** (not deep-expanded)
+/// StructureDefinitions. Used exclusively by `generate_deep_snapshot` so the
+/// `SnapshotExpander` doesn't double-expand already-expanded snapshots.
+struct MaterializedView<'a, C: FhirContext> {
+    ctx: &'a ExpandedFhirContext<C>,
+}
+
+impl<C: FhirContext> FhirContext for MaterializedView<'_, C> {
+    fn get_resource_by_url(
+        &self,
+        canonical_url: &str,
+        version: Option<&str>,
+    ) -> Result<Option<Arc<Value>>> {
+        self.ctx.inner.get_resource_by_url(canonical_url, version)
+    }
+
+    fn get_structure_definition(
+        &self,
+        canonical_url: &str,
+    ) -> Result<Option<Arc<StructureDefinition>>> {
+        let mut stack = HashSet::new();
+        self.ctx.get_or_build_materialized(canonical_url, &mut stack)
     }
 }
 

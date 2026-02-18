@@ -1,0 +1,58 @@
+{
+  "resourceType": "OperationDefinition",
+  "id": "CodeSystem-subsumes",
+  "url": "http://hl7.org/fhir/OperationDefinition/CodeSystem-subsumes",
+  "version": "4.0.1",
+  "name": "Subsumes",
+  "title": "Subsumption Testing",
+  "status": "active",
+  "kind": "operation",
+  "code": "subsumes",
+  "resource": ["CodeSystem"],
+  "system": false,
+  "type": true,
+  "instance": true,
+  "affectsState": false,
+  "parameter": [
+    {
+      "name": "codeA",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "code",
+      "documentation": "The A code that is to be tested."
+    },
+    {
+      "name": "codeB",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "code",
+      "documentation": "The B code that is to be tested."
+    },
+    {
+      "name": "system",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "uri",
+      "documentation": "The code system in which subsumption testing is to be performed."
+    },
+    {
+      "name": "version",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "string",
+      "documentation": "The version of the code system."
+    },
+    {
+      "name": "outcome",
+      "use": "out",
+      "min": 1,
+      "max": "1",
+      "type": "code",
+      "documentation": "The subsumption relationship between code/Coding A and code/Coding B."
+    }
+  ]
+}

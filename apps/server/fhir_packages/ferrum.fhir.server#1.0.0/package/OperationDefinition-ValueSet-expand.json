@@ -1,0 +1,98 @@
+{
+  "resourceType": "OperationDefinition",
+  "id": "ValueSet-expand",
+  "url": "http://hl7.org/fhir/OperationDefinition/ValueSet-expand",
+  "version": "4.0.1",
+  "name": "Expand",
+  "title": "Value Set Expansion",
+  "status": "active",
+  "kind": "operation",
+  "code": "expand",
+  "resource": ["ValueSet"],
+  "system": false,
+  "type": true,
+  "instance": true,
+  "affectsState": false,
+  "parameter": [
+    {
+      "name": "url",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "uri",
+      "documentation": "A canonical reference to a value set. The server must know the value set (e.g. it is defined explicitly in the server's value sets, or it is defined implicitly by some code system known to the server)."
+    },
+    {
+      "name": "valueSet",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "ValueSet",
+      "documentation": "The value set is provided directly as part of the request."
+    },
+    {
+      "name": "valueSetVersion",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "string",
+      "documentation": "The identifier that is used to identify a specific version of the value set to be used when generating the expansion."
+    },
+    {
+      "name": "filter",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "string",
+      "documentation": "A text filter that is applied to restrict the codes that are returned."
+    },
+    {
+      "name": "offset",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "integer",
+      "documentation": "Paging support - where to start if a subset is desired (default = 0)."
+    },
+    {
+      "name": "count",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "integer",
+      "documentation": "Paging support - how many codes should be provided in a partial page view."
+    },
+    {
+      "name": "includeDesignations",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "boolean",
+      "documentation": "Controls whether concept designations are to be included or excluded in value set expansions."
+    },
+    {
+      "name": "displayLanguage",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "code",
+      "documentation": "Specifies the language to be used for description in the expansions."
+    },
+    {
+      "name": "activeOnly",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "boolean",
+      "documentation": "Controls whether inactive concepts are included or excluded in value set expansions."
+    },
+    {
+      "name": "return",
+      "use": "out",
+      "min": 1,
+      "max": "1",
+      "type": "ValueSet",
+      "documentation": "The result of the expansion."
+    }
+  ]
+}

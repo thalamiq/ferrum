@@ -674,27 +674,91 @@ impl TerminologyService {
             ));
         }
 
-        let found = self
+        let input_display = params
+            .get_value("display")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string());
+        let lenient_display = params
+            .get_value("lenient-display-validation")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+        let abstract_allowed = params
+            .get_value("abstract")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(true);
+
+        let concept = self
             .find_concept_in_codesystem(&url, None, &code)
-            .await?
-            .is_some();
+            .await?;
+        let found = concept.is_some();
 
         let mut out = Parameters::new();
-        out.add_value_boolean("result".to_string(), found);
-        if found {
-            if let Some(display) = self
-                .find_concept_in_codesystem(&url, None, &code)
-                .await?
-                .and_then(|c| c.display)
-            {
-                out.add_value_string("display".to_string(), display);
+
+        if let Some(concept_details) = concept {
+            let concept_display = concept_details.display.clone();
+            let concept_abstract = concept_details.is_abstract();
+
+            // Check abstract
+            if !abstract_allowed && concept_abstract {
+                out.add_value_boolean("result".to_string(), false);
+                out.add_value_string(
+                    "message".to_string(),
+                    "Abstract code cannot be used in this context".to_string(),
+                );
+            } else if let Some(ref provided) = input_display {
+                // Check display match
+                let matches = concept_display
+                    .as_deref()
+                    .is_some_and(|d| d == provided.as_str());
+                if matches {
+                    out.add_value_boolean("result".to_string(), true);
+                } else if lenient_display {
+                    out.add_value_boolean("result".to_string(), true);
+                    out.add_value_string(
+                        "message".to_string(),
+                        format!(
+                            "Display mismatch: provided '{}', expected '{}'",
+                            provided,
+                            concept_display.as_deref().unwrap_or("")
+                        ),
+                    );
+                } else {
+                    out.add_value_boolean("result".to_string(), false);
+                    out.add_value_string(
+                        "message".to_string(),
+                        format!(
+                            "Display mismatch: provided '{}', expected '{}'",
+                            provided,
+                            concept_display.as_deref().unwrap_or("")
+                        ),
+                    );
+                }
+            } else {
+                out.add_value_boolean("result".to_string(), true);
             }
+
+            // Always return correct display, code, system
+            if let Some(d) = concept_display {
+                out.add_value_string("display".to_string(), d);
+            }
+            out.add_value_code("code".to_string(), code.clone());
+            out.add_value_uri("system".to_string(), url.clone());
         } else {
+            out.add_value_boolean("result".to_string(), false);
             out.add_value_string(
                 "message".to_string(),
                 format!("Unknown code '{}' in system '{}'", code, url),
             );
         }
+
+        // Include CodeSystem content mode
+        if let Some(content_mode) = self.repo.find_codesystem_content_mode(&url).await? {
+            out.add_value_code("codeSystem.content".to_string(), content_mode);
+            if !found {
+                // For fragment code systems, the code might exist but not be in the server
+            }
+        }
+
         Ok(out)
     }
 
@@ -704,26 +768,119 @@ impl TerminologyService {
         params: &Parameters,
     ) -> Result<Parameters> {
         let valueset = self.resolve_valueset(context, params).await?;
-        let (system, code) = self.resolve_system_and_code_or_coding(params)?;
+
+        // Support inferSystem: when system is not provided, check if ValueSet compose
+        // has exactly one include with a system
+        let (system, code) = match self.resolve_system_and_code_or_coding(params) {
+            Ok(result) => result,
+            Err(_) => {
+                // Try to infer system from ValueSet compose
+                let code = params
+                    .get_value("code")
+                    .and_then(|v| v.as_str())
+                    .ok_or_else(|| {
+                        Error::Validation(
+                            "Missing parameters: (system, code) or coding".to_string(),
+                        )
+                    })?;
+                let inferred = infer_system_from_valueset(&valueset);
+                match inferred {
+                    Some(sys) => (sys, code.to_string()),
+                    None => {
+                        return Err(Error::Validation(
+                            "Missing parameters: (system, code) or coding. Could not infer system from ValueSet".to_string(),
+                        ));
+                    }
+                }
+            }
+        };
+
+        let input_display = params
+            .get_value("display")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string());
+        let lenient_display = params
+            .get_value("lenient-display-validation")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+        let abstract_allowed = params
+            .get_value("abstract")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(true);
 
         let expanded = self.expand_valueset(&valueset).await?;
-        let mut found_display: Option<String> = None;
-        let found = expanded.iter().any(|c| {
-            let ok = c.system == system && c.code == code;
-            if ok {
-                found_display = c.display.clone();
+        let mut found_concept: Option<&Concept> = None;
+        for c in &expanded {
+            if c.system == system && c.code == code {
+                found_concept = Some(c);
+                break;
             }
-            ok
-        });
+        }
 
         let mut out = Parameters::new();
-        out.add_value_boolean("result".to_string(), found);
-        if let Some(d) = found_display {
-            out.add_value_string("display".to_string(), d);
-        }
-        if !found {
+
+        if let Some(concept) = found_concept {
+            let concept_display = concept.display.clone();
+            let concept_abstract = concept.abstract_flag.unwrap_or(false);
+
+            // Check abstract
+            if !abstract_allowed && concept_abstract {
+                out.add_value_boolean("result".to_string(), false);
+                out.add_value_string(
+                    "message".to_string(),
+                    "Abstract code cannot be used in this context".to_string(),
+                );
+            } else if let Some(ref provided) = input_display {
+                let matches = concept_display
+                    .as_deref()
+                    .is_some_and(|d| d == provided.as_str());
+                if matches {
+                    out.add_value_boolean("result".to_string(), true);
+                } else if lenient_display {
+                    out.add_value_boolean("result".to_string(), true);
+                    out.add_value_string(
+                        "message".to_string(),
+                        format!(
+                            "Display mismatch: provided '{}', expected '{}'",
+                            provided,
+                            concept_display.as_deref().unwrap_or("")
+                        ),
+                    );
+                } else {
+                    out.add_value_boolean("result".to_string(), false);
+                    out.add_value_string(
+                        "message".to_string(),
+                        format!(
+                            "Display mismatch: provided '{}', expected '{}'",
+                            provided,
+                            concept_display.as_deref().unwrap_or("")
+                        ),
+                    );
+                }
+            } else {
+                out.add_value_boolean("result".to_string(), true);
+            }
+
+            // Always return correct display, code, system
+            if let Some(d) = concept_display {
+                out.add_value_string("display".to_string(), d);
+            }
+            out.add_value_code("code".to_string(), code.clone());
+            out.add_value_uri("system".to_string(), system.clone());
+        } else {
+            out.add_value_boolean("result".to_string(), false);
             out.add_value_string("message".to_string(), "Code not in ValueSet".to_string());
         }
+
+        // Include CodeSystem content mode for the system being validated
+        if let Some(content_mode) = self
+            .repo
+            .find_codesystem_content_mode(&system)
+            .await?
+        {
+            out.add_value_code("codeSystem.content".to_string(), content_mode);
+        }
+
         Ok(out)
     }
 
@@ -834,9 +991,87 @@ impl TerminologyService {
                                     code: code.to_string(),
                                     display,
                                     inactive: None,
+                                    abstract_flag: None,
                                     designations: concept.get("designation").cloned(),
                                 },
                             );
+                        }
+                    } else if let Some(filters) = include.get("filter").and_then(|v| v.as_array()) {
+                        // Filter-based expansion
+                        let Some(ref system) = system else {
+                            continue;
+                        };
+                        for filter in filters {
+                            let Some(property) = filter.get("property").and_then(|v| v.as_str())
+                            else {
+                                continue;
+                            };
+                            let Some(op) = filter.get("op").and_then(|v| v.as_str()) else {
+                                continue;
+                            };
+                            let Some(value) = filter.get("value").and_then(|v| v.as_str()) else {
+                                continue;
+                            };
+
+                            match op {
+                                "is-a" | "descendent-of" => {
+                                    // Hierarchy-based filter: find all descendants of the value code
+                                    if let Ok(parent_map) =
+                                        self.load_codesystem_parent_map(system).await
+                                    {
+                                        let all_codes: Vec<String> =
+                                            parent_map.keys().cloned().collect();
+                                        let include_root = op == "is-a";
+                                        for code in &all_codes {
+                                            let include_code = if code == value {
+                                                include_root
+                                            } else {
+                                                is_ancestor(&parent_map, value, code)
+                                            };
+                                            if include_code {
+                                                // Look up display from concepts table
+                                                let display = self
+                                                    .find_concept_in_codesystem(system, None, code)
+                                                    .await?
+                                                    .and_then(|c| c.display);
+                                                out.insert(
+                                                    format!("{}|{}", system, code),
+                                                    Concept {
+                                                        system: system.clone(),
+                                                        code: code.clone(),
+                                                        display,
+                                                        inactive: None,
+                                                        abstract_flag: None,
+                                                        designations: None,
+                                                    },
+                                                );
+                                            }
+                                        }
+                                    }
+                                }
+                                "=" | "in" => {
+                                    let rows = self
+                                        .repo
+                                        .fetch_concepts_by_filter(system, property, op, value)
+                                        .await?;
+                                    for row in rows {
+                                        out.insert(
+                                            format!("{}|{}", system, row.code),
+                                            Concept {
+                                                system: system.clone(),
+                                                code: row.code,
+                                                display: Some(row.display),
+                                                inactive: None,
+                                                abstract_flag: None,
+                                                designations: None,
+                                            },
+                                        );
+                                    }
+                                }
+                                _ => {
+                                    // Unsupported filter op, skip
+                                }
+                            }
                         }
                     } else if let Some(system) = system {
                         // include an entire CodeSystem (only possible if codes are present / indexed)
@@ -850,6 +1085,7 @@ impl TerminologyService {
                                     code: row.code,
                                     display: Some(row.display),
                                     inactive: None,
+                                    abstract_flag: None,
                                     designations: None,
                                 },
                             );
@@ -1096,6 +1332,7 @@ struct Concept {
     code: String,
     display: Option<String>,
     inactive: Option<bool>,
+    abstract_flag: Option<bool>,
     designations: Option<JsonValue>,
 }
 
@@ -1122,13 +1359,20 @@ fn extract_valueset_expansion_contains(value: &JsonValue, out: &mut HashMap<Stri
 
         if let (Some(system), Some(code)) = (system, code) {
             if !system.is_empty() && !code.is_empty() {
+                let abstract_flag = item
+                    .get("abstract")
+                    .and_then(|v| v.as_bool());
+                let inactive = item
+                    .get("inactive")
+                    .and_then(|v| v.as_bool());
                 out.insert(
                     format!("{}|{}", system, code),
                     Concept {
                         system: system.to_string(),
                         code: code.to_string(),
                         display,
-                        inactive: None,
+                        inactive,
+                        abstract_flag,
                         designations: None,
                     },
                 );
@@ -1343,4 +1587,22 @@ fn build_closure_conceptmap(
         "date": Utc::now().format("%Y-%m-%d").to_string(),
         "group": groups
     })
+}
+
+/// Infer system from a ValueSet's compose when it has exactly one include with a system
+fn infer_system_from_valueset(valueset: &JsonValue) -> Option<String> {
+    let compose = valueset.get("compose")?;
+    let includes = compose.get("include")?.as_array()?;
+
+    // Collect unique systems from includes
+    let systems: HashSet<String> = includes
+        .iter()
+        .filter_map(|inc| inc.get("system").and_then(|v| v.as_str()).map(|s| s.to_string()))
+        .collect();
+
+    if systems.len() == 1 {
+        systems.into_iter().next()
+    } else {
+        None
+    }
 }

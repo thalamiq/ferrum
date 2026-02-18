@@ -129,171 +129,173 @@ export default function AppSidebar() {
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            {Object.values(config.nav)
-              .filter((route: any) => {
-                if (
-                  route.path === config.nav.settings.path &&
-                  uiConfigQuery.data?.runtime_config_enabled === false
-                ) {
-                  return false;
-                }
-                return true;
-              })
-              .map((route: any) => {
-                // Make Resources collapsible with resource types as sub-items
-                if (
-                  route.path === config.nav.resources.path &&
-                  sortedResourceTypes.length > 0
-                ) {
-                  return (
-                    <Collapsible
-                      key={route.path}
-                      open={isResourcesOpen}
-                      onOpenChange={setIsResourcesOpen}
-                      className="group/collapsible"
-                    >
-                      <SidebarMenuItem>
-                        <div className="flex items-center w-full">
-                          <SidebarMenuButton
-                            asChild
-                            tooltip={route.label}
-                            isActive={isActive(route.path)}
-                            className="flex-1"
-                          >
-                            <Link to={route.path}>
-                              <route.icon className="w-4 h-4" />
-                              <span>{route.label}</span>
-                            </Link>
-                          </SidebarMenuButton>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {Object.values(config.nav)
+                .filter((route: any) => {
+                  if (
+                    route.path === config.nav.settings.path &&
+                    uiConfigQuery.data?.runtime_config_enabled === false
+                  ) {
+                    return false;
+                  }
+                  return true;
+                })
+                .map((route: any) => {
+                  // Make Resources collapsible with resource types as sub-items
+                  if (
+                    route.path === config.nav.resources.path &&
+                    sortedResourceTypes.length > 0
+                  ) {
+                    return (
+                      <Collapsible
+                        key={route.path}
+                        open={isResourcesOpen}
+                        onOpenChange={setIsResourcesOpen}
+                        className="group/collapsible"
+                      >
+                        <SidebarMenuItem>
+                          <div className="flex items-center w-full">
+                            <SidebarMenuButton
+                              asChild
+                              tooltip={route.label}
+                              isActive={isActive(route.path)}
+                              className="flex-1"
+                            >
+                              <Link to={route.path}>
+                                <route.icon className="w-4 h-4" />
+                                <span>{route.label}</span>
+                              </Link>
+                            </SidebarMenuButton>
+                            {open && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 shrink-0"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setIsResourcesOpen(!isResourcesOpen);
+                                }}
+                                aria-label="Toggle resources menu"
+                              >
+                                <ChevronRight className="h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                              </Button>
+                            )}
+                          </div>
                           {open && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 shrink-0"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setIsResourcesOpen(!isResourcesOpen);
-                              }}
-                              aria-label="Toggle resources menu"
-                            >
-                              <ChevronRight className="h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                            </Button>
-                          )}
-                        </div>
-                        {open && (
-                          <CollapsibleContent>
-                            <SidebarMenuSub className="max-h-[60vh] overflow-y-auto">
-                              {sortedResourceTypes.map((resource) => (
-                                <SidebarMenuSubItem
-                                  key={resource.resourceType}
-                                >
-                                  <SidebarMenuSubButton asChild>
-                                    <Link
-                                      to={config.nav.api.path}
-                                      search={{
-                                        method: "GET",
-                                        endpoint: resource.resourceType,
-                                      }}
-                                    >
-                                      <span className="flex-1 truncate">{resource.resourceType}</span>
-                                      <span className="text-xs text-muted-foreground ml-auto bg-muted rounded-md px-2 py-1">
-                                        {resource.currentTotal}
-                                      </span>
-                                    </Link>
-                                  </SidebarMenuSubButton>
-                                </SidebarMenuSubItem>
-                              ))}
-                            </SidebarMenuSub>
-                          </CollapsibleContent>
-                        )}
-                      </SidebarMenuItem>
-                    </Collapsible>
-                  );
-                }
-                // Make Search collapsible with sub-items
-                if (route.subItems) {
-                  return (
-                    <Collapsible
-                      key={route.path}
-                      open={isSearchOpen}
-                      onOpenChange={setIsSearchOpen}
-                      className="group/collapsible"
-                    >
-                      <SidebarMenuItem>
-                        <div className="flex items-center w-full">
-                          <SidebarMenuButton
-                            asChild
-                            tooltip={route.label}
-                            className="flex-1"
-                          >
-                            <Link
-                              to={route.subItems.searchParameters.path}
-                            >
-                              <route.icon className="w-4 h-4" />
-                              <span>{route.label}</span>
-                            </Link>
-                          </SidebarMenuButton>
-                          {open && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 shrink-0"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setIsSearchOpen(!isSearchOpen);
-                              }}
-                              aria-label="Toggle search menu"
-                            >
-                              <ChevronRight className="h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                            </Button>
-                          )}
-                        </div>
-                        {open && (
-                          <CollapsibleContent>
-                            <SidebarMenuSub>
-                              {Object.values(route.subItems).map(
-                                (subItem: any) => (
-                                  <SidebarMenuSubItem key={subItem.path}>
-                                    <SidebarMenuSubButton
-                                      asChild
-                                      isActive={isActive(subItem.path)}
-                                    >
-                                      <Link to={subItem.path}>
-                                        <span>{subItem.label}</span>
+                            <CollapsibleContent>
+                              <SidebarMenuSub className="max-h-[60vh] overflow-y-auto">
+                                {sortedResourceTypes.map((resource) => (
+                                  <SidebarMenuSubItem
+                                    key={resource.resourceType}
+                                  >
+                                    <SidebarMenuSubButton asChild>
+                                      <Link
+                                        to={config.nav.api.path}
+                                        search={{
+                                          method: "GET",
+                                          endpoint: resource.resourceType,
+                                        }}
+                                      >
+                                        <span className="flex-1 truncate">{resource.resourceType}</span>
+                                        <span className="text-xs text-muted-foreground ml-auto bg-muted rounded-md px-2 py-1">
+                                          {resource.currentTotal}
+                                        </span>
                                       </Link>
                                     </SidebarMenuSubButton>
                                   </SidebarMenuSubItem>
-                                ),
-                              )}
-                            </SidebarMenuSub>
-                          </CollapsibleContent>
-                        )}
-                      </SidebarMenuItem>
-                    </Collapsible>
+                                ))}
+                              </SidebarMenuSub>
+                            </CollapsibleContent>
+                          )}
+                        </SidebarMenuItem>
+                      </Collapsible>
+                    );
+                  }
+                  // Make Search collapsible with sub-items
+                  if (route.subItems) {
+                    return (
+                      <Collapsible
+                        key={route.path}
+                        open={isSearchOpen}
+                        onOpenChange={setIsSearchOpen}
+                        className="group/collapsible"
+                      >
+                        <SidebarMenuItem>
+                          <div className="flex items-center w-full">
+                            <SidebarMenuButton
+                              asChild
+                              tooltip={route.label}
+                              className="flex-1"
+                            >
+                              <Link
+                                to={route.subItems.searchParameters.path}
+                              >
+                                <route.icon className="w-4 h-4" />
+                                <span>{route.label}</span>
+                              </Link>
+                            </SidebarMenuButton>
+                            {open && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 shrink-0"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setIsSearchOpen(!isSearchOpen);
+                                }}
+                                aria-label="Toggle search menu"
+                              >
+                                <ChevronRight className="h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                              </Button>
+                            )}
+                          </div>
+                          {open && (
+                            <CollapsibleContent>
+                              <SidebarMenuSub>
+                                {Object.values(route.subItems).map(
+                                  (subItem: any) => (
+                                    <SidebarMenuSubItem key={subItem.path}>
+                                      <SidebarMenuSubButton
+                                        asChild
+                                        isActive={isActive(subItem.path)}
+                                      >
+                                        <Link to={subItem.path}>
+                                          <span>{subItem.label}</span>
+                                        </Link>
+                                      </SidebarMenuSubButton>
+                                    </SidebarMenuSubItem>
+                                  ),
+                                )}
+                              </SidebarMenuSub>
+                            </CollapsibleContent>
+                          )}
+                        </SidebarMenuItem>
+                      </Collapsible>
+                    );
+                  }
+                  // Regular menu items
+                  return (
+                    <SidebarMenuItem key={route.path}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive(route.path)}
+                        tooltip={route.label}
+                      >
+                        <Link to={route.path}>
+                          <route.icon className="w-4 h-4" />
+                          <span>{route.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
                   );
-                }
-                // Regular menu items
-                return (
-                  <SidebarMenuItem key={route.path}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive(route.path)}
-                      tooltip={route.label}
-                    >
-                      <Link to={route.path}>
-                        <route.icon className="w-4 h-4" />
-                        <span>{route.label}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-          </SidebarMenu>
-        </SidebarGroupContent>
+                })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border/50 overflow-hidden">
         {open ? (

@@ -1,0 +1,137 @@
+{
+  "resourceType": "OperationDefinition",
+  "id": "CodeSystem-lookup",
+  "url": "http://hl7.org/fhir/OperationDefinition/CodeSystem-lookup",
+  "version": "4.0.1",
+  "name": "Lookup",
+  "title": "Concept Look Up & Decomposition",
+  "status": "active",
+  "kind": "operation",
+  "code": "lookup",
+  "resource": ["CodeSystem"],
+  "system": false,
+  "type": true,
+  "instance": true,
+  "affectsState": false,
+  "parameter": [
+    {
+      "name": "code",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "code",
+      "documentation": "The code that is to be looked up."
+    },
+    {
+      "name": "system",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "uri",
+      "documentation": "The system for the code that is to be looked up."
+    },
+    {
+      "name": "version",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "string",
+      "documentation": "The version of the system."
+    },
+    {
+      "name": "coding",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "Coding",
+      "documentation": "A coding to look up."
+    },
+    {
+      "name": "property",
+      "use": "in",
+      "min": 0,
+      "max": "*",
+      "type": "code",
+      "documentation": "A property that the client wishes to be returned in the output."
+    },
+    {
+      "name": "name",
+      "use": "out",
+      "min": 1,
+      "max": "1",
+      "type": "string",
+      "documentation": "A display name for the code system."
+    },
+    {
+      "name": "version",
+      "use": "out",
+      "min": 0,
+      "max": "1",
+      "type": "string",
+      "documentation": "The version that these details are based on."
+    },
+    {
+      "name": "display",
+      "use": "out",
+      "min": 1,
+      "max": "1",
+      "type": "string",
+      "documentation": "The preferred display for this concept."
+    },
+    {
+      "name": "designation",
+      "use": "out",
+      "min": 0,
+      "max": "*",
+      "type": "string",
+      "documentation": "Additional representations for this concept.",
+      "part": [
+        {
+          "name": "language",
+          "use": "out",
+          "min": 0,
+          "max": "1",
+          "type": "code"
+        },
+        {
+          "name": "use",
+          "use": "out",
+          "min": 0,
+          "max": "1",
+          "type": "Coding"
+        },
+        {
+          "name": "value",
+          "use": "out",
+          "min": 1,
+          "max": "1",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "property",
+      "use": "out",
+      "min": 0,
+      "max": "*",
+      "type": "string",
+      "documentation": "One or more properties that contain additional information about the code.",
+      "part": [
+        {
+          "name": "code",
+          "use": "out",
+          "min": 1,
+          "max": "1",
+          "type": "code"
+        },
+        {
+          "name": "value",
+          "use": "out",
+          "min": 1,
+          "max": "1",
+          "type": "string"
+        }
+      ]
+    }
+  ]
+}

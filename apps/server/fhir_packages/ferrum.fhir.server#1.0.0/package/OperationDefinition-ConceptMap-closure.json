@@ -1,0 +1,49 @@
+{
+  "resourceType": "OperationDefinition",
+  "id": "ConceptMap-closure",
+  "url": "http://hl7.org/fhir/OperationDefinition/ConceptMap-closure",
+  "version": "4.0.1",
+  "name": "Closure",
+  "title": "Closure Table Maintenance",
+  "status": "active",
+  "kind": "operation",
+  "code": "closure",
+  "system": true,
+  "type": false,
+  "instance": false,
+  "affectsState": true,
+  "parameter": [
+    {
+      "name": "name",
+      "use": "in",
+      "min": 1,
+      "max": "1",
+      "type": "string",
+      "documentation": "The name that defines the particular context for the subsumption based closure table."
+    },
+    {
+      "name": "concept",
+      "use": "in",
+      "min": 0,
+      "max": "*",
+      "type": "Coding",
+      "documentation": "Concepts to add to the closure table."
+    },
+    {
+      "name": "version",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "string",
+      "documentation": "A request to resync to the specified version."
+    },
+    {
+      "name": "return",
+      "use": "out",
+      "min": 1,
+      "max": "1",
+      "type": "ConceptMap",
+      "documentation": "A ConceptMap with a list of new entries (code/relationship pairs) that the client should add to its closure table."
+    }
+  ]
+}

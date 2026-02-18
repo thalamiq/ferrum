@@ -1,0 +1,122 @@
+{
+  "resourceType": "OperationDefinition",
+  "id": "CodeSystem-validate-code",
+  "url": "http://hl7.org/fhir/OperationDefinition/CodeSystem-validate-code",
+  "version": "4.0.1",
+  "name": "ValidateCode",
+  "title": "Code System based Validation",
+  "status": "active",
+  "kind": "operation",
+  "code": "validate-code",
+  "resource": ["CodeSystem"],
+  "system": false,
+  "type": true,
+  "instance": true,
+  "affectsState": false,
+  "parameter": [
+    {
+      "name": "url",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "uri",
+      "documentation": "CodeSystem URL."
+    },
+    {
+      "name": "code",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "code",
+      "documentation": "The code that is to be validated."
+    },
+    {
+      "name": "version",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "string",
+      "documentation": "The version of the code system."
+    },
+    {
+      "name": "display",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "string",
+      "documentation": "The display associated with the code, if provided."
+    },
+    {
+      "name": "coding",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "Coding",
+      "documentation": "A coding to validate."
+    },
+    {
+      "name": "abstract",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "boolean",
+      "documentation": "If true, an abstract code is allowed to be used."
+    },
+    {
+      "name": "lenient-display-validation",
+      "use": "in",
+      "min": 0,
+      "max": "1",
+      "type": "boolean",
+      "documentation": "If true, the server will return a warning instead of an error if the display is not correct."
+    },
+    {
+      "name": "result",
+      "use": "out",
+      "min": 1,
+      "max": "1",
+      "type": "boolean",
+      "documentation": "True if the concept details supplied are valid."
+    },
+    {
+      "name": "message",
+      "use": "out",
+      "min": 0,
+      "max": "1",
+      "type": "string",
+      "documentation": "Error details for an invalid code."
+    },
+    {
+      "name": "display",
+      "use": "out",
+      "min": 0,
+      "max": "1",
+      "type": "string",
+      "documentation": "A valid display for the concept."
+    },
+    {
+      "name": "code",
+      "use": "out",
+      "min": 0,
+      "max": "1",
+      "type": "code",
+      "documentation": "The code that was validated."
+    },
+    {
+      "name": "system",
+      "use": "out",
+      "min": 0,
+      "max": "1",
+      "type": "uri",
+      "documentation": "The system for the code that was validated."
+    },
+    {
+      "name": "codeSystem.content",
+      "use": "out",
+      "min": 0,
+      "max": "1",
+      "type": "code",
+      "documentation": "The content mode of the CodeSystem resource."
+    }
+  ]
+}

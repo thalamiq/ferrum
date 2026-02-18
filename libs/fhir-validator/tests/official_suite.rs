@@ -1,161 +1,189 @@
-//! Official FHIR Validator Test Suite Harness
+//! Official FHIR Validator Test Suite
 //!
-//! Runs our validator against the HL7 fhir-test-cases suite and compares
-//! error counts with the Java reference implementation expectations.
+//! Uses libtest-mimic to generate one test per manifest entry. Each test
+//! validates a resource and compares the error count against the Java
+//! reference implementation expectations.
 //!
-//! This test is `#[ignore]` — run explicitly:
 //! ```bash
-//! cargo test -p ferrum-validator --test official_suite -- --ignored --nocapture
+//! # Run all eligible tests
+//! cargo test -p ferrum-validator --test official_suite
+//!
+//! # Filter by name
+//! cargo test -p ferrum-validator --test official_suite -- patient
+//!
+//! # List tests without running
+//! cargo test -p ferrum-validator --test official_suite -- --list
 //! ```
 
 mod test_support;
 
-use std::fmt::Write;
-use std::panic;
-use test_support::{
-    block_on, fhir_version_label, is_eligible, load_manifest, load_test_resource,
-    resolve_expected_errors,
-};
+use std::process;
+use std::sync::OnceLock;
+
 use ferrum_context::DefaultFhirContext;
 use ferrum_validator::{Preset, ValidationOutcome, Validator, ValidatorConfig};
+use libtest_mimic::{Arguments, Failed, Trial};
 
-#[test]
-#[ignore]
-fn official_test_suite_baseline() {
-    // Run in a thread with a large stack to handle deeply nested resources.
-    let builder = std::thread::Builder::new()
-        .name("suite-runner".to_string())
-        .stack_size(64 * 1024 * 1024); // 64 MB
-    let handler = builder
-        .spawn(official_test_suite_inner)
-        .expect("failed to spawn suite runner thread");
-    handler.join().expect("suite runner thread panicked");
+use test_support::{
+    block_on, fhir_version_label, is_eligible, load_manifest, load_test_resource,
+    resolve_expected_errors, skip_reason, TestCase,
+};
+
+/// Stack size for threads that load/validate FHIR resources.
+/// Deeply nested StructureDefinitions and FHIRPath evaluation need a lot of stack in debug mode.
+const STACK_SIZE: usize = 128 * 1024 * 1024; // 128 MB (debug builds need more stack for snapshot expansion)
+
+// ---------------------------------------------------------------------------
+// Shared validators (expensive — created once, reused across all tests)
+// ---------------------------------------------------------------------------
+
+struct Validators {
+    r4: Validator<DefaultFhirContext>,
+    r5: Validator<DefaultFhirContext>,
 }
 
-fn official_test_suite_inner() {
+static VALIDATORS: OnceLock<Validators> = OnceLock::new();
+
+/// Initialize validators on a large-stack thread (context loading is deeply recursive).
+fn init_validators() {
+    VALIDATORS.get_or_init(|| {
+        let handle = std::thread::Builder::new()
+            .name("validator-init".into())
+            .stack_size(STACK_SIZE)
+            .spawn(|| {
+                let config = ValidatorConfig::preset(Preset::Authoring);
+
+                eprintln!("  Loading R4 context...");
+                let ctx_r4 = block_on(DefaultFhirContext::from_fhir_version_async(None, "R4"))
+                    .expect("Failed to create R4 context");
+                let r4 = Validator::from_config(&config, ctx_r4)
+                    .expect("Failed to create R4 validator");
+
+                eprintln!("  Loading R5 context...");
+                let ctx_r5 = block_on(DefaultFhirContext::from_fhir_version_async(None, "R5"))
+                    .expect("Failed to create R5 context");
+                let r5 = Validator::from_config(&config, ctx_r5)
+                    .expect("Failed to create R5 validator");
+
+                eprintln!("  Validators ready.");
+                Validators { r4, r5 }
+            })
+            .expect("failed to spawn validator-init thread");
+
+        handle.join().expect("validator-init thread panicked")
+    });
+}
+
+fn validators() -> &'static Validators {
+    VALIDATORS.get().expect("validators not initialized — call init_validators() first")
+}
+
+// ---------------------------------------------------------------------------
+// Test generation
+// ---------------------------------------------------------------------------
+
+fn make_trial(tc: &TestCase) -> Trial {
+    let version_label = fhir_version_label(tc.version.as_deref());
+    let module = tc.module.as_deref().unwrap_or("base");
+
+    // Test name: "R4::general::allergy"
+    let test_name = format!("{}::{}::{}", version_label, module, tc.name);
+
+    if let Some(reason) = skip_reason(tc) {
+        return Trial::test(test_name, move || Err(reason.into())).with_ignored_flag(true);
+    }
+
+    let java = tc.java.clone().unwrap();
+    let file = tc.file.clone();
+    let version = tc.version.clone();
+
+    Trial::test(test_name, move || run_single_test(&file, &version, &java))
+}
+
+fn run_single_test(
+    file: &str,
+    version: &Option<String>,
+    java: &test_support::JavaExpectation,
+) -> Result<(), Failed> {
+    let expected = resolve_expected_errors(java)
+        .ok_or_else(|| Failed::from("could not resolve expected error count (missing outcome file?)"))?;
+
+    let file = file.to_string();
+    let label = fhir_version_label(version.as_deref()).to_string();
+
+    // Run loading + validation on a large-stack thread.
+    let handle = std::thread::Builder::new()
+        .stack_size(STACK_SIZE)
+        .spawn(move || -> Result<ValidationOutcome, Failed> {
+            let resource = load_test_resource(&file)
+                .ok_or_else(|| Failed::from(format!("could not load resource: {file}")))?;
+            let v = validators();
+            Ok(match label.as_str() {
+                "R4" => v.r4.validate(&resource),
+                _ => v.r5.validate(&resource),
+            })
+        })
+        .map_err(|e| Failed::from(format!("failed to spawn thread: {e}")))?;
+
+    let outcome = handle
+        .join()
+        .map_err(|_| Failed::from("validation panicked (stack overflow?)"))??;
+
+    let actual = outcome.error_count() as u32;
+
+    if actual == expected {
+        Ok(())
+    } else {
+        let mut msg = format!("error count mismatch: expected {expected}, got {actual}");
+        for (i, issue) in outcome.issues.iter().take(5).enumerate() {
+            msg.push_str(&format!(
+                "\n  [{i}] {}: {} @ {}",
+                issue.severity,
+                issue.diagnostics,
+                issue.location.as_deref().unwrap_or("-"),
+            ));
+        }
+        let remaining = outcome.issues.len().saturating_sub(5);
+        if remaining > 0 {
+            msg.push_str(&format!("\n  ... and {remaining} more issues"));
+        }
+        Err(msg.into())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
+fn main() {
+    let args = Arguments::from_args();
+
     let manifest = match load_manifest() {
         Some(m) => m,
         None => {
-            eprintln!("fhir-test-cases/validator/manifest.json not found - skipping");
-            return;
+            eprintln!("fhir-test-cases/validator/manifest.json not found — skipping.");
+            eprintln!("Make sure the git submodule is initialized:");
+            eprintln!("  git submodule update --init fhir-test-cases");
+            process::exit(0);
         }
     };
 
-    let total = manifest.test_cases.len();
-    let eligible: Vec<_> = manifest.test_cases.iter().filter(|tc| is_eligible(tc)).collect();
-    let skipped = total - eligible.len();
+    let trials: Vec<Trial> = manifest.test_cases.iter().map(make_trial).collect();
 
-    let config = ValidatorConfig::preset(Preset::Authoring);
+    let eligible = manifest.test_cases.iter().filter(|tc| is_eligible(tc)).count();
+    eprintln!(
+        "Official suite: {} total, {} eligible, {} skipped",
+        manifest.test_cases.len(),
+        eligible,
+        manifest.test_cases.len() - eligible,
+    );
 
-    eprintln!("Loading R4 context...");
-    let ctx_r4 = block_on(DefaultFhirContext::from_fhir_version_async(None, "R4"))
-        .expect("Failed to create R4 context");
-    let validator_r4 = Validator::from_config(&config, ctx_r4)
-        .expect("Failed to create R4 validator");
-
-    eprintln!("Loading R5 context...");
-    let ctx_r5 = block_on(DefaultFhirContext::from_fhir_version_async(None, "R5"))
-        .expect("Failed to create R5 context");
-    let validator_r5 = Validator::from_config(&config, ctx_r5)
-        .expect("Failed to create R5 validator");
-
-    eprintln!("Running {} eligible tests...", eligible.len());
-    eprintln!("First 5 eligible: {:?}", eligible.iter().take(5).map(|t| &t.name).collect::<Vec<_>>());
-
-    let mut passed = 0u32;
-    let mut failed = 0u32;
-    let mut panicked = 0u32;
-    let mut load_errors = 0u32;
-    let mut failures: Vec<(String, Option<String>, u32, u32)> = Vec::new();
-
-    for tc in &eligible {
-        let java = tc.java.as_ref().unwrap();
-        let expected_errors = resolve_expected_errors(java);
-        if expected_errors == u32::MAX {
-            load_errors += 1;
-            continue;
-        }
-
-        let resource = match load_test_resource(&tc.file) {
-            Some(r) => r,
-            None => {
-                load_errors += 1;
-                continue;
-            }
-        };
-
-        let version_label = fhir_version_label(tc.version.as_deref());
-        eprintln!("  validating: {} ({})", tc.name, version_label);
-
-        // Catch panics (e.g. stack overflow on deeply recursive structures)
-        let result: Result<ValidationOutcome, _> = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-            match version_label {
-                "R4" => validator_r4.validate(&resource),
-                _ => validator_r5.validate(&resource),
-            }
-        }));
-
-        let actual_errors = match result {
-            Ok(outcome) => outcome.error_count() as u32,
-            Err(_) => {
-                eprintln!("  PANIC: {}", tc.name);
-                panicked += 1;
-                continue;
-            }
-        };
-
-        if actual_errors == expected_errors {
-            passed += 1;
-        } else {
-            failed += 1;
-            failures.push((
-                tc.name.clone(),
-                tc.version.clone(),
-                expected_errors,
-                actual_errors,
-            ));
-        }
+    // Eagerly initialize validators before running tests.
+    // This avoids the first test paying the full init cost and ensures
+    // the init happens on a thread with enough stack.
+    if !args.list {
+        init_validators();
     }
 
-    // Print report
-    let sep = "=".repeat(60);
-    let mut report = String::new();
-    writeln!(report, "\n{sep}").unwrap();
-    writeln!(report, "  FHIR Validator - Official Test Suite Baseline").unwrap();
-    writeln!(report, "{sep}").unwrap();
-    writeln!(report, "  Total in manifest : {total}").unwrap();
-    writeln!(report, "  Skipped (filtered): {skipped}").unwrap();
-    writeln!(report, "  Load errors       : {load_errors}").unwrap();
-    writeln!(report, "  Panicked          : {panicked}").unwrap();
-    writeln!(report, "  Ran               : {}", passed + failed).unwrap();
-    writeln!(report, "  PASS              : {passed}").unwrap();
-    writeln!(report, "  FAIL              : {failed}").unwrap();
-    let ran = passed + failed;
-    let pct = if ran > 0 {
-        (passed as f64 / ran as f64) * 100.0
-    } else {
-        0.0
-    };
-    writeln!(report, "  Pass rate         : {pct:.1}%").unwrap();
-    writeln!(report, "{sep}").unwrap();
-
-    if !failures.is_empty() {
-        writeln!(report, "\n  Failures (first 50):").unwrap();
-        writeln!(
-            report,
-            "  {:<50} {:>6} {:>8} {:>8}",
-            "Test Name", "Ver", "Expected", "Actual"
-        )
-        .unwrap();
-        writeln!(report, "  {:-<78}", "").unwrap();
-        for (name, version, expected, actual) in failures.iter().take(50) {
-            let ver = version.as_deref().unwrap_or("R5");
-            writeln!(report, "  {:<50} {:>6} {:>8} {:>8}", name, ver, expected, actual).unwrap();
-        }
-        if failures.len() > 50 {
-            writeln!(report, "  ... and {} more", failures.len() - 50).unwrap();
-        }
-    }
-
-    eprintln!("{report}");
+    libtest_mimic::run(&args, trials).exit();
 }

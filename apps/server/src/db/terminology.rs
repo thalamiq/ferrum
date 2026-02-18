@@ -28,6 +28,28 @@ pub struct ConceptDetails {
     pub designations: Option<JsonValue>,
 }
 
+impl ConceptDetails {
+    /// Check if this concept is abstract based on its properties
+    pub fn is_abstract(&self) -> bool {
+        if let Some(ref props) = self.properties {
+            if let Some(arr) = props.as_array() {
+                for prop in arr {
+                    let code = prop.get("code").and_then(|v| v.as_str());
+                    if code == Some("notSelectable") || code == Some("abstract") {
+                        if let Some(true) = prop
+                            .get("valueBoolean")
+                            .and_then(|v| v.as_bool())
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        false
+    }
+}
+
 /// Repository for terminology database operations
 #[derive(Clone)]
 pub struct TerminologyRepository {
@@ -134,6 +156,93 @@ impl TerminologyRepository {
             properties: r.get("properties"),
             designations: r.get("designations"),
         }))
+    }
+
+    /// Find the content mode of a CodeSystem by its canonical URL
+    pub async fn find_codesystem_content_mode(&self, url: &str) -> Result<Option<String>> {
+        let row: Option<(String,)> = sqlx::query_as(
+            "SELECT resource->>'content' as content
+             FROM resources
+             WHERE resource_type = 'CodeSystem'
+               AND is_current = TRUE
+               AND deleted = FALSE
+               AND (url = $1 OR (url IS NULL AND resource->>'url' = $1))
+             ORDER BY last_updated DESC
+             LIMIT 1",
+        )
+        .bind(url)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(Error::Database)?;
+
+        Ok(row.map(|(content,)| content))
+    }
+
+    /// Fetch concepts by filter from codesystem_concepts table
+    pub async fn fetch_concepts_by_filter(
+        &self,
+        system: &str,
+        property: &str,
+        op: &str,
+        value: &str,
+    ) -> Result<Vec<ConceptRow>> {
+        let rows = match op {
+            "=" => {
+                sqlx::query(
+                    "SELECT system, code, display, version
+                     FROM codesystem_concepts
+                     WHERE system = $1
+                       AND properties @> $2::jsonb",
+                )
+                .bind(system)
+                .bind(serde_json::to_string(&serde_json::json!([{"code": property, "valueString": value}])).unwrap())
+                .fetch_all(&self.pool)
+                .await
+                .map_err(Error::Database)?
+            }
+            "in" => {
+                let values: Vec<&str> = value.split(',').map(|s| s.trim()).collect();
+                // Use ANY to match property values against a list
+                let conditions: Vec<String> = values
+                    .iter()
+                    .map(|v| {
+                        serde_json::to_string(&serde_json::json!([{"code": property, "valueString": v}])).unwrap()
+                    })
+                    .collect();
+                // Build a query that ORs multiple jsonb containment checks
+                let mut query = String::from(
+                    "SELECT system, code, display, version FROM codesystem_concepts WHERE system = $1 AND (",
+                );
+                for (i, _) in conditions.iter().enumerate() {
+                    if i > 0 {
+                        query.push_str(" OR ");
+                    }
+                    query.push_str(&format!("properties @> ${}::jsonb", i + 2));
+                }
+                query.push(')');
+
+                let mut q = sqlx::query(&query).bind(system);
+                for cond in &conditions {
+                    q = q.bind(cond);
+                }
+                q.fetch_all(&self.pool).await.map_err(Error::Database)?
+            }
+            _ => {
+                // For is-a and descendent-of, we don't filter by property in SQL
+                // The caller handles hierarchy traversal
+                return Ok(Vec::new());
+            }
+        };
+
+        Ok(rows
+            .into_iter()
+            .map(|r| ConceptRow {
+                system: r.get("system"),
+                code: r.get("code"),
+                display: r.get("display"),
+                version: r.get("version"),
+            })
+            .collect())
     }
 
     /// Fetch all concepts for a system from codesystem_concepts table
