@@ -36,6 +36,13 @@ jobs:
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
     steps:
+      - name: Free disk space
+        if: matrix.platform == 'linux/amd64'
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/boost
+          sudo docker image prune --all --force
+          df -h
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
