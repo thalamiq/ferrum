@@ -135,11 +135,6 @@ export const config: { nav: Record<string, NavItem> } = {
       label: "Terminology",
       icon: BookOpenIcon,
     },
-    fhirpath: {
-      path: "/fhirpath",
-      label: "FHIRPath",
-      icon: BracesIcon,
-    },
     jobs: {
       path: "/jobs",
       label: "Jobs",
@@ -154,6 +149,11 @@ export const config: { nav: Record<string, NavItem> } = {
       path: "/audit-logs",
       label: "Logs",
       icon: ScrollTextIcon,
+    },
+    fhirpath: {
+      path: "/fhirpath",
+      label: "FHIRPath",
+      icon: BracesIcon,
     },
     metadata: {
       path: "/metadata",
