@@ -16,38 +16,23 @@
 curl -fsSL https://get.ferrum.thalamiq.io | sh
 ```
 
-This starts the FHIR server, database, and admin UI. Access the API at `localhost:8080/fhir` and the admin UI at `localhost:3000`.
+This will install a `ferrum` directory in your current working directory and start the docker containers for the database, server, and admin UI. Access the API at `localhost:8080/fhir` and the admin UI at `localhost:3000`. You can configure the by modifying the `config.yaml` file.
 
 ## Features
 
-|                          |                                                                               | Progress |
 | ------------------------ | ----------------------------------------------------------------------------- | -------- |
-| **FHIR REST API**        | CRUD, conditional operations, search, batch/transaction bundles               | ✅       |
-| **Search**               | Chaining, `_include`/`_revinclude`, full-text search, compartments            | ✅       |
-| **Terminology Services** | `$expand`, `$lookup`, `$validate-code`, `$subsumes`, `$translate`, `$closure` | ✅       |
-| **FHIRPath Engine**      | Full expression evaluator for querying and transforming resources             | ✅       |
-| **Validation**           | Resource validation against profiles and constraints                          | 🟡       |
-| **Snapshot Generation**  | StructureDefinition snapshots from differentials                              | 🟡       |
-| **SMART on FHIR**        | OIDC based authentication and authorization                                   | 🟡       |
-| **Admin UI**             | Web dashboard for resource browsing, monitoring, and administration           | ✅       |
-
-## Architecture
-
-```
-┌──────────────┐    ┌──────────────┐    ┌───────────────┐
-│   Admin UI   │    │  FHIR Server │    │    Worker     │
-│   (Next.js)  │───▶│    (Axum)    │◀──▶│  (Background) │
-└──────────────┘    └──────┬───────┘    └──────┬────────┘
-                           │                   │
-                           ▼                   ▼
-                    ┌──────────────────────────────┐
-                    │          PostgreSQL          │
-                    └──────────────────────────────┘
-```
+| **FHIR REST API** | CRUD, conditional operations, search, batch/transaction bundles | ✅ |
+| **Search** | Chaining, `_include`/`_revinclude`, full-text search, compartments | ✅ |
+| **Terminology Services** | `$expand`, `$lookup`, `$validate-code`, `$subsumes`, `$translate`, `$closure` | ✅ |
+| **FHIRPath Engine** | Full expression evaluator for querying and transforming resources | ✅ |
+| **Validation** | Resource validation against profiles and constraints | 🟡 |
+| **Snapshot Generation** | StructureDefinition snapshots from differentials | 🟡 |
+| **SMART on FHIR** | OIDC based authentication and authorization | 🟡 |
+| **Admin UI** | Web dashboard for resource browsing, monitoring, and administration | ✅ |
 
 ## Documentation
 
-Full documentation at [docs.ferrum.thalamiq.io](https://docs.ferrum.thalamiq.io).
+See [docs.ferrum.thalamiq.io](https://docs.ferrum.thalamiq.io) for full documentation.
 
 ## License
 
