@@ -146,9 +146,8 @@ Key test infrastructure in `apps/server/tests/support/`:
 15. Only Patient/Encounter compartments (missing Device, Practitioner, RelatedPerson)
 16. Metadata normative mode not implemented — `src/api/handlers/metadata.rs:46`
 17. `$subsumes` missing codingA/codingB support — `src/services/terminology.rs:897`
-18. `$reindex` doesn't enqueue background job — `src/services/operation_executor.rs:181`
-19. Date chaining with prefixes incorrect — `tests/search/chaining.rs:611`
-20. SMART patient compartment enforcement not implemented
+18. Date chaining with prefixes incorrect — `tests/search/chaining.rs:611`
+19. SMART patient compartment enforcement not implemented
 
 ### Test Coverage Gaps
 
@@ -175,9 +174,8 @@ Not tested: Admin endpoints, /metadata, /metrics, background workers, SMART auth
 
 ## Docker Images
 
-- `ghcr.io/thalamiq/ferrum` — server + worker (select binary via command)
-- `ghcr.io/thalamiq/ferrum-ui` — admin UI
-- Container names: `ferrum-db`, `ferrum-server`, `ferrum-worker`, `ferrum-ui`, `ferrum-caddy`
+- `ghcr.io/thalamiq/ferrum` — server + worker (select binary via command); admin UI bundled and served at `/ui/`
+- Container names: `ferrum-db`, `ferrum-server`, `ferrum-worker`, `ferrum-caddy`
 
 ## Deployment
 

@@ -21,6 +21,12 @@ struct IndexSearchParams {
     resource_ids: Vec<String>,
 }
 
+#[derive(Debug, serde::Deserialize)]
+struct ReindexParams {
+    resource_type: Option<String>,
+    resource_id: Option<String>,
+}
+
 /// Inline job queue that runs supported jobs synchronously.
 pub struct InlineJobQueue {
     pool: PgPool,
@@ -59,6 +65,81 @@ impl InlineJobQueue {
             job_id,
             resources.len() as i32,
             Some(resources.len() as i32),
+            None,
+        )
+        .await?;
+        self.complete_job(job_id, None).await?;
+
+        Ok(())
+    }
+
+    async fn run_reindex(&self, job_id: Uuid, parameters: serde_json::Value) -> Result<()> {
+        let params: ReindexParams = serde_json::from_value(parameters).map_err(|e| {
+            crate::Error::Internal(format!("Failed to parse reindex parameters: {}", e))
+        })?;
+
+        let store = PostgresResourceStore::new(self.pool.clone());
+        let batch_size: i64 = 500;
+        let mut total_indexed: usize = 0;
+
+        if let Some(ref resource_id) = params.resource_id {
+            let resource_type = params.resource_type.as_deref().ok_or_else(|| {
+                crate::Error::Internal(
+                    "resource_type is required when resource_id is set".to_string(),
+                )
+            })?;
+            let resources = store
+                .load_resources_batch(resource_type, &[resource_id.clone()])
+                .await?;
+            if !resources.is_empty() {
+                self.indexing_service
+                    .index_resources_auto(&resources)
+                    .await?;
+                total_indexed = resources.len();
+            }
+        } else {
+            let resource_type = params.resource_type.as_deref();
+            let mut after_id: Option<String> = None;
+
+            loop {
+                let page = store
+                    .list_resource_ids(resource_type, after_id.as_deref(), batch_size)
+                    .await?;
+
+                if page.is_empty() {
+                    break;
+                }
+
+                let is_last_page = (page.len() as i64) < batch_size;
+
+                let mut by_type: std::collections::HashMap<String, Vec<String>> =
+                    std::collections::HashMap::new();
+                for (rt, id) in &page {
+                    by_type.entry(rt.clone()).or_default().push(id.clone());
+                }
+
+                for (rt, ids) in &by_type {
+                    let resources = store.load_resources_batch(rt, ids).await?;
+                    if !resources.is_empty() {
+                        self.indexing_service
+                            .index_resources_auto(&resources)
+                            .await?;
+                        total_indexed += resources.len();
+                    }
+                }
+
+                if is_last_page {
+                    break;
+                }
+
+                after_id = page.last().map(|(_, id)| id.clone());
+            }
+        }
+
+        self.update_progress(
+            job_id,
+            total_indexed as i32,
+            Some(total_indexed as i32),
             None,
         )
         .await?;
@@ -125,6 +206,7 @@ impl JobQueue for InlineJobQueue {
 
         let result = match job_type.as_str() {
             "index_search" => self.run_index_search(job_id, parameters).await,
+            "reindex" => self.run_reindex(job_id, parameters).await,
             // Unsupported jobs are treated as no-ops in inline mode.
             _ => {
                 self.complete_job(job_id, None).await?;

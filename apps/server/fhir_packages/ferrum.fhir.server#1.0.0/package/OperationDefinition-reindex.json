@@ -9,18 +9,10 @@
   "kind": "operation",
   "code": "reindex",
   "system": true,
-  "type": false,
-  "instance": false,
+  "type": true,
+  "instance": true,
   "affectsState": true,
   "parameter": [
-    {
-      "name": "async",
-      "use": "in",
-      "min": 0,
-      "max": "1",
-      "type": "boolean",
-      "documentation": "When true, queues reindexing for background processing."
-    },
     {
       "name": "outcome",
       "use": "out",
@@ -30,28 +22,20 @@
       "documentation": "OperationOutcome describing the result of the reindex operation."
     },
     {
+      "name": "jobsEnqueued",
+      "use": "out",
+      "min": 1,
+      "max": "1",
+      "type": "integer",
+      "documentation": "Number of background reindex jobs enqueued."
+    },
+    {
       "name": "jobId",
       "use": "out",
       "min": 0,
-      "max": "1",
-      "type": "integer",
-      "documentation": "If async, the background job identifier."
-    },
-    {
-      "name": "resourcesReindexed",
-      "use": "out",
-      "min": 0,
-      "max": "1",
-      "type": "integer",
-      "documentation": "If synchronous, number of resources reindexed successfully."
-    },
-    {
-      "name": "resourcesFailed",
-      "use": "out",
-      "min": 0,
-      "max": "1",
-      "type": "integer",
-      "documentation": "If synchronous, number of resources that failed reindexing."
+      "max": "*",
+      "type": "string",
+      "documentation": "Background job identifiers."
     }
   ]
 }

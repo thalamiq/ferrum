@@ -175,7 +175,10 @@ impl AppState {
             spawn_runtime_config_listener(db_pool.clone(), runtime_config_service.clone());
         }
 
-        // Create job queue (may run jobs inline for tests).
+        // Create job queues.
+        // `job_queue` is always the background queue (Postgres in prod, Inline in tests).
+        // `crud_queue` is used by CRUD/batch/history services: when inline_indexing is
+        // enabled it runs indexing synchronously so resources are searchable immediately.
         let job_queue: Arc<dyn JobQueue> = match options.job_queue {
             JobQueueKind::Postgres => Arc::new(PostgresJobQueue::new(
                 db_pool.clone(),
@@ -186,6 +189,22 @@ impl AppState {
                 indexing_service.clone(),
             )),
         };
+
+        let crud_queue: Arc<dyn JobQueue> = match options.job_queue {
+            // Tests already use inline for everything — keep that behavior.
+            JobQueueKind::Inline => job_queue.clone(),
+            JobQueueKind::Postgres if config_arc.fhir.search.inline_indexing => {
+                Arc::new(InlineJobQueue::new(
+                    db_pool.clone(),
+                    indexing_service.clone(),
+                ))
+            }
+            JobQueueKind::Postgres => job_queue.clone(),
+        };
+
+        if config_arc.fhir.search.inline_indexing && matches!(options.job_queue, JobQueueKind::Postgres) {
+            tracing::info!("Inline indexing enabled — CRUD operations will index synchronously");
+        }
 
         let store = PostgresResourceStore::new(db_pool.clone());
         let search_engine = Arc::new(SearchEngine::new_with_runtime_config(
@@ -212,7 +231,7 @@ impl AppState {
         let mut crud_service_inner = CrudService::with_hooks_and_indexing_and_runtime_config(
             store.clone(),
             resource_hooks.clone(),
-            job_queue.clone(),
+            crud_queue.clone(),
             indexing_service.clone(),
             config_arc.fhir.allow_update_create,
             config_arc.fhir.hard_delete,
@@ -240,7 +259,7 @@ impl AppState {
         let mut batch_service_inner = crate::services::BatchService::new_with_runtime_config(
             store.clone(),
             resource_hooks.clone(),
-            job_queue.clone(),
+            crud_queue.clone(),
             search_engine.clone(),
             config_arc.fhir.allow_update_create,
             config_arc.fhir.hard_delete,
@@ -270,7 +289,7 @@ impl AppState {
         let history_service = Arc::new(crate::services::HistoryService::new_with_runtime_config(
             store.clone(),
             resource_hooks.clone(),
-            job_queue.clone(),
+            crud_queue.clone(),
             config_arc.fhir.allow_update_create,
             config_arc.fhir.hard_delete,
             runtime_config_cache.clone(),

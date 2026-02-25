@@ -16,6 +16,7 @@ pub trait Operation: Send + Sync {
 pub struct OperationExecutor {
     #[allow(dead_code)] // Reserved for future use
     package_service: Option<Arc<PackageService>>,
+    #[allow(dead_code)] // Reserved for future use
     indexing_service: Option<Arc<IndexingService>>,
     terminology_service: Option<Arc<TerminologyService>>,
     job_queue: Option<Arc<dyn JobQueue>>,
@@ -162,19 +163,17 @@ impl OperationExecutor {
         Ok(OperationResult::Parameters(response))
     }
 
-    /// $reindex operation - reindex search parameters
+    /// $reindex operation - enqueue reindex jobs for background processing
     async fn execute_reindex(&self, request: OperationRequest) -> Result<OperationResult> {
-        let _indexing_service = self
-            .indexing_service
+        let job_queue = self
+            .job_queue
             .as_ref()
-            .ok_or_else(|| Error::Internal("IndexingService not available".to_string()))?;
+            .ok_or_else(|| Error::Internal("JobQueue not available".to_string()))?;
 
-        // Extract parameters
-        let async_mode = request
-            .parameters
-            .get_value("async")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(false);
+        let store = self
+            .store
+            .as_ref()
+            .ok_or_else(|| Error::Internal("ResourceStore not available".to_string()))?;
 
         // Determine scope based on context
         let (resource_type, resource_id) = match &request.context {
@@ -183,58 +182,65 @@ impl OperationExecutor {
             OperationContext::Instance(rt, id) => (Some(rt.clone()), Some(id.clone())),
         };
 
-        if async_mode {
-            let _job_queue = self
-                .job_queue
-                .as_ref()
-                .ok_or_else(|| Error::Internal("JobQueue not available".to_string()))?;
+        let mut job_ids = Vec::new();
 
-            // TODO: Enqueue reindex job
-            // let job_id = job_queue.enqueue("reindex", params, priority, None).await?;
-
-            let mut response = Parameters::new();
-            response.add_resource(
-                "outcome".to_string(),
-                json!({
-                    "resourceType": "OperationOutcome",
-                    "issue": [{
-                        "severity": "information",
-                        "code": "informational",
-                        "diagnostics": "Reindex job queued for background processing"
-                    }]
-                }),
-            );
-            response.add_value_integer("jobId".to_string(), 12345); // Placeholder
-
-            Ok(OperationResult::Parameters(response))
+        if resource_id.is_some() {
+            // Instance-level: one job for the single resource
+            let params = json!({
+                "resource_type": resource_type,
+                "resource_id": resource_id,
+            });
+            let job_id = job_queue
+                .enqueue("reindex".to_string(), params, JobPriority::Normal, None)
+                .await?;
+            job_ids.push(job_id);
+        } else if let Some(ref rt) = resource_type {
+            // Type-level: one job for the resource type
+            let params = json!({
+                "resource_type": rt,
+                "resource_id": null,
+            });
+            let job_id = job_queue
+                .enqueue("reindex".to_string(), params, JobPriority::Normal, None)
+                .await?;
+            job_ids.push(job_id);
         } else {
-            // Synchronous reindex
-            // TODO: Implement synchronous reindexing
-            // This would involve:
-            // 1. Getting resources to reindex based on context
-            // 2. For each resource: indexing_service.index_resource(resource)
-            // 3. Tracking success/failure counts
-
-            let mut response = Parameters::new();
-            response.add_resource(
-                "outcome".to_string(),
-                json!({
-                    "resourceType": "OperationOutcome",
-                    "issue": [{
-                        "severity": "information",
-                        "code": "informational",
-                        "diagnostics": format!(
-                            "Reindex completed - resource_type: {:?}, resource_id: {:?}",
-                            resource_type, resource_id
-                        )
-                    }]
-                }),
-            );
-            response.add_value_integer("resourcesReindexed".to_string(), 0);
-            response.add_value_integer("resourcesFailed".to_string(), 0);
-
-            Ok(OperationResult::Parameters(response))
+            // System-level: one job per distinct resource type
+            let types = store.list_distinct_resource_types().await?;
+            for rt in &types {
+                let params = json!({
+                    "resource_type": rt,
+                    "resource_id": null,
+                });
+                let job_id = job_queue
+                    .enqueue("reindex".to_string(), params, JobPriority::Normal, None)
+                    .await?;
+                job_ids.push(job_id);
+            }
         }
+
+        let job_count = job_ids.len();
+        let mut response = Parameters::new();
+        response.add_resource(
+            "outcome".to_string(),
+            json!({
+                "resourceType": "OperationOutcome",
+                "issue": [{
+                    "severity": "information",
+                    "code": "informational",
+                    "diagnostics": format!(
+                        "Reindex enqueued: {} background job(s)",
+                        job_count
+                    )
+                }]
+            }),
+        );
+        response.add_value_integer("jobsEnqueued".to_string(), job_count as i64);
+        for job_id in &job_ids {
+            response.add_value_string("jobId".to_string(), job_id.to_string());
+        }
+
+        Ok(OperationResult::Parameters(response))
     }
 
     async fn execute_expand(&self, request: OperationRequest) -> Result<OperationResult> {

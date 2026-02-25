@@ -73,6 +73,11 @@ pub enum JobType {
         include_dependencies: bool,
         include_examples: bool,
     },
+    /// Reindex search parameters for a resource type (or single resource)
+    Reindex {
+        resource_type: Option<String>,
+        resource_id: Option<String>,
+    },
 }
 
 impl JobType {
@@ -83,6 +88,7 @@ impl JobType {
             JobType::IndexCompartment { .. } => "index_compartment",
             JobType::UpdateSearchParameters { .. } => "update_search_parameters",
             JobType::InstallPackage { .. } => "install_package",
+            JobType::Reindex { .. } => "reindex",
         }
     }
 }

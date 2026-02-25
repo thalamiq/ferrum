@@ -184,10 +184,14 @@ impl OperationRegistry {
         match context {
             OperationContext::System => metadata.system,
             OperationContext::Type(resource_type) => {
-                metadata.type_level && metadata.type_contexts.contains(resource_type)
+                metadata.type_level
+                    && (metadata.type_contexts.is_empty()
+                        || metadata.type_contexts.contains(resource_type))
             }
             OperationContext::Instance(resource_type, _) => {
-                metadata.instance && metadata.type_contexts.contains(resource_type)
+                metadata.instance
+                    && (metadata.type_contexts.is_empty()
+                        || metadata.type_contexts.contains(resource_type))
             }
         }
     }

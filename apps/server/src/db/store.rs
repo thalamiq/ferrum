@@ -283,6 +283,91 @@ impl PostgresResourceStore {
             .map(|dt| dt.with_timezone(&Utc))
     }
 
+    /// List current non-deleted resource IDs, optionally filtered by type.
+    /// Uses cursor-based pagination for constant memory usage.
+    /// Returns `(resource_type, id)` pairs ordered by `(resource_type, id)`.
+    pub async fn list_resource_ids(
+        &self,
+        resource_type: Option<&str>,
+        after_id: Option<&str>,
+        limit: i64,
+    ) -> Result<Vec<(String, String)>> {
+        let rows = if let Some(rt) = resource_type {
+            if let Some(after) = after_id {
+                sqlx::query(
+                    "SELECT resource_type, id FROM resources
+                     WHERE is_current = true AND deleted = false
+                       AND resource_type = $1 AND id > $2
+                     ORDER BY resource_type, id
+                     LIMIT $3",
+                )
+                .bind(rt)
+                .bind(after)
+                .bind(limit)
+                .fetch_all(&self.pool)
+                .await
+            } else {
+                sqlx::query(
+                    "SELECT resource_type, id FROM resources
+                     WHERE is_current = true AND deleted = false
+                       AND resource_type = $1
+                     ORDER BY resource_type, id
+                     LIMIT $2",
+                )
+                .bind(rt)
+                .bind(limit)
+                .fetch_all(&self.pool)
+                .await
+            }
+        } else if let Some(after) = after_id {
+            sqlx::query(
+                "SELECT resource_type, id FROM resources
+                 WHERE is_current = true AND deleted = false
+                   AND id > $1
+                 ORDER BY resource_type, id
+                 LIMIT $2",
+            )
+            .bind(after)
+            .bind(limit)
+            .fetch_all(&self.pool)
+            .await
+        } else {
+            sqlx::query(
+                "SELECT resource_type, id FROM resources
+                 WHERE is_current = true AND deleted = false
+                 ORDER BY resource_type, id
+                 LIMIT $1",
+            )
+            .bind(limit)
+            .fetch_all(&self.pool)
+            .await
+        }
+        .map_err(Error::Database)?;
+
+        Ok(rows
+            .into_iter()
+            .map(|r| {
+                let rt: String = r.get("resource_type");
+                let id: String = r.get("id");
+                (rt, id)
+            })
+            .collect())
+    }
+
+    /// List distinct resource types that have current, non-deleted resources.
+    pub async fn list_distinct_resource_types(&self) -> Result<Vec<String>> {
+        let rows = sqlx::query(
+            "SELECT DISTINCT resource_type FROM resources
+             WHERE is_current = true AND deleted = false
+             ORDER BY resource_type",
+        )
+        .fetch_all(&self.pool)
+        .await
+        .map_err(Error::Database)?;
+
+        Ok(rows.into_iter().map(|r| r.get("resource_type")).collect())
+    }
+
     /// Load multiple resources in a single query for batch processing
     ///
     /// This is used by background workers to efficiently load resources

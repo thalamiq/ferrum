@@ -340,6 +340,12 @@ pub struct FhirSearchConfig {
     /// Default: ["draft", "active"]
     #[serde(default = "default_search_parameter_active_statuses")]
     pub search_parameter_active_statuses: Vec<String>,
+    /// Index resources synchronously during create/update/patch requests.
+    /// Guarantees resources are searchable immediately after the response.
+    /// When false, indexing is deferred to background workers.
+    /// Default: true
+    #[serde(default = "default_true")]
+    pub inline_indexing: bool,
 }
 
 impl Default for FhirSearchConfig {
@@ -353,6 +359,7 @@ impl Default for FhirSearchConfig {
             max_include_depth: default_search_max_include_depth(),
             max_includes: default_search_max_includes(),
             search_parameter_active_statuses: default_search_parameter_active_statuses(),
+            inline_indexing: true,
         }
     }
 }
@@ -1176,6 +1183,7 @@ impl Config {
             .set_default("fhir.version", default_fhir_version())?
             .set_default("fhir.search.enable_text", default_true())?
             .set_default("fhir.search.enable_content", default_true())?
+            .set_default("fhir.search.inline_indexing", default_true())?
             .set_default(
                 "fhir.search.default_count",
                 default_search_default_count() as i64,

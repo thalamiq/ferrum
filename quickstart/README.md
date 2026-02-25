@@ -1,6 +1,6 @@
 # Ferrum - Distribution Package
 
-Ferrum is a fast FHIR R4/R5 server built in Rust.
+Ferrum is a fast FHIR server built in Rust.
 
 ## Quick Start
 
@@ -13,14 +13,12 @@ docker compose up -d
 This starts:
 
 - PostgreSQL database
-- FHIR server (API)
-- FHIR worker (background jobs)
-- Admin UI
+- FHIR server (API + Admin UI at /ui/)
 
 ### 2. Access the services
 
 - **FHIR API**: http://localhost:8080/fhir/metadata
-- **Admin UI**: http://localhost:3000
+- **Admin UI**: http://localhost:8080/ui/
 
 ### 3. Test it works
 
@@ -84,7 +82,6 @@ export BIND_ADDRESS=127.0.0.1    # localhost only (default)
 
 ```bash
 export FHIR_SERVER_IMAGE=ghcr.io/thalamiq/ferrum:v0.1.0
-export FHIR_UI_IMAGE=ghcr.io/thalamiq/ferrum-ui:v0.1.0
 ```
 
 ## Monitoring (Optional)
