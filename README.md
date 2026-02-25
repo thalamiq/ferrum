@@ -20,15 +20,16 @@ This will install a `ferrum` directory in your current working directory and sta
 
 ## Features
 
-| ------------------------ | ----------------------------------------------------------------------------- | -------- |
-| **FHIR REST API** | CRUD, conditional operations, search, batch/transaction bundles | ✅ |
-| **Search** | Chaining, `_include`/`_revinclude`, full-text search, compartments | ✅ |
-| **Terminology Services** | `$expand`, `$lookup`, `$validate-code`, `$subsumes`, `$translate`, `$closure` | ✅ |
-| **FHIRPath Engine** | Full expression evaluator for querying and transforming resources | ✅ |
-| **Validation** | Resource validation against profiles and constraints | 🟡 |
-| **Snapshot Generation** | StructureDefinition snapshots from differentials | 🟡 |
-| **SMART on FHIR** | OIDC based authentication and authorization | 🟡 |
-| **Admin UI** | Web dashboard for resource browsing, monitoring, and administration | ✅ |
+| Feature               | Description                                                                   | Status |
+| -------------------- | ----------------------------------------------------------------------------- | ------ |
+| **FHIR REST API**    | CRUD, conditional operations, search, batch/transaction bundles              | ✅     |
+| **Search**           | Chaining, `_include`/`_revinclude`, full-text search, compartments            | ✅     |
+| **Terminology Services** | `$expand`, `$lookup`, `$validate-code`, `$subsumes`, `$translate`, `$closure` | ✅     |
+| **FHIRPath Engine**  | Full expression evaluator for querying and transforming resources            | ✅     |
+| **Validation**       | Resource validation against profiles and constraints                          | 🟡     |
+| **Snapshot Generation** | StructureDefinition snapshots from differentials                          | 🟡     |
+| **SMART on FHIR**    | OIDC based authentication and authorization                                  | 🟡     |
+| **Admin UI**         | Web dashboard for resource browsing, monitoring, and administration           | ✅     |
 
 ## Documentation
 
