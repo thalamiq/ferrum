@@ -30,14 +30,14 @@ FHIR__DATABASE__WORKER_POOL_MIN_SIZE = "1"
 FHIR__DATABASE__WORKER_POOL_MAX_SIZE = "5"
 FHIR__DATABASE__WORKER_POOL_TIMEOUT_SECONDS = "60"
 
-# Override config.yaml settings using FHIR__ prefix:
+# Override ferrum.yaml settings using FHIR__ prefix:
 # FHIR__SERVER__PORT = "8080"
 # FHIR__LOGGING__LEVEL = "info"
 # Worker robustness:
 # FHIR__WORKERS__RECONNECT_INITIAL_SECONDS = "1"
 # FHIR__WORKERS__RECONNECT_MAX_SECONDS = "30"
 # FHIR__WORKERS__RECONNECT_JITTER_RATIO = "0.2"
-# See config.yaml for all available settings
+# See ferrum.yaml for all available settings
 
 # HTTP service
 [http_service]

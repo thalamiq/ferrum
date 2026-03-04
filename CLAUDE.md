@@ -24,7 +24,7 @@ libs/
   ucum             # UCUM units of measure
   fhir-client-ts   # TypeScript FHIR client (@thalamiq/fhir-client)
 docs/              # Mintlify documentation site
-quickstart/        # Quickstart bundle (compose.yaml, config.yaml, install.sh)
+quickstart/        # Quickstart bundle (compose.yaml, ferrum.yaml, install.sh)
 docker/            # Docker compose files for local/hetzner deployments
 scripts/           # Release and testing scripts
 fhir-test-cases/   # HL7 FHIR test cases (git submodule)
@@ -94,7 +94,7 @@ HTTP Request → Axum Router → Handler (src/api/handlers/)
 
 ### Config Precedence
 
-Defaults → `config.yaml` → `FHIR__*` env vars → `DATABASE_URL` fallback → Runtime overrides (PostgreSQL)
+Defaults → `ferrum.yaml` → `FHIR__*` env vars → `DATABASE_URL` fallback → Runtime overrides (PostgreSQL)
 
 ## Testing
 

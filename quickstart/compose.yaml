@@ -3,7 +3,7 @@
 # Start with: docker compose up -d
 #
 # Configuration:
-#   - Edit config.yaml for FHIR server settings
+#   - Edit ferrum.yaml for FHIR server settings
 #   - Put secrets and overrides in `.env` (loaded into server containers via `env_file`)
 #   - Database credentials can be customized via environment variables
 
@@ -37,7 +37,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-fhir}:${POSTGRES_PASSWORD:-fhir}@db:5432/${POSTGRES_DB:-fhir}
       RUST_LOG: ${RUST_LOG:-info}
     volumes:
-      - ./config.yaml:/app/config.yaml:ro
+      - ./ferrum.yaml:/app/ferrum.yaml:ro
     ports:
       - "${BIND_ADDRESS:-127.0.0.1}:8080:8080"
     depends_on:
@@ -54,7 +54,7 @@ services:
 
   # Workers run inside fhir-server by default (workers.embedded: true).
   # To use separate, scalable workers instead, set workers.embedded: false
-  # in config.yaml and uncomment the service below.
+  # in ferrum.yaml and uncomment the service below.
   #
   # fhir-worker:
   #   image: ${FHIR_SERVER_IMAGE:-ghcr.io/thalamiq/ferrum:latest}
@@ -66,7 +66,7 @@ services:
   #     DATABASE_URL: postgresql://${POSTGRES_USER:-fhir}:${POSTGRES_PASSWORD:-fhir}@db:5432/${POSTGRES_DB:-fhir}
   #     RUST_LOG: ${RUST_LOG:-info}
   #   volumes:
-  #     - ./config.yaml:/app/config.yaml:ro
+  #     - ./ferrum.yaml:/app/ferrum.yaml:ro
   #   depends_on:
   #     db:
   #       condition: service_healthy

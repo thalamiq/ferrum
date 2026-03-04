@@ -1272,7 +1272,7 @@ impl Config {
                 default_oidc_http_timeout_seconds() as i64,
             )?
             // Add config file if exists
-            .add_source(config::File::with_name("config").required(false))
+            .add_source(config::File::with_name("ferrum").required(false))
             // Override with environment variables
             // Uses double underscore (__) to map to nested config structure
             // Example: FHIR__DATABASE__URL → config.database.url

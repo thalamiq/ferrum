@@ -1,6 +1,6 @@
 # Ferrum FHIR Server Configuration
 #
-# Copy this file to `config.yaml` and adjust as needed.
+# Copy this file to `ferrum.yaml` and adjust as needed.
 #
 # Secrets: prefer environment variables (Docker Compose `.env`, Kubernetes secrets, etc.)
 # Overrides: `FHIR__...` maps to nested keys using `__` (e.g. `FHIR__DATABASE__URL`).
@@ -149,6 +149,7 @@ workers:
 ui:
   enabled: true
   title: "FHIR Admin"
+  static_dir: "./ui"
   password: null
   # Recommended in production: set to a long random value so sessions survive restarts.
   session_secret: null

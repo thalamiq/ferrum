@@ -334,7 +334,7 @@ Default cap is set in `server/.cargo/config.toml` via `RUST_TEST_THREADS`.
 
 `server/tests/support/shared.rs` loads `Config` and, when present, uses `database.test_database_url` as the test database.
 
-Set via config file (`server/config.yaml`) or env override:
+Set via config file (`server/ferrum.yaml`) or env override:
 
 - `database.test_database_url` (env: `FHIR__DATABASE__TEST_DATABASE_URL`)
 

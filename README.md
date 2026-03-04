@@ -16,7 +16,7 @@
 curl -fsSL https://get.ferrum.thalamiq.io | sh
 ```
 
-This will install a `ferrum` directory in your current working directory and start the docker containers for the server and database. Access the API at `localhost:8080/fhir` and the admin UI at `localhost:8080/ui`. You can configure the server by modifying the `config.yaml` file.
+This will install a `ferrum` directory in your current working directory and start the docker containers for the server and database. Access the API at `localhost:8080/fhir` and the admin UI at `localhost:8080/ui`. You can configure the server by modifying the `ferrum.yaml` file.
 
 ## Features
 

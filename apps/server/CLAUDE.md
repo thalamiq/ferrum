@@ -403,7 +403,7 @@ api/
 **Sources** (priority order):
 
 1. Environment variables (highest priority)
-2. Config file (config.yaml, config.yml, or config.json)
+2. Config file (ferrum.yaml, ferrum.yml, or ferrum.json)
 3. Defaults (lowest priority)
 
 **Example Configuration** (see `config.example.yaml` for full documentation):

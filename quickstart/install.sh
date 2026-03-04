@@ -46,7 +46,7 @@ echo "Distribution extracted successfully"
 
 echo ""
 echo "Configuration:"
-echo "  - Edit config.yaml to customize FHIR server settings"
+echo "  - Edit ferrum.yaml to customize FHIR server settings"
 echo "  - Database credentials: Set POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB if needed"
 echo "  - Default credentials: fhir/fhir"
 echo ""

@@ -163,7 +163,7 @@ impl AppState {
             config_arc.fhir.search.enable_content,
         )?);
 
-        // Runtime configuration cache (static defaults come from config.yaml + env).
+        // Runtime configuration cache (static defaults come from ferrum.yaml + env).
         let runtime_config_cache = Arc::new(RuntimeConfigCache::new(config_arc.clone()));
         let runtime_config_repo = RuntimeConfigRepository::new(db_pool.clone());
         let runtime_config_service = Arc::new(RuntimeConfigService::new(

@@ -41,7 +41,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-fhir}:${POSTGRES_PASSWORD:-fhir}@db:5432/${POSTGRES_DB:-fhir}
       RUST_LOG: ${RUST_LOG:-info}
     volumes:
-      - ../quickstart/config.yaml:/app/config.yaml:ro
+      - ../quickstart/ferrum.yaml:/app/ferrum.yaml:ro
     ports:
       - "${BIND_ADDRESS:-127.0.0.1}:8080:8080"
     depends_on:
@@ -57,7 +57,7 @@ services:
       start_period: 40s
 
   # Workers run inside fhir-server by default (workers.embedded: true).
-  # To use separate workers, set workers.embedded: false in config.yaml
+  # To use separate workers, set workers.embedded: false in ferrum.yaml
   # and uncomment the service below.
   #
   # fhir-worker:
@@ -75,7 +75,7 @@ services:
   #     DATABASE_URL: postgresql://${POSTGRES_USER:-fhir}:${POSTGRES_PASSWORD:-fhir}@db:5432/${POSTGRES_DB:-fhir}
   #     RUST_LOG: ${RUST_LOG:-info}
   #   volumes:
-  #     - ../quickstart/config.yaml:/app/config.yaml:ro
+  #     - ../quickstart/ferrum.yaml:/app/ferrum.yaml:ro
   #   depends_on:
   #     db:
   #       condition: service_healthy

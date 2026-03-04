@@ -39,7 +39,7 @@ curl http://localhost:8080/fhir/Patient
 
 ### FHIR Server Configuration
 
-Edit `config.yaml` to customize FHIR server behavior:
+Edit `ferrum.yaml` to customize FHIR server behavior:
 
 - Search parameters
 - Database connection pooling
@@ -48,7 +48,7 @@ Edit `config.yaml` to customize FHIR server behavior:
 - OpenTelemetry configuration
 - And much more...
 
-See `config.yaml` for detailed documentation of all options.
+See `ferrum.yaml` for detailed documentation of all options.
 
 ### Environment Variables (Optional)
 
@@ -65,7 +65,7 @@ export POSTGRES_DB=fhir
 **Database URL override:**
 
 ```bash
-# Override the database.url from config.yaml
+# Override the database.url from ferrum.yaml
 export DATABASE_URL="postgresql://user:pass@host/db"
 # Or use the FHIR__ prefix for any config value
 export FHIR__DATABASE__URL="postgresql://user:pass@host/db"
@@ -210,7 +210,7 @@ docker compose down -v  # ⚠️ Deletes all data!
 
 - [ ] Change `POSTGRES_PASSWORD` in `.env`
 - [ ] Change `GRAFANA_PASSWORD` in `.env`
-- [ ] For public demos, consider a read-only API via `config.yaml` (`fhir.interactions.*`) and restrict resource types via `fhir.capability_statement.supported_resources`
+- [ ] For public demos, consider a read-only API via `ferrum.yaml` (`fhir.interactions.*`) and restrict resource types via `fhir.capability_statement.supported_resources`
 - [ ] Set `BIND_ADDRESS=127.0.0.1` or use reverse proxy
 - [ ] Enable TLS/HTTPS (use nginx/traefik reverse proxy)
 - [ ] Review and adjust `WORKER_CONCURRENCY`
@@ -245,7 +245,7 @@ server {
 ├── .env.example                 # Configuration template
 ├── compose.yaml                 # Base services (required)
 ├── compose.monitoring.yaml      # Monitoring stack (optional)
-├── config.yaml                  # Server configuration
+├── ferrum.yaml                  # Server configuration
 └── monitoring/                  # Monitoring configs
     ├── README.md                # Monitoring documentation
     ├── prometheus.yml.template  # Metrics collection config
